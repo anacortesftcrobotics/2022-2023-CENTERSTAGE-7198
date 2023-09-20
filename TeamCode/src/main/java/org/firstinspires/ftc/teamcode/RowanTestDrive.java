@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.IMU;
 
 @TeleOp
 public class RowanTestDrive extends OpMode {
@@ -16,9 +15,10 @@ public class RowanTestDrive extends OpMode {
     DcMotor backLeft;
     DcMotor backRight;
     BNO055IMU imu;
-
+    ColorRangeSensor floorTape;
     @Override
     public void init() {
+        floorTape = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
         frontLeft = hardwareMap.get(DcMotor.class, "leftFront");
         frontRight = hardwareMap.get(DcMotor.class, "rightFront");
         backLeft = hardwareMap.get(DcMotor.class, "leftBack");
@@ -31,6 +31,9 @@ public class RowanTestDrive extends OpMode {
     @Override
     public void loop() {
         mecanumX();
+        telemetry.addData("Red", floorTape.red());
+        telemetry.addData("Blue", floorTape.blue());
+        telemetry.addData("Green", floorTape.green());
         telemetry.update();
     }
 
@@ -40,14 +43,14 @@ public class RowanTestDrive extends OpMode {
         double rotate = gamepad1.right_stick_x;
         double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
 
-        //telemetry.addData("Forward", forwards);
+        telemetry.addData("Forward", forwards);
 
         //does math for mechanim chassis
         frontLeft.setPower((forwards + sideways + rotate) / denominator);
-        frontRight.setPower((forwards - sideways -rotate)  / denominator);
+        frontRight.setPower((forwards - sideways - rotate)  / denominator);
         backLeft.setPower((forwards - sideways + rotate)  / denominator);
         backRight.setPower((forwards + sideways - rotate)  / denominator);
 
-        //telemetry.addData("FL", frontLeft.getPower());
+        telemetry.addData("FL", frontLeft.getPower());
     }
 }
