@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.ResourceBundle;
@@ -18,6 +16,8 @@ public class TestRobotLL extends OpMode
     DcMotor leftBack;
     DcMotor rightBack;
 
+    ColorRangeSensor colorMan;
+
     double speedCoefficient = 1;
 
     boolean[] savedStates1 = {false,false};
@@ -30,9 +30,10 @@ public class TestRobotLL extends OpMode
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        colorMan = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
@@ -40,6 +41,7 @@ public class TestRobotLL extends OpMode
     {
         //leftFront.setPower(0.9);
         Controller1();
+        telemetry();
     }
 
     public void Controller1()
@@ -61,13 +63,13 @@ public class TestRobotLL extends OpMode
 
         //rx += poleCenter();
 
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx),1);
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
         leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
         leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
-
+/*
         leftBackPower = Math.cbrt(leftBackPower);
         rightBackPower = Math.cbrt(rightBackPower);
         leftFrontPower = Math.cbrt(leftFrontPower);
@@ -77,14 +79,18 @@ public class TestRobotLL extends OpMode
         rightBackPower = (rightBackPower * speedCoefficient * 0.75);
         leftFrontPower = (leftFrontPower  * speedCoefficient * 0.75);
         rightFrontPower = (rightFrontPower * speedCoefficient * 0.75);
-
+*/
         leftBack.setPower(leftBackPower);
         rightBack.setPower(rightBackPower);
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
 
     }
-
+    public void telemetry()
+    {
+        telemetry.addData("Color Data: ", colorMan.red() + " " + colorMan.green() + " " + colorMan.blue());
+        telemetry.update();
+    }
 
     public void updateSpeedCoefficient()
     {
