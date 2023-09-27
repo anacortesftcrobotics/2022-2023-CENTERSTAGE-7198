@@ -14,6 +14,7 @@ public class RowanTestDrive extends OpMode {
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
+    DcMotor hookArm;
     BNO055IMU imu;
     ColorRangeSensor floorTape;
     @Override
@@ -23,6 +24,7 @@ public class RowanTestDrive extends OpMode {
         frontRight = hardwareMap.get(DcMotor.class, "rightFront");
         backLeft = hardwareMap.get(DcMotor.class, "leftBack");
         backRight = hardwareMap.get(DcMotor.class, "rightBack");
+        hookArm = hardwareMap.get(DcMotor.class, "hookArm");
         //reverses direction of wheels (left)
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -31,6 +33,7 @@ public class RowanTestDrive extends OpMode {
     @Override
     public void loop() {
         mecanumX();
+        armControl();
         telemetry.addData("Red", floorTape.red());
         telemetry.addData("Blue", floorTape.blue());
         telemetry.addData("Green", floorTape.green());
@@ -52,5 +55,10 @@ public class RowanTestDrive extends OpMode {
         backRight.setPower((forwards + sideways - rotate)  / denominator);
 
         telemetry.addData("FL", frontLeft.getPower());
+    }
+    private void armControl(){
+        double arm = -gamepad2.right_stick_y;
+
+        hookArm.setPower(arm);
     }
 }
