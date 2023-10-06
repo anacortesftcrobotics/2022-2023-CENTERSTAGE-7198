@@ -34,7 +34,7 @@ public class DriveOnly extends OpMode {
     }
 
     private void mecanumX() {
-        double forwards = -gamepad1.left_stick_y;
+        double forwards = gamepad1.left_stick_y;
         double sideways = gamepad1.left_stick_x;
         double rotate = gamepad1.right_stick_x;
         double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
@@ -43,9 +43,9 @@ public class DriveOnly extends OpMode {
 
         //does math for mechanim chassis
         frontLeft.setPower((forwards + sideways + rotate) / denominator);
-        frontRight.setPower((forwards - sideways - rotate) / denominator);
+        frontRight.setPower((forwards + sideways - rotate) / denominator);
         backLeft.setPower((forwards - sideways + rotate) / denominator);
-        backRight.setPower((forwards + sideways - rotate) / denominator);
+        backRight.setPower((forwards - sideways - rotate) / denominator);
 
         telemetry.addData("FL", frontLeft.getPower());
     }
