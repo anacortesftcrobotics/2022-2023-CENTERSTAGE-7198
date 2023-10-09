@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.logancode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,7 +30,7 @@ public class TestRobotLL extends OpMode
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-        colorMan = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
+        //colorMan = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -41,7 +41,7 @@ public class TestRobotLL extends OpMode
     {
         //leftFront.setPower(0.9);
         Controller1();
-        telemetry();
+        //telemetry();
     }
 
     public void Controller1()
@@ -69,17 +69,17 @@ public class TestRobotLL extends OpMode
         rightBackPower = (y + x - rx) / denominator;
         leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
-/*
+
         leftBackPower = Math.cbrt(leftBackPower);
         rightBackPower = Math.cbrt(rightBackPower);
         leftFrontPower = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBackPower = (leftBackPower * speedCoefficient * 0.75);
-        rightBackPower = (rightBackPower * speedCoefficient * 0.75);
-        leftFrontPower = (leftFrontPower  * speedCoefficient * 0.75);
-        rightFrontPower = (rightFrontPower * speedCoefficient * 0.75);
-*/
+        leftBackPower = (leftBackPower * speedCoefficient);
+        rightBackPower = (rightBackPower * speedCoefficient);
+        leftFrontPower = (leftFrontPower  * speedCoefficient);
+        rightFrontPower = (rightFrontPower * speedCoefficient);// * 0.75 //
+
         leftBack.setPower(leftBackPower);
         rightBack.setPower(rightBackPower);
         leftFront.setPower(leftFrontPower);
