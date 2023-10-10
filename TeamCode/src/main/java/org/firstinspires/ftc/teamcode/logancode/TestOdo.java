@@ -23,7 +23,21 @@ public class TestOdo extends LinearOpMode {
         mapHardware();
         resetDriveEncoder();
 
-        kaiOdo = new Odo1(39.37,29.21,3.5,8192);
+        kaiOdo = new Odo1(38.6,28.73375,3.5,8192);
+        //disLtoR
+        //39.37 -> 40deg for 90deg
+        //37.37 -> 30deg for 90deg
+        //39.37 -> 87deg for 90deg
+        //39.87 -> 87deg for 90deg
+        //40.87 -> 85deg for 90deg
+        //38.8 -> aprox 90deg
+        //40 -> 85deg
+        //38.6 -> 89.2deg
+        //37.5 ->
+
+        //disMidtoC
+        //29.21 -> 86.7deg of 90deg
+        //28.73375 -> 87deg of 90deg
 
         waitForStart();
         while(opModeIsActive())
@@ -31,6 +45,7 @@ public class TestOdo extends LinearOpMode {
             kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
+
             telemetry();
         }
     }
