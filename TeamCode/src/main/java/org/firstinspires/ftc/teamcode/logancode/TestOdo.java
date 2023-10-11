@@ -24,7 +24,7 @@ public class TestOdo extends LinearOpMode {
         resetDriveEncoder();
 
         kaiOdo = new Odo1(38.31,29.1,3.5,8192);
-        //disLtoR
+        //disLtoR tuning log
         //39.37 -> 40deg for 90deg
         //37.37 -> 30deg for 90deg
         //39.37 -> 87deg for 90deg
@@ -42,14 +42,14 @@ public class TestOdo extends LinearOpMode {
         //38.325 -> 90 / 90.6 / 90.2 / 89 / 89.1
 
 
-        //disMidtoC
+        //disMidtoC tuning log
         //29.21 -> 86.7deg of 90deg
         //28.73375 -> 87deg of 90deg
         //28.45 -> 89.2 / 89.2
         //28 -> 89.1 / 89.1
         //29 -> 89.6 / 89.6 / 90 / 90.1
 
-        //ALL Tune
+        //ALL Tune tuning log
         //38.325 and 29 -> 90 / 90.6 / 90.2 / 89 / 89.1 / 89.6 / 89.6 / 90 / 90.1 avr(89.8)
         //38.325 and 29.2 -> 89.4 / 88.8
         //38.315 and 29.2 -> 88.6
