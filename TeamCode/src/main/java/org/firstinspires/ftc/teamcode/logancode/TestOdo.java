@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode.logancode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.kaicode.Odo1;
+import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
+
+import java.io.File;
 
 @Autonomous(name = "TestOdo_Logan", group = "Autos")
 public class TestOdo extends LinearOpMode {
@@ -41,7 +42,6 @@ public class TestOdo extends LinearOpMode {
         //38.35 -?> 89.8 /89.8
         //38.325 -> 90 / 90.6 / 90.2 / 89 / 89.1
 
-
         //disMidtoC tuning log
         //29.21 -> 86.7deg of 90deg
         //28.73375 -> 87deg of 90deg
@@ -61,12 +61,34 @@ public class TestOdo extends LinearOpMode {
         //38.31 and 29.1 -> 89.6 / 90.1
         //close but not there yet.
 
+        PIDFController Xpidf = new PIDFController(1,0,0,0.66,0.33);
+        PIDFController Ypidf = new PIDFController(1,0,0,0.66,0.33);
+        PIDFController Rpidf = new PIDFController(1,0,0,0.33,0.11);
+        Xpidf.reset();
+        Ypidf.reset();
+        Rpidf.reset();
+        Xpidf.launch(0,System.currentTimeMillis());
+        Ypidf.launch(0,System.currentTimeMillis());
+        Rpidf.launch(0,System.currentTimeMillis());
+
+        //pidf.launch();
+
+        int currentPathPos = 0;
+
+        int fileId = hardwareMap.appContext.getResources().getIdentifier("test_path", "raw", hardwareMap.appContext.getPackageName());
+        Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+
         waitForStart();
         while(opModeIsActive())
         {
             kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
+
+            telemetry.addLine("" + autonomousPath.getPosition(currentPathPos));
+
+            sleep(1000);
+            currentPathPos++;
 
             telemetry();
         }
