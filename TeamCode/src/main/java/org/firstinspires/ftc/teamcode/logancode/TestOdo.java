@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.kaicode.Odo1;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
 
-import java.io.File;
-
 @Autonomous(name = "TestOdo_Logan", group = "Autos")
 public class TestOdo extends LinearOpMode {
 
@@ -18,6 +16,16 @@ public class TestOdo extends LinearOpMode {
     //Odometry
     private DcMotor encoderRight, encoderLeft, encoderBack;
     private Odo1 kaiOdo;
+
+    private double tempLastDegrees = 0;
+    private double pastTime = 0;
+
+    private double greatestVelocity = 0;
+
+    private PIDFController Xpidf = new PIDFController(1,0,0,0.66,0.33);
+    private PIDFController Ypidf = new PIDFController(1,0,0,0.66,0.33);
+    private PIDFController Rpidf = new PIDFController(0,0,0,5,0.11);
+    //0.9 : 0.000008 : 0
 
     public void runOpMode()
     {
@@ -61,9 +69,6 @@ public class TestOdo extends LinearOpMode {
         //38.31 and 29.1 -> 89.6 / 90.1
         //close but not there yet.
 
-        PIDFController Xpidf = new PIDFController(1,0,0,0.66,0.33);
-        PIDFController Ypidf = new PIDFController(1,0,0,0.66,0.33);
-        PIDFController Rpidf = new PIDFController(1,0,0,0.33,0.11);
         Xpidf.reset();
         Ypidf.reset();
         Rpidf.reset();
@@ -71,9 +76,7 @@ public class TestOdo extends LinearOpMode {
         Ypidf.launch(0,System.currentTimeMillis());
         Rpidf.launch(0,System.currentTimeMillis());
 
-        //pidf.launch();
-
-        int currentPathPos = 0;
+        int currentPathIndex = 0;
 
         int fileId = hardwareMap.appContext.getResources().getIdentifier("test_path", "raw", hardwareMap.appContext.getPackageName());
         Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
@@ -85,13 +88,102 @@ public class TestOdo extends LinearOpMode {
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
 
-            telemetry.addLine("" + autonomousPath.getPosition(currentPathPos));
+            Position2D pathPosition = autonomousPath.getPosition(currentPathIndex);
+            telemetry.addLine("" + pathPosition);
 
-            sleep(1000);
-            currentPathPos++;
+//            if(pathPosition != null)
+//            {
+//                if(traverseToPosition(pathPosition, new Position2D(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 0.05d)
+//                    currentPathIndex = 0; // temporary 0
+//            }
 
-            telemetry();
+            preformGlobalMovement(0,0,1);
+
+            double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
+            if(Math.abs(velocity) > Math.abs(greatestVelocity))
+                greatestVelocity = velocity;
+
+            telemetry.addLine("greatest recorded velocity: " + greatestVelocity);
+            telemetry.addLine("Rotational Velocity: " + velocity);
+
+            tempLastDegrees = kaiOdo.getHDeg();
+            pastTime = System.currentTimeMillis();
+
+            odoTelemetry();
         }
+    }
+
+    public double traverseToPosition(Position2D target, Position2D currentPosition, double radRot)
+    {
+        double correction = Rpidf.update(-90 * Math.PI/180,radRot,System.currentTimeMillis());
+        preformGlobalMovement(0,0,correction);
+        //TODO: x pos
+        //TODO: y pos
+        return currentPosition.distance(target);
+    }
+
+    public void preformGlobalMovement(double x, double y, double rx)
+    {
+        double xl, yl;
+        xl = (x * Math.cos(rx)) + (y * Math.sin(rx));
+        yl = (x * Math.sin(rx)) + (y * Math.cos(rx));
+
+        PreformLocalMovement(xl,yl,rx);
+    }
+
+    public void PreformLocalMovement(double x, double y, double rx)
+    {
+        double leftBackPower;
+        double rightBackPower;
+        double leftFrontPower;
+        double rightFrontPower;
+
+        //rx += poleCenter();
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
+        leftBackPower = (y - x + rx) / denominator;
+        rightBackPower = (y + x - rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
+        rightFrontPower = (y - x - rx) / denominator;
+
+        leftBackPower = Math.cbrt(leftBackPower);
+        rightBackPower = Math.cbrt(rightBackPower);
+        leftFrontPower = Math.cbrt(leftFrontPower);
+        rightFrontPower = Math.cbrt(rightFrontPower);
+
+        leftBackPower = (leftBackPower);
+        rightBackPower = (rightBackPower);
+        leftFrontPower = (leftFrontPower);
+        rightFrontPower = (rightFrontPower);
+
+        leftBack.setPower(leftBackPower);
+        rightBack.setPower(rightBackPower);
+        leftFront.setPower(leftFrontPower);
+        rightFront.setPower(rightFrontPower);
+
+    }
+
+    public void odoTelemetry()
+    {
+        telemetry.addLine("Internal Position:");
+        telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
+        telemetry.update();
+    }
+
+    public void resetDriveEncoder()
+    {
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void mapHardware()
@@ -114,29 +206,5 @@ public class TestOdo extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-
-
-    public void telemetry()
-    {
-        telemetry.addLine("Internal Position:");
-        telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
-        telemetry.update();
-    }
-
-    public void resetDriveEncoder()
-    {
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 }
