@@ -88,7 +88,7 @@ public class TestOdo extends LinearOpMode {
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
 
-            Position2D pathPosition = autonomousPath.getPosition(currentPathIndex);
+            PathMarker pathPosition = autonomousPath.getPosition(currentPathIndex);
             telemetry.addLine("" + pathPosition);
 
 //            if(pathPosition != null)
@@ -113,7 +113,7 @@ public class TestOdo extends LinearOpMode {
         }
     }
 
-    public double traverseToPosition(Position2D target, Position2D currentPosition, double radRot)
+    public double traverseToPosition(PathMarker target, PathMarker currentPosition, double radRot)
     {
         double correction = Rpidf.update(-90 * Math.PI/180,radRot,System.currentTimeMillis());
         preformGlobalMovement(0,0,correction);

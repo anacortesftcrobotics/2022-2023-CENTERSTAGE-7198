@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Path
 {
 
-    private ArrayList<Position2D> positions = new ArrayList<Position2D>();
+    private ArrayList<PathMarker> positions = new ArrayList<PathMarker>();
 
     public Path(String pathDataFileLocation, Telemetry telem)
     {
@@ -24,7 +24,7 @@ public class Path
         telem.update();
     }
 
-    public Position2D getPosition(int index)
+    public PathMarker getPosition(int index)
     {
         if(index >=0 && index < positions.size())
             return positions.get(index);
@@ -33,18 +33,19 @@ public class Path
 
     private void loadPathFile(InputStream inputStream, Telemetry telem)
     {
-        try (InputStreamReader r = new InputStreamReader(inputStream);
-             BufferedReader br = new BufferedReader(r))
+        try (InputStreamReader read = new InputStreamReader(inputStream);
+             BufferedReader br = new BufferedReader(read))
         {
 
             String line;
             while ((line = br.readLine()) != null) {
                 String[] xyString;
-                xyString = line.split(" ", 2);
+                xyString = line.split(";", 6);
 
-                if(xyString.length == 2)
-                    if(!xyString[0].equals("") && !xyString[1].equals(""))
-                        positions.add(new Position2D(Double.parseDouble(xyString[0]), Double.parseDouble(xyString[1])));
+                double x,y,r,vx,vy,vr;
+
+                //if(xyString[0].contains("x"))
+                    //TODO: new path loader
             }
         }
         catch (IOException ioException)
@@ -64,7 +65,7 @@ public class Path
                 String[] xyString = new String[2];
                 xyString = line.split(" ", 2);
 
-                positions.add(new Position2D(Double.parseDouble(xyString[0]), Double.parseDouble(xyString[1])));
+                positions.add(new PathMarker(Double.parseDouble(xyString[0]), Double.parseDouble(xyString[1])));
             }
         }
         catch (IOException ioException)
