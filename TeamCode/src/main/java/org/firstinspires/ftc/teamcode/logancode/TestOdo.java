@@ -22,9 +22,9 @@ public class TestOdo extends LinearOpMode {
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(1,0,0,0.66,0.33);
-    private PIDFController Ypidf = new PIDFController(1,0,0,0.66,0.33);
-    private PIDFController Rpidf = new PIDFController(0,0,0,5,0.11);
+    private PIDFController Xpidf = new PIDFController(0.002,0,0,0.66,0.33);
+    private PIDFController Ypidf = new PIDFController(0.002,0,0,0.66,0.33);
+    private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,5,0.11);
     //0.9 : 0.000008 : 0
 
     public void runOpMode()
@@ -91,23 +91,24 @@ public class TestOdo extends LinearOpMode {
             PathMarker pathPosition = autonomousPath.getPosition(currentPathIndex);
             telemetry.addLine("" + pathPosition);
 
-//            if(pathPosition != null)
-//            {
-//                if(traverseToPosition(pathPosition, new Position2D(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 0.05d)
-//                    currentPathIndex = 0; // temporary 0
-//            }
+            if(pathPosition != null)
+            {
+                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 0.05d)
+                    currentPathIndex = 0; // temporary 0
+                //telemetry.addLine(pathPosition.toString());
+            }
 
-            preformGlobalMovement(0,0,1);
+            //preformGlobalMovement(0,0,1);
 
-            double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
-            if(Math.abs(velocity) > Math.abs(greatestVelocity))
-                greatestVelocity = velocity;
+            //double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
+            //if(Math.abs(velocity) > Math.abs(greatestVelocity))
+            //    greatestVelocity = velocity;
 
-            telemetry.addLine("greatest recorded velocity: " + greatestVelocity);
-            telemetry.addLine("Rotational Velocity: " + velocity);
+            //telemetry.addLine("greatest recorded velocity: " + greatestVelocity);
+            //telemetry.addLine("Rotational Velocity: " + velocity);
 
-            tempLastDegrees = kaiOdo.getHDeg();
-            pastTime = System.currentTimeMillis();
+            //tempLastDegrees = kaiOdo.getHDeg();
+            //pastTime = System.currentTimeMillis();
 
             odoTelemetry();
         }
@@ -115,23 +116,28 @@ public class TestOdo extends LinearOpMode {
 
     public double traverseToPosition(PathMarker target, PathMarker currentPosition, double radRot)
     {
-        double correction = Rpidf.update(-90 * Math.PI/180,radRot,System.currentTimeMillis());
-        preformGlobalMovement(0,0,correction);
-        //TODO: x pos
-        //TODO: y pos
+        //double rotation = Rpidf.update(target.getR() * Math.PI/180,radRot,System.currentTimeMillis());
+        //double x = Xpidf.update(target.getX(),currentPosition.getX(),System.currentTimeMillis());
+        //double y = Ypidf.update(target.getY(), currentPosition.getY(), System.currentTimeMillis());
+        double rotation = Rpidf.update(target.getR() * Math.PI/180,radRot, target.getVr(),System.currentTimeMillis());
+        double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
+        double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
+
+        performGlobalMovement(-x,-y,rotation);
+
         return currentPosition.distance(target);
     }
 
-    public void preformGlobalMovement(double x, double y, double rx)
+    public void performGlobalMovement(double x, double y, double rx)
     {
         double xl, yl;
-        xl = (x * Math.cos(rx)) + (y * Math.sin(rx));
+        xl = (x * Math.cos(rx)) - (y * Math.sin(rx));
         yl = (x * Math.sin(rx)) + (y * Math.cos(rx));
 
-        PreformLocalMovement(xl,yl,rx);
+        PerformLocalMovement(xl,yl,rx);
     }
 
-    public void PreformLocalMovement(double x, double y, double rx)
+    public void PerformLocalMovement(double x, double y, double rx)
     {
         double leftBackPower;
         double rightBackPower;

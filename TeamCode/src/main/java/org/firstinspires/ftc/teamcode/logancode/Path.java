@@ -43,9 +43,30 @@ public class Path
                 xyString = line.split(";", 6);
 
                 double x,y,r,vx,vy,vr;
+                x=0;y=0;r=0;vx=0;vy=0;vr=0;
 
-                //if(xyString[0].contains("x"))
-                    //TODO: new path loader
+                if(xyString.length == 6) {
+                    for(int i = 0; i < 6; i++)
+                    {
+                        xyString[i] = xyString[i].replace(";","");
+                    }
+
+                    if (xyString[0].contains("x"))
+                        x = Double.parseDouble(xyString[0].substring(1));
+                    if (xyString[1].contains("y"))
+                        y = Double.parseDouble(xyString[1].substring(2));
+                    if (xyString[2].contains("r"))
+                        r = Double.parseDouble(xyString[2].substring(2));
+                    if (xyString[3].contains("vx"))
+                        vx = Double.parseDouble(xyString[3].substring(3));
+                    if (xyString[4].contains("vy"))
+                        vy = Double.parseDouble(xyString[4].substring(3));
+                    if (xyString[5].contains("vr")) {
+                        vr = Double.parseDouble(xyString[5].substring(3));
+                    }
+
+                    positions.add(new PathMarker(x,y,r,vx,vy,vr));
+                }
             }
         }
         catch (IOException ioException)

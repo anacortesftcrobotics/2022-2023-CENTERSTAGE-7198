@@ -96,6 +96,22 @@ public class PIDFController {
         return correction;
     }
 
+    public double update(double targetPosition, double currentPosition, double targetVelocity, double systemTime) {
+        systemTime *= timeCoefficient;
+        if(!launched) {
+            launch(currentPosition, systemTime);
+            return 0.0;
+        }
+        setVariables(targetPosition, currentPosition, targetVelocity, systemTime);
+
+        correction = kP * error //P
+                + kI * this.integral //I
+                + kD * this.deltaError //D
+                + kV * this.targetVelocity //F (power for change in target position)
+                + kA * this.targetAcceleration; //F (power for change in target velocity)
+        return correction;
+    }
+
     /**
      * Updates variables and calculates a correction value based on a current and expected state with clamping.
      * setInputClamping() and setOutputClamping() determine clamping limits for both targetPosition and currentPosition.
@@ -154,6 +170,32 @@ public class PIDFController {
 
         this.deltaTargetVelocity = deltaTarget/deltaTime - this.targetVelocity;
         this.targetVelocity = deltaTarget/deltaTime;
+
+        this.acceleration = deltaTarget/deltaTime;
+        this.targetAcceleration = deltaTargetVelocity;
+
+        this.integral += error * deltaTime;
+    }
+
+    private void setVariables(double targetPosition, double currentPosition, double targetVelocity, double systemTime) {
+        this.deltaTarget = targetPosition - this.target;
+        this.target = targetPosition;
+
+        this.deltaPosition = currentPosition - this.position;
+        this.position = currentPosition;
+
+        this.deltaTime = systemTime - this.time;
+        this.time = systemTime;
+
+        this.deltaError =  (targetPosition - currentPosition) - this.error;
+        this.error = targetPosition - currentPosition;
+
+        this.deltaVelocity = deltaPosition/deltaTime - this.velocity;
+        this.velocity = deltaPosition/deltaTime;
+
+        this.deltaTargetVelocity = targetVelocity - this.targetVelocity;
+        //this.targetVelocity = deltaTarget/deltaTime;
+        this.targetVelocity = targetVelocity;
 
         this.acceleration = deltaTarget/deltaTime;
         this.targetAcceleration = deltaTargetVelocity;
