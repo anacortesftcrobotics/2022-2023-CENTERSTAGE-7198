@@ -133,7 +133,11 @@ public class ConceptAprilTag extends LinearOpMode {
         }
 
         // Choose a camera resolution. Not all cameras support all resolutions.
-        //builder.setCameraResolution(new Size(640, 480));
+        //builder.setCameraResolut
+        //
+        //
+        //
+        // (new Size(640, 480));
 
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         //builder.enableCameraMonitoring(true);
@@ -152,6 +156,7 @@ public class ConceptAprilTag extends LinearOpMode {
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
 
+
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
 
@@ -163,7 +168,9 @@ public class ConceptAprilTag extends LinearOpMode {
      */
     private void telemetryAprilTag() {
 
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        /*
+        List<AprilTagDetection> currentDetections = april
+        Tag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
         // Step through the list of detections and display info for each one.
@@ -184,6 +191,7 @@ public class ConceptAprilTag extends LinearOpMode {
         telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
         telemetry.addLine("RBE = Range, Bearing & Elevation");
 
+         */
     }   // end method telemetryAprilTag()
 
 }   // end class
