@@ -45,7 +45,7 @@ public class PathMarker {
 
     public String toString()
     {
-        return "x: " + x + "y: " + y + "r: " + r + "vx: " + vx + "vy: " + vy + "vr: " + vr;
+        return "x" + x + "; y" + y + "; r" + r + "; vx" + vx + "; vy" + vy + "; vr" + vr + ";";
     }
 
     public double distance(PathMarker point)

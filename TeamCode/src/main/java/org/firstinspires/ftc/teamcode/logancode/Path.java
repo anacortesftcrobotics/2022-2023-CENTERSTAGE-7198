@@ -94,4 +94,25 @@ public class Path
             telem.addLine(ioException.toString());
         }
     }
+
+    public Path(){
+
+    }
+
+    public void addPathMarker(PathMarker pm)
+    {
+        positions.add(pm);
+    }
+
+    public String serialize()
+    {
+        String output = new String();
+
+        for (PathMarker pos : positions)
+        {
+            output += pos.toString() + "\n";
+        }
+
+        return output;
+    }
 }

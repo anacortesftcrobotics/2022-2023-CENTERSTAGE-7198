@@ -78,7 +78,7 @@ public class TestOdo extends LinearOpMode {
 
         int currentPathIndex = 0;
 
-        int fileId = hardwareMap.appContext.getResources().getIdentifier("test_path", "raw", hardwareMap.appContext.getPackageName());
+        int fileId = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
         Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         waitForStart();
@@ -93,8 +93,8 @@ public class TestOdo extends LinearOpMode {
 
             if(pathPosition != null)
             {
-                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 0.05d)
-                    currentPathIndex = 0; // temporary 0
+                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 1.5d)
+                    currentPathIndex++;
                 //telemetry.addLine(pathPosition.toString());
             }
 
@@ -114,18 +114,18 @@ public class TestOdo extends LinearOpMode {
         }
     }
 
-    public double traverseToPosition(PathMarker target, PathMarker currentPosition, double radRot)
+    public double traverseToPosition(PathMarker target, PathMarker currentPosition, double currentRadRot)
     {
         //double rotation = Rpidf.update(target.getR() * Math.PI/180,radRot,System.currentTimeMillis());
         //double x = Xpidf.update(target.getX(),currentPosition.getX(),System.currentTimeMillis());
         //double y = Ypidf.update(target.getY(), currentPosition.getY(), System.currentTimeMillis());
-        double rotation = Rpidf.update(target.getR() * Math.PI/180,radRot, target.getVr(),System.currentTimeMillis());
+        double rotation = Rpidf.update(target.getR() * Math.PI/180,currentRadRot, target.getVr(),System.currentTimeMillis());
         double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
 
         performGlobalMovement(-x,-y,rotation);
 
-        return currentPosition.distance(target);
+        return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
     }
 
     public void performGlobalMovement(double x, double y, double rx)
