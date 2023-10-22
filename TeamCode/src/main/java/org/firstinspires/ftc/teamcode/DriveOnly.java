@@ -15,6 +15,10 @@ public class DriveOnly extends OpMode {
     DcMotor frontRight;
     DcMotor backLeft;
     DcMotor backRight;
+    DcMotor encoderLeft;
+    DcMotor encoderRight;
+    DcMotor encoderCenter;
+    Odo1 odo;
     BNO055IMU imu;
 
     @Override
@@ -23,16 +27,28 @@ public class DriveOnly extends OpMode {
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
+        encoderLeft = frontLeft;
+        encoderRight = backRight;
+        encoderCenter = frontRight;
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        odo = new Odo1(11, 28.5, 4.9, 8192);
+
     }
 
     @Override
     public void loop() {
         mecanumX();
+        Odometry();
         telemetry.update();
     }
 
+    private void Odometry(){
+        odo.setEncoderPos(encoderLeft.getCurrentPosition(),encoderRight.getCurrentPosition(),encoderCenter.getCurrentPosition());
+        telemetry.addData("OdoX", odo.getX());
+        telemetry.addData("OdoY", odo.getY());
+        telemetry.addData("OdoR", odo.getHRad());
+    }
     private void mecanumX() {
         double forwards = gamepad1.left_stick_y;
         double sideways = gamepad1.left_stick_x;
