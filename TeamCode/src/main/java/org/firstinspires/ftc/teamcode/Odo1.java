@@ -203,7 +203,8 @@ public class Odo1 {
      * @param eCenter   new tick position of the center encoder, (+) when strafing right.
      */
     public void setEncoderPos(int eLeft, int eRight, int eCenter) {
-        encodersLast = encoders;
+        for (int i = 2; i >= 0; i--)
+            encodersLast[i] = encoders[i];
 
         encoders[0] = cmPerTick * eLeft;
         encoders[1] = cmPerTick * eRight;

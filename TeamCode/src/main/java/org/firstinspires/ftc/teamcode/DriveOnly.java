@@ -30,6 +30,13 @@ public class DriveOnly extends OpMode {
         encoderLeft = frontLeft;
         encoderRight = backRight;
         encoderCenter = frontRight;
+
+        encoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderCenter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderCenter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         odo = new Odo1(11, 28.5, 4.9, 8192);
@@ -44,7 +51,10 @@ public class DriveOnly extends OpMode {
     }
 
     private void Odometry(){
-        odo.setEncoderPos(encoderLeft.getCurrentPosition(),encoderRight.getCurrentPosition(),encoderCenter.getCurrentPosition());
+        odo.setEncoderPos(-encoderLeft.getCurrentPosition(),-encoderRight.getCurrentPosition(),-encoderCenter.getCurrentPosition());
+        telemetry.addData("EncoderR", -encoderRight.getCurrentPosition());
+        telemetry.addData("EncoderL", -encoderLeft.getCurrentPosition());
+        telemetry.addData("EncoderC", -encoderCenter.getCurrentPosition());
         telemetry.addData("OdoX", odo.getX());
         telemetry.addData("OdoY", odo.getY());
         telemetry.addData("OdoR", odo.getHRad());
