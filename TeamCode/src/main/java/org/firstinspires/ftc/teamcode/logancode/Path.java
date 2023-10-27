@@ -104,6 +104,11 @@ public class Path
         positions.add(pm);
     }
 
+    public int length()
+    {
+        return positions.size();
+    }
+
     public String serialize()
     {
         String output = new String();

@@ -16,15 +16,17 @@ public class TestOdo extends LinearOpMode {
     //Odometry
     private DcMotor encoderRight, encoderLeft, encoderBack;
     private Odo1 kaiOdo;
+    private double previousX;
+
 
     private double tempLastDegrees = 0;
     private double pastTime = 0;
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0.002,0,0,0.66,0.33);
+    private PIDFController Xpidf = new PIDFController(0.002,0,0,0.05,0.33);
     private PIDFController Ypidf = new PIDFController(0.002,0,0,0.66,0.33);
-    private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,5,0.11);
+    private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
 
     public void runOpMode()
@@ -89,16 +91,16 @@ public class TestOdo extends LinearOpMode {
                     encoderBack.getCurrentPosition());
 
             PathMarker pathPosition = autonomousPath.getPosition(currentPathIndex);
-            telemetry.addLine("" + pathPosition);
 
             if(pathPosition != null)
             {
-                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()) < 1.5d)
+                telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
+
+                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY()),kaiOdo.getHRad()))
                     currentPathIndex++;
                 //telemetry.addLine(pathPosition.toString());
+                telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
             }
-
-            //preformGlobalMovement(0,0,1);
 
             //double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
             //if(Math.abs(velocity) > Math.abs(greatestVelocity))
@@ -109,30 +111,48 @@ public class TestOdo extends LinearOpMode {
 
             //tempLastDegrees = kaiOdo.getHDeg();
             //pastTime = System.currentTimeMillis();
+;
+            previousX = kaiOdo.getX();
 
             odoTelemetry();
         }
     }
 
-    public double traverseToPosition(PathMarker target, PathMarker currentPosition, double currentRadRot)
+    public boolean traverseToPosition(PathMarker target, PathMarker currentPosition, double currentRadRot)
     {
-        //double rotation = Rpidf.update(target.getR() * Math.PI/180,radRot,System.currentTimeMillis());
-        //double x = Xpidf.update(target.getX(),currentPosition.getX(),System.currentTimeMillis());
-        //double y = Ypidf.update(target.getY(), currentPosition.getY(), System.currentTimeMillis());
-        double rotation = Rpidf.update(target.getR() * Math.PI/180,currentRadRot, target.getVr(),System.currentTimeMillis());
-        double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
-        double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
+        //double rotation = Rpidf.update(target.getR() * Math.PI/180,currentRadRot, target.getVr(),System.currentTimeMillis());
+        double x = Xpidf.update(target.getX(),currentPosition.getX(), Math.abs(target.getVx()), System.currentTimeMillis());
+        //double y = Ypidf.update(target.getY(), currentPosition.getY(), Math.abs(target.getVy()), System.currentTimeMillis());
+        double y = 0, rotation = 0;
+        performGlobalMovement(x,y,rotation);
 
-        performGlobalMovement(-x,-y,rotation);
+        telemetry.addLine("Delta X: " + (currentPosition.getX() - previousX));
+        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getX(), previousX,target.getX(), 6d));
+        return isInBetween(currentPosition.getX(), previousX,target.getX(), 0.1d);
+        //return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
+    }
 
-        return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
+    public boolean isInBetween(double a, double b, double target, double tolerance)
+    {
+//        if(Math.min(Math.max(a,target),b) == target)
+//        {
+//            return true;
+//        }
+//        else if (Math.max(Math.min(a,target),b) == target)
+//        {
+//            return true;
+//        }
+//        return false;
+//
+
+        return (target >= a-tolerance && target <= b+tolerance) || (target >= b-tolerance && target <= a+tolerance);
     }
 
     public void performGlobalMovement(double x, double y, double rx)
     {
         double xl, yl;
-        xl = (x * Math.cos(rx)) - (y * Math.sin(rx));
-        yl = (x * Math.sin(rx)) + (y * Math.cos(rx));
+        yl = (x * Math.cos(rx)) - (y * Math.sin(rx));
+        xl = (x * Math.sin(rx)) + (y * Math.cos(rx));
 
         PerformLocalMovement(xl,yl,rx);
     }
