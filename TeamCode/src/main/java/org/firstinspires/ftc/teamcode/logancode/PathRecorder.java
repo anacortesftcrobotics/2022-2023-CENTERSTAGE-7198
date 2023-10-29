@@ -25,12 +25,19 @@ public class PathRecorder extends LinearOpMode {
 
     public Path path = new Path();
 
+    private PathMarker lastPath;
+    private long lastTime;
+    //private final double MAX_SPEED = 150; // cm per second. theoretical: 165 cm/s
+
     @Override
     public void runOpMode() throws InterruptedException {
 
         mapHardware();
         resetDriveEncoder();
         kaiOdo = new Odo1(38.31,29.1,3.5,8192);
+
+        lastPath = new PathMarker(0,0,0,0,0,0);
+        lastTime = System.currentTimeMillis();
 
         waitForStart();
 
@@ -40,11 +47,17 @@ public class PathRecorder extends LinearOpMode {
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
 
-            PathMarker p =  new PathMarker(kaiOdo.getX(), kaiOdo.getY(),kaiOdo.getHDeg(), kaiOdo.getX() - xOld, kaiOdo.getY() - yOld, kaiOdo.getHDeg() - rOld);
-            path.addPathMarker(p);
+            double deltaTime = System.currentTimeMillis() - lastTime;
+            PathMarker p =  new PathMarker(kaiOdo.getX(), kaiOdo.getY(),kaiOdo.getHDeg(), (kaiOdo.getX() - xOld) * deltaTime, (kaiOdo.getY() - yOld) * deltaTime, (kaiOdo.getHDeg() - rOld) * deltaTime);
+            if(p.distance(lastPath) > kaiOdo.getDeltaDistance() / deltaTime + 0.1d)
+            {
+                path.addPathMarker(p);
+                telemetry.addLine("New Path Generated at: " + p);
+            }
+            lastTime = System.currentTimeMillis();
+
             telemetry.addLine("Internal Position:");
             telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
-            telemetry.addLine("New Path Generated at: " + p);
 
             xOld = kaiOdo.getX();
             yOld = kaiOdo.getY();
@@ -59,6 +72,7 @@ public class PathRecorder extends LinearOpMode {
             }
 
             PerformLocalMovement(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+
 
             telemetry.update();
         }
