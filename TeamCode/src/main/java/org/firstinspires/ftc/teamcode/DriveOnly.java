@@ -68,9 +68,9 @@ public class DriveOnly extends OpMode {
         telemetry.addData("Forward", forwards);
 
         //does math for mechanim chassis
-        frontLeft.setPower((forwards + sideways + rotate) / denominator);
+        frontLeft.setPower((forwards - sideways + rotate) / denominator);
         frontRight.setPower((forwards + sideways - rotate) / denominator);
-        backLeft.setPower((forwards - sideways + rotate) / denominator);
+        backLeft.setPower((forwards + sideways + rotate) / denominator);
         backRight.setPower((forwards - sideways - rotate) / denominator);
 
         telemetry.addData("FL", frontLeft.getPower());
