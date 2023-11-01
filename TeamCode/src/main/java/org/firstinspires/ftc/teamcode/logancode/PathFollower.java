@@ -24,10 +24,12 @@ public class PathFollower extends LinearOpMode
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0.002,0,0,3,0.11);
-    private PIDFController Ypidf = new PIDFController(0.002,0,0,3,0.11);
+    private PIDFController Xpidf = new PIDFController(0.000,0,0,0.248,0.015);
+    private PIDFController Ypidf = new PIDFController(0.000,0,0,0.1,0.11);
     private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
+
+    private final double PATH_TOLERANCE = 0.05;
 
     public void runOpMode()
     {
@@ -110,6 +112,11 @@ public class PathFollower extends LinearOpMode
                 //telemetry.addLine(pathPosition.toString());
                 telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
             }
+            else
+            {
+                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
+                telemetry.addLine("done");
+            }
 
             //double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
             //if(Math.abs(velocity) > Math.abs(greatestVelocity))
@@ -128,12 +135,12 @@ public class PathFollower extends LinearOpMode
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
     {
         //double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), Math.abs(target.getVr()),System.currentTimeMillis());
-        double x = Xpidf.update(target.getX(),currentPosition.getX(), Math.abs(target.getVx()), System.currentTimeMillis());
+        double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         //double y = Ypidf.update(target.getY(), currentPosition.getY(), Math.abs(target.getVy()), System.currentTimeMillis());
         double rotation = 0; double y = 0;
         performGlobalMovement(x,y,rotation);
 
-        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 0.1d));
+        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE));
         //boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 1d)
         //&& isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
         //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d)
@@ -145,7 +152,7 @@ public class PathFollower extends LinearOpMode
     public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
     {
         if(target != null) {
-            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 0.5d)
+            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
                     //&& isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
                     //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d)
                     ;
