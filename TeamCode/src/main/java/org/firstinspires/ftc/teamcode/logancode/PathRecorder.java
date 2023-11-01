@@ -49,15 +49,20 @@ public class PathRecorder extends LinearOpMode {
 
             double deltaTime = System.currentTimeMillis() - lastTime;
             PathMarker p =  new PathMarker(kaiOdo.getX(), kaiOdo.getY(),kaiOdo.getHDeg(), (kaiOdo.getX() - xOld) * deltaTime, (kaiOdo.getY() - yOld) * deltaTime, (kaiOdo.getHDeg() - rOld) * deltaTime);
-            if(p.distance(lastPath) > kaiOdo.getDeltaDistance() / deltaTime + 0.1d)
+            if(p.distance(lastPath) > 0.25 + kaiOdo.getDeltaDistance())
             {
                 path.addPathMarker(p);
                 telemetry.addLine("New Path Generated at: " + p);
+                lastPath = new PathMarker(p.getX(),p.getY());
             }
+            telemetry.addLine("Path to path dist: " + p.distance(lastPath));
+            telemetry.addLine("Delta val: " + (kaiOdo.getDeltaDistance()));
+
             lastTime = System.currentTimeMillis();
 
             telemetry.addLine("Internal Position:");
             telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
+            telemetry.addLine("Path count: " + path.length());
 
             xOld = kaiOdo.getX();
             yOld = kaiOdo.getY();

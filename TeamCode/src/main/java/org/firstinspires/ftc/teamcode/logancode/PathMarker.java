@@ -50,7 +50,7 @@ public class PathMarker {
 
     public double distance(PathMarker point)
     {
-        double dist = Math.abs(Math.sqrt((x - point.x) * (y - point.y)));
+        double dist = Math.sqrt(Math.pow(x - point.x,2) + Math.pow(y - point.y,2));
         return dist;
     }
 }

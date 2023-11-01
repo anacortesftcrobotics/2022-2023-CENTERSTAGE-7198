@@ -18,13 +18,14 @@ public class PathFollower extends LinearOpMode
     private DcMotor encoderRight, encoderLeft, encoderBack;
     private Odo1 kaiOdo;
 
+
     private double tempLastDegrees = 0;
     private double pastTime = 0;
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0.002,0,0,0.05,0.11);
-    private PIDFController Ypidf = new PIDFController(0.002,0,0,0.06,0.11);
+    private PIDFController Xpidf = new PIDFController(0.002,0,0,3,0.11);
+    private PIDFController Ypidf = new PIDFController(0.002,0,0,3,0.11);
     private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
 
@@ -96,7 +97,16 @@ public class PathFollower extends LinearOpMode
                 telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
 
                 if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
+                {
                     currentPathIndex++;
+                    if(currentPathIndex < autonomousPath.length() - 1)
+                        while(checkIfNearPathMarker(autonomousPath.getPosition(currentPathIndex),new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
+                        {
+                            currentPathIndex++;
+                            if(currentPathIndex >= autonomousPath.length())
+                                break;
+                        }
+                }
                 //telemetry.addLine(pathPosition.toString());
                 telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
             }
@@ -117,17 +127,31 @@ public class PathFollower extends LinearOpMode
 
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
     {
-        double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), Math.abs(target.getVr()),System.currentTimeMillis());
+        //double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), Math.abs(target.getVr()),System.currentTimeMillis());
         double x = Xpidf.update(target.getX(),currentPosition.getX(), Math.abs(target.getVx()), System.currentTimeMillis());
-        double y = Ypidf.update(target.getY(), currentPosition.getY(), Math.abs(target.getVy()), System.currentTimeMillis());
+        //double y = Ypidf.update(target.getY(), currentPosition.getY(), Math.abs(target.getVy()), System.currentTimeMillis());
+        double rotation = 0; double y = 0;
         performGlobalMovement(x,y,rotation);
 
         telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 0.1d));
-        boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 0.1d)
-        && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
-        && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d);
-    return clear;
+        //boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 1d)
+        //&& isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
+        //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d)
+        ;
+    return checkIfNearPathMarker(target, currentPosition);
         //return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
+    }
+
+    public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
+    {
+        if(target != null) {
+            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 0.5d)
+                    //&& isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
+                    //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d)
+                    ;
+            return clear;
+        }
+        return true;
     }
 
     public boolean isInBetween(double a, double b, double target, double tolerance)
