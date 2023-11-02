@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logancode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,7 +26,7 @@ public class PathFollower extends LinearOpMode
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0.000,0,0,0.248,0.015);
+    private PIDFController Xpidf = new PIDFController(0.000,0,0,0.34,0.015);
     private PIDFController Ypidf = new PIDFController(0.000,0,0,0.1,0.11);
     private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
@@ -35,6 +37,10 @@ public class PathFollower extends LinearOpMode
     {
         mapHardware();
         resetDriveEncoder();
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        telemetry.addData("Velocity: ", 0);
+        telemetry.addData("Target Velocity: ", 0);
 
         kaiOdo = new Odo1(38.31,29.1,3.5,8192);
         //disLtoR tuning log
@@ -108,6 +114,9 @@ public class PathFollower extends LinearOpMode
                             if(currentPathIndex >= autonomousPath.length())
                                 break;
                         }
+
+                    telemetry.addData("Velocity: ", kaiOdo.getDeltaX());
+                    telemetry.addData("Target Velocity: ", pathPosition.getVx());
                 }
                 //telemetry.addLine(pathPosition.toString());
                 telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
