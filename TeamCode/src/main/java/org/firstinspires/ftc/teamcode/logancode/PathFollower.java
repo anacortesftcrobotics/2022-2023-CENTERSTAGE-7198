@@ -29,7 +29,7 @@ public class PathFollower extends LinearOpMode
 
     private PIDFController Xpidf = new PIDFController(0,0,0,0.34,0.15);
     //0.0045 //0 //0 //0.46 // 0.4
-    private PIDFController Ypidf = new PIDFController(0,0,0,0.34,0.15);
+    private PIDFController Ypidf = new PIDFController(0,0,0,0.034,0.015);
     private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
 
