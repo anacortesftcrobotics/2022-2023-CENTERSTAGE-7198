@@ -27,9 +27,9 @@ public class PathFollower extends LinearOpMode
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0,0,0,0.06,0.04);
+    private PIDFController Xpidf = new PIDFController(0,0,0,0.34,0.15);
     //0.0045 //0 //0 //0.46 // 0.4
-    private PIDFController Ypidf = new PIDFController(0.000,0,0,0.34,0.15);
+    private PIDFController Ypidf = new PIDFController(0,0,0,0.34,0.15);
     private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
     //0.9 : 0.000008 : 0
 
