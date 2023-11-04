@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.hardware.Sensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,14 +18,26 @@ public class RowanTestDrive extends OpMode {
     DcMotor backRight;
     DcMotor viperSlide;
     DcMotor hookArm;
+    DcMotor intakeShoulder;
+    DcMotor intakeElbow;
     Servo hookElbow;
+    Servo fingerRight;
+    Servo fingerLeft;
     BNO055IMU imu;
     DigitalChannel bucketStop;
+    boolean oldBucketLimit;
+
     //ColorRangeSensor floorTape;
     boolean elbow;
+    boolean fingers;
+    boolean intake;
+    boolean oldTriangle;
     boolean oldCircle;
-    boolean oldRTrigger;
+    boolean oldYButton;
     boolean viperA;
+    boolean fingerToggle;
+    boolean oldXButton;
+    boolean oldTrigger;
 
     @Override
     public void init() {
@@ -39,6 +50,10 @@ public class RowanTestDrive extends OpMode {
         hookArm = hardwareMap.get(DcMotor.class, "hookArm");
         hookElbow = hardwareMap.get(Servo.class, "hookElbow");
         bucketStop = hardwareMap.get(DigitalChannel.class, "bucketStop");
+        fingerRight = hardwareMap.get(Servo.class, "fingerRight");
+        fingerLeft = hardwareMap.get(Servo.class, "fingerLeft");
+        intakeElbow = hardwareMap.get(DcMotor.class, "grabWrist");
+        intakeShoulder = hardwareMap.get(DcMotor.class, "grabElbow");
         bucketStop.setMode(DigitalChannel.Mode.INPUT);
 
 
@@ -50,6 +65,8 @@ public class RowanTestDrive extends OpMode {
         hookArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeShoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeElbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
@@ -57,6 +74,8 @@ public class RowanTestDrive extends OpMode {
         mecanumX();
         armControl();
         viper();
+        intakeControl();
+        fingerControl();
         telemetry.addData("PPR", hookArm.getCurrentPosition());
         //telemetry.addData("Red", floorTape.red());
         //telemetry.addData("Blue", floorTape.blue());
@@ -70,11 +89,13 @@ public class RowanTestDrive extends OpMode {
         //double taco = -gamepad2.left_stick_y;
         telemetry.addData("ViperP", viperSlide.getCurrentPosition());
         boolean bucketLimit = !bucketStop.getState();
-        boolean viperToggle = gamepad2.left_bumper;
-        if (bucketLimit) {
+        boolean viperToggle = gamepad2.y;
+        if (bucketLimit && !oldBucketLimit) {
             viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            viperSlide.setTargetPosition(200);
+            viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        if (viperToggle && !oldRTrigger) {
+        if (viperToggle && !oldTrigger) {
             viperA = !viperA;
             if (viperA) {
                 viperSlide.setTargetPosition(-1800);
@@ -89,7 +110,8 @@ public class RowanTestDrive extends OpMode {
         }
 
 
-
+        oldTrigger = viperToggle;
+        oldBucketLimit = bucketLimit;
     }
 
 
@@ -125,19 +147,17 @@ public class RowanTestDrive extends OpMode {
         frontRight.setPower((forwards - sideways - rotate) / denominator);
         backLeft.setPower((forwards - sideways + rotate) / denominator);
         backRight.setPower((forwards + sideways - rotate) / denominator);
-
-        telemetry.addData("FL", frontLeft.getPower());
     }
 
     private void armControl() {
         double position = hookArm.getCurrentPosition();
         double arm = -gamepad2.right_stick_y;
-        /*boolean elbowToggle = gamepad2.dpad_up;
-        if (elbowToggle && !oldCircle) {
+        boolean elbowToggle = gamepad2.dpad_up;
+        if (elbowToggle && !oldTriangle) {
             elbow = !elbow;
             if (elbow) {
                 hookElbow.setPosition(0);
-                hookArm.setTargetPosition(2650);
+                hookArm.setTargetPosition(200);
                 hookArm.setPower(0.7);
             } else {
                 hookArm.setTargetPosition(0);
@@ -147,9 +167,42 @@ public class RowanTestDrive extends OpMode {
         if (gamepad2.dpad_down) {
             hookElbow.setPosition(1);
         }
-*/
-        hookArm.setPower(arm);
-        //oldCircle = elbowToggle;
+
+        //hookArm.setPower(arm);
+        oldTriangle = elbowToggle;
+    }
+    private void intakeControl() {
+        boolean intakeToggle = gamepad2.circle;
+        if (intakeToggle && !oldCircle) {
+            intake = !intake;
+            if (intake) {
+                intakeElbow.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                intakeShoulder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                intakeElbow.setTargetPosition(1000);
+                intakeElbow.setPower(0.7);
+                intakeShoulder.setTargetPosition(1000);
+                intakeShoulder.setPower(0.7);
+            }
+            else {
+                intakeElbow.setTargetPosition(0);
+                intakeShoulder.setTargetPosition(0);
+            }
+        }
+        oldCircle = intakeToggle;
+    }
+    private void fingerControl() {
+        boolean fingerToggle = gamepad2.x;
+        if (fingerToggle && !oldXButton) {
+            fingers = !fingers;
+            if (fingers) {
+                fingerRight.setPosition(0);
+                fingerLeft.setPosition(1);
+            } else {
+                fingerRight.setPosition(1);
+                fingerLeft.setPosition(0);
+            }
+        }
+        oldXButton = fingerToggle;
     }
 }
 
