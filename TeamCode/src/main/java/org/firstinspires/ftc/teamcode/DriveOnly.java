@@ -39,7 +39,7 @@ public class DriveOnly extends OpMode {
         encoderCenter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        odo = new Odo1(11, 28.5, 4.9, 8192);
+        odo = new Odo1(11, 28.5, 4.7, 8192);
 
     }
 
