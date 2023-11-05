@@ -29,8 +29,8 @@ public class PathFollower extends LinearOpMode
 
     private PIDFController Xpidf = new PIDFController(0,0,0,0.34,0.15);
     //0.0045 //0 //0 //0.46 // 0.4
-    private PIDFController Ypidf = new PIDFController(0,0,0,0.034,0.015);
-    private PIDFController Rpidf = new PIDFController(0.8,0.000008,0,4,0.11);
+    private PIDFController Ypidf = new PIDFController(0,0,0,0.5,0.1);
+    private PIDFController Rpidf = new PIDFController(0,0,0,8,0.2);
     //0.9 : 0.000008 : 0
 
     private final double PATH_TOLERANCE = 0.05;
@@ -81,9 +81,9 @@ public class PathFollower extends LinearOpMode
         //38.31 and 29.1 -> 89.6 / 90.1
         //close but not there yet.
 
-        pixelPlacer.setTargetPosition(-50);
-        pixelPlacer.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        pixelPlacer.setPower(-0.5);
+        //pixelPlacer.setTargetPosition(-50);
+        //pixelPlacer.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //pixelPlacer.setPower(-0.5);
 
         Xpidf.reset();
         Ypidf.reset();
@@ -108,7 +108,7 @@ public class PathFollower extends LinearOpMode
 
             if(pathPosition != null)
             {
-                telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
+                //telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
 
                 if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
                 {
@@ -121,8 +121,8 @@ public class PathFollower extends LinearOpMode
                                 break;
                         }
 
-                    telemetry.addData("Velocity: ", kaiOdo.getDeltaY());
-                    telemetry.addData("Target Velocity: ", pathPosition.getVy());
+                    telemetry.addData("Velocity: ", kaiOdo.getDeltaHDeg());
+                    telemetry.addData("Target Velocity: ", pathPosition.getVr());
                 }
                 //telemetry.addLine(pathPosition.toString());
                 telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
@@ -149,13 +149,13 @@ public class PathFollower extends LinearOpMode
 
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
     {
-        //double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), target.getVr(),System.currentTimeMillis());
-        //double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
+        double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), target.getVr() * Math.PI/180,System.currentTimeMillis());
+        double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
-        double rotation = 0; double x = 0;
+        //double y = 0; double x = 0;
         performGlobalMovement(x,y,rotation);
 
-        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE));
+        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE));
         //boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), 1d)
         //&& isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), 0.1d)
         //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), 0.1d)
@@ -167,9 +167,9 @@ public class PathFollower extends LinearOpMode
     public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
     {
         if(target != null) {
-            boolean clear = //isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
-                    /*&&*/ isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
-                    //&& isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR(), PATH_TOLERANCE)
+            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
+                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
+                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE)
                     ;
             return clear;
         }
