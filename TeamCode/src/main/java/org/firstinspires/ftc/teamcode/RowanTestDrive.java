@@ -17,7 +17,7 @@ public class RowanTestDrive extends OpMode {
     DcMotor viperSlide;
     DcMotor hookArm;
     //DcMotorEx intakeShoulder;
-    DcMotorEx intakeShoulder;
+    DcMotor intakeShoulder;
     //DcMotorEx intakeElbow;
     DcMotor intakeElbow;
     DcMotor encoderLeft;
@@ -39,6 +39,7 @@ public class RowanTestDrive extends OpMode {
     boolean fingers;
     boolean intake;
     boolean oldTriangle;
+    boolean oldDpadRight;
     boolean oldCircle;
     boolean oldDpadUp;
     boolean oldYButton;
@@ -66,7 +67,7 @@ public class RowanTestDrive extends OpMode {
         // intakeElbow = hardwareMap.get(DcMotorEx.class, "grabWrist");
         intakeElbow = hardwareMap.get(DcMotor.class, "grabWrist");
         //intakeShoulder = hardwareMap.get(DcMotorEx.class, "grabElbow");
-        intakeShoulder = hardwareMap.get(DcMotorEx.class, "grabElbow");
+        intakeShoulder = hardwareMap.get(DcMotor.class, "grabElbow");
         bucketServo = hardwareMap.get(Servo.class, "bucketServo");
         bucketStop.setMode(DigitalChannel.Mode.INPUT);
 
@@ -92,11 +93,11 @@ public class RowanTestDrive extends OpMode {
         hookArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeShoulder.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        intakeShoulder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeElbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //viperSlide.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0,0,0,0));
-        intakeShoulder.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0,0,0,0));
+        //intakeShoulder.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0,0,0,0));
 
     }
 
@@ -111,6 +112,7 @@ public class RowanTestDrive extends OpMode {
         openBucket();
         telemetry.addData("PPR", hookArm.getCurrentPosition());
         telemetry.addData("bucketStop", bucketStop.getState());
+        telemetry.addData("inElbow", intakeElbow.getCurrentPosition());
         telemetry.update();
 
     }
@@ -129,12 +131,12 @@ public class RowanTestDrive extends OpMode {
         telemetry.addData("ViperP", viperSlide.getCurrentPosition());
         boolean bucketLimit = !bucketStop.getState();
         boolean viperToggle = gamepad2.triangle;
-        if (bucketLimit && !oldBucketLimit) {
+        /**if (bucketLimit && !oldBucketLimit) {
             viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             viperSlide.setTargetPosition(-200);
             viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             viperSlide.setPower(0.7);
-        }
+        }**/
         if (viperToggle && !oldTriangle) {
             viperA = !viperA;
             if (viperA) {
@@ -172,7 +174,8 @@ public class RowanTestDrive extends OpMode {
 
         builder.addProcessor(aprilTag);
         visionPortal = builder.build();
-
+//elbow 6
+//shoulder -430
     }*/
 
     private void mecanumX() {
@@ -221,22 +224,24 @@ public class RowanTestDrive extends OpMode {
     private void intakeControl() {
         /** intakeControl input: circle **/
         boolean intakeToggle = gamepad2.circle;
+        telemetry.addData("inputelse", intake);
         if (intakeToggle && !oldCircle) {
             intake = !intake;
             if (intake) {
-                intakeElbow.setTargetPosition(110);
-                intakeShoulder.setTargetPosition(-1300);
+                intakeElbow.setTargetPosition(17);
+                intakeShoulder.setTargetPosition(-470);
                 intakeElbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 intakeShoulder.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                intakeElbow.setPower(0.4);
-                //intakeShoulder.setTargetPosition(-1000);
+                intakeElbow.setPower(0.7);
                 intakeShoulder.setPower(-0.4);
             }
             else {
-                intakeElbow.setPower(-0.4);
-                intakeShoulder.setPower(0.4);
                 intakeElbow.setTargetPosition(0);
                 intakeShoulder.setTargetPosition(0);
+                intakeShoulder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                intakeElbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                intakeElbow.setPower(-0.7);
+                intakeShoulder.setPower(0.4);
             }
         }
         oldCircle = intakeToggle;
@@ -257,9 +262,9 @@ public class RowanTestDrive extends OpMode {
         oldXButton = fingerToggle;
     }
     private void openBucket() {
-        /** openBucket input: square **/
-        boolean bucketToggle = gamepad2.square;
-        if (bucketToggle && !oldSquare) {
+        /** openBucket input: dpad right **/
+        boolean bucketToggle = gamepad2.dpad_right;
+        if (bucketToggle && !oldDpadRight) {
             bucket = !bucket;
             if (bucket) {
                 bucketServo.setPosition(0.1);
@@ -268,7 +273,7 @@ public class RowanTestDrive extends OpMode {
                 bucketServo.setPosition(0);
             }
         }
-        oldSquare = bucketToggle;
+        oldDpadRight = bucketToggle;
     }
 }
 
