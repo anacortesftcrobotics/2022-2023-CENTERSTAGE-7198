@@ -38,13 +38,13 @@ public class Team7198PropProcessor implements VisionProcessor
         Mat cannyOutput = new Mat(frame.rows(),frame.cols(),frame.type(), new Scalar(0));
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_BGR2GRAY);
 
-        Imgproc.blur(gray,edges,new Size(3,3));
-        Imgproc.Canny(edges,edges,100,300);
-        frame.copyTo(cannyOutput,edges);
+        Imgproc.blur(gray,gray,new Size(3,3));
+        Imgproc.Canny(gray,edges,100,300);
+        //frame.copyTo(cannyOutput,edges);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(cannyOutput, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
         MatOfPoint2f[] contoursPoly  = new MatOfPoint2f[contours.size()];
         boundRect = new Rect[contours.size()];
@@ -67,12 +67,17 @@ public class Team7198PropProcessor implements VisionProcessor
     @Override
     public void onDrawFrame(Canvas canvas, int onscreenWidth, int onscreenHeight, float scaleBmpPxToCanvasPx, float scaleCanvasDensity, Object userContext) {
 
+        if(boundRect.length == 0)
+            return;
 
-        canvas.drawRect(
-                (float)boundRect[0].tl().x * scaleBmpPxToCanvasPx,
-                (float)boundRect[0].tl().y * scaleBmpPxToCanvasPx,
-                (float)boundRect[0].br().x * scaleBmpPxToCanvasPx,
-                (float)boundRect[0].br().y * scaleBmpPxToCanvasPx,
-                rectPaint);
+        for(int i = 0; i < boundRect.length; i++)
+        {
+            canvas.drawRect(
+                    (float) boundRect[i].tl().x * scaleBmpPxToCanvasPx,
+                    (float) boundRect[i].tl().y * scaleBmpPxToCanvasPx,
+                    (float) boundRect[i].br().x * scaleBmpPxToCanvasPx,
+                    (float) boundRect[i].br().y * scaleBmpPxToCanvasPx,
+                    rectPaint);
+        }
     }
 }
