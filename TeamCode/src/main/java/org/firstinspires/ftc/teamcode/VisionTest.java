@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -24,6 +25,8 @@ public class VisionTest extends OpMode {
 
         //visionPortal.resumeStreaming();
         visionPortal.resumeLiveView();
+
+        //FtcDashboard.getInstance().startCameraStream(visProcessor, 0);
     }
 
     // Looping sequence of events
