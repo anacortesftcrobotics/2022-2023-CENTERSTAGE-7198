@@ -19,7 +19,7 @@ public class RowanTestDrive extends OpMode {
     //DcMotorEx intakeShoulder;
     DcMotorEx intakeShoulder;
     //DcMotorEx intakeElbow;
-    DcMotor intakeElbow;
+    Servo intakeElbow;
     DcMotor encoderLeft;
     DcMotor encoderRight;
     DcMotor encoderCenter;
@@ -64,7 +64,7 @@ public class RowanTestDrive extends OpMode {
         fingerRight = hardwareMap.get(Servo.class, "fingerRight");
         fingerLeft = hardwareMap.get(Servo.class, "fingerLeft");
         // intakeElbow = hardwareMap.get(DcMotorEx.class, "grabWrist");
-        intakeElbow = hardwareMap.get(DcMotor.class, "grabWrist");
+        intakeElbow = hardwareMap.get(Servo.class, "intakeWrist");
         //intakeShoulder = hardwareMap.get(DcMotorEx.class, "grabElbow");
         intakeShoulder = hardwareMap.get(DcMotorEx.class, "grabElbow");
         bucketServo = hardwareMap.get(Servo.class, "bucketServo");
@@ -93,8 +93,6 @@ public class RowanTestDrive extends OpMode {
         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeShoulder.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        intakeElbow.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         //viperSlide.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0,0,0,0));
         intakeShoulder.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0,0,0,0));
 
@@ -224,19 +222,16 @@ public class RowanTestDrive extends OpMode {
         if (intakeToggle && !oldCircle) {
             intake = !intake;
             if (intake) {
-                intakeElbow.setTargetPosition(110);
+                intakeElbow.setPosition(0.75);
                 intakeShoulder.setTargetPosition(-1300);
-                intakeElbow.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 intakeShoulder.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                intakeElbow.setPower(0.4);
                 //intakeShoulder.setTargetPosition(-1000);
                 intakeShoulder.setPower(-0.4);
             }
             else {
-                intakeElbow.setPower(-0.4);
                 intakeShoulder.setPower(0.4);
-                intakeElbow.setTargetPosition(0);
                 intakeShoulder.setTargetPosition(0);
+                intakeElbow.setPosition(0);
             }
         }
         oldCircle = intakeToggle;
