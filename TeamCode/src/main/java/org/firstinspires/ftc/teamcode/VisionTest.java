@@ -18,7 +18,7 @@ public class VisionTest extends OpMode {
     @Override
     public void init() {
 
-        visProcessor = new Team7198PropProcessor();
+        visProcessor = new Team7198PropProcessor(true, this);
 
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), visProcessor);
@@ -38,5 +38,11 @@ public class VisionTest extends OpMode {
     public void stop()
     {
         visionPortal.close();
+    }
+
+    public void recieveVisionInfo(int x)
+    {
+        telemetry.addLine("" + x);
+        telemetry.update();
     }
 }

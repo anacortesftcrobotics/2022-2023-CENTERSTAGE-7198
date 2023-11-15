@@ -25,8 +25,17 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
     private Rect[] boundRect;
     private Paint rectPaint;
 
+    private boolean isRed;
+    private Object origin;
+
     private final AtomicReference<Bitmap> lastFrame =
             new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
+
+    public Team7198PropProcessor(boolean isRed, Object origin)
+    {
+        this.isRed = isRed;
+        this.origin = origin;
+    }
 
     @Override
     public void init(int width, int height, CameraCalibration calibration)
@@ -51,10 +60,19 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
         Mat bgrMask = new Mat(frame.rows(),frame.cols(),frame.type());
         Imgproc.cvtColor(frame, ourFrame, Imgproc.COLOR_RGB2HSV);
 
-        Scalar lower_blue = new Scalar(106, 150, 100);
-        Scalar upper_blue = new Scalar(146, 255, 255);
+        if(isRed)
+        {
+            Scalar lower_red = new Scalar(0, 150, 100);
+            Scalar upper_red = new Scalar(20, 255, 255);
 
-        Core.inRange(ourFrame, lower_blue, upper_blue, mask);
+            Core.inRange(ourFrame, lower_red, upper_red, mask);
+        }
+        else {
+            Scalar lower_blue = new Scalar(106, 150, 100);
+            Scalar upper_blue = new Scalar(146, 255, 255);
+
+            Core.inRange(ourFrame, lower_blue, upper_blue, mask);
+        }
 
         Imgproc.cvtColor(mask, bgrMask, Imgproc.COLOR_GRAY2RGBA);
 
@@ -87,6 +105,25 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
         }
 
         //Mat drawing = Mat.zeros(cannyOutput.size(), CvType.CV_8UC3);
+
+        int largestSize = 0;
+        int index = 0;
+        for(int i = 0; i < boundRect.length; i++)
+        {
+            int currentSize = boundRect[i].width * boundRect[i].height;
+            if(currentSize > largestSize)
+            {
+                largestSize = currentSize;
+                index = i;
+            }
+        }
+
+        if(boundRect.length > 0)
+        {
+            int x = (boundRect[index].x + boundRect[index].width / 2) / (frame.width() / 3);
+            x = Math.min(x, 2);
+            ((VisionTest) origin).recieveVisionInfo(x);
+        }
 
         return null;
     }
