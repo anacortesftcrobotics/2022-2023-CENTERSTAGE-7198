@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.kaicode.Odo1;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name = "PathFollower_Logan", group = "Autos")
-public class PathFollower extends LinearOpMode
+@Autonomous(name = "Auto2F", group = "Autos")
+public class Auto2F extends LinearOpMode
 {
 
     //Camera Processing

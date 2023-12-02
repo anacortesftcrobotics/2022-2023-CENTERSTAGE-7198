@@ -34,7 +34,7 @@ public class PathRecorder extends LinearOpMode {
 
         mapHardware();
         resetDriveEncoder();
-        kaiOdo = new Odo1(38.31,29.1,3.5,8192);
+        kaiOdo = new Odo1(36.2,25.8,4.8,2000);
 
         lastPath = new PathMarker(0,0,0,0,0,0);
         lastTime = System.currentTimeMillis();

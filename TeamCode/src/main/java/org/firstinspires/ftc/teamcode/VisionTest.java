@@ -11,14 +11,13 @@ public class VisionTest extends OpMode {
 
     // Field definitions
     VisionPortal visionPortal;
-
     Team7198PropProcessor visProcessor;
 
     // Initialization
     @Override
     public void init() {
 
-        visProcessor = new Team7198PropProcessor(true, this);
+        visProcessor = new Team7198PropProcessor(false, this);
 
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), visProcessor);
