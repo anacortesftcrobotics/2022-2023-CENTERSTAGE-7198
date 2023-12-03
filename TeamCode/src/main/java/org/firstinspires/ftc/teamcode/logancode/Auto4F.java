@@ -183,6 +183,7 @@ public class Auto4F extends LinearOpMode
             }
             else {
                 pixelSlide.setTargetPosition(0);
+                wristServo.setPosition(0.4);
                 if(pixelSlide.getCurrentPosition() > -200)
                 {
                     placed = true;
@@ -192,11 +193,11 @@ public class Auto4F extends LinearOpMode
                 fingerLeft.setPosition(1);
                 pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 pixelSlide.setPower(-0.6);
-                wristServo.setPosition(0);
+                wristServo.setPosition(0.4);
             }
 
             if(pixelSlide.getCurrentPosition() < -1000)
-                wristServo.setPosition(0.62);
+                wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)
             {

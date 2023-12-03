@@ -121,9 +121,9 @@ public class CCTeleOpControllerV2 extends OpMode {
     public void wristControl()
     {
         if(gamepad2.dpad_down)
-            wristServo.setPosition(0.62);
+            wristServo.setPosition(0.86);
         else
-            wristServo.setPosition(0);
+            wristServo.setPosition(0.4);
     }
 
     public void launchDrone()
@@ -150,7 +150,7 @@ public class CCTeleOpControllerV2 extends OpMode {
             {
                 telemetry.addLine("targeting good");
                 pixelSlide.setTargetPosition(-5200);
-                pixelSlide.setPower(-0.6);
+                pixelSlide.setPower(-1);
                 runPixelSlide(1);
             }
             else
@@ -171,7 +171,7 @@ public class CCTeleOpControllerV2 extends OpMode {
             {
                 telemetry.addLine("targeting good");
                 pixelSlide.setTargetPosition(-5200);
-                pixelSlide.setPower(-0.6);
+                pixelSlide.setPower(-1);
                 runPixelSlide(2);
             }
             else
@@ -336,7 +336,7 @@ public class CCTeleOpControllerV2 extends OpMode {
 //        }
 //        oldXButton = fingerToggle;
 
-        if(pixelSlide.getCurrentPosition() < -500)
+        if(pixelSlide.getCurrentPosition() < -1200)
         {
             //open ok
             //close ok
