@@ -147,14 +147,14 @@ public class Auto4A extends LinearOpMode
         //go to known point
         PathMarker pathPosition = new PathMarker(0,0,0,0,0,0); //find good x and y or 0 ok
 
-        while(!checkIfNearPathMarker(pathPosition, new PathMarker(-kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), -kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())) && opModeIsActive())
+        while(!checkIfNearPathMarker(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())) && opModeIsActive())
         {
             PathMarker p = new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad());
             telemetry.addData("Position", p);
             telemetry.addData("Distance: ", pathPosition.distance(p));
 
 
-            traverseToPosition(pathPosition, new PathMarker(-kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), -kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
+            traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
             telemetry.update();
         }
         PerformLocalMovement(0,0,0);
@@ -220,7 +220,7 @@ public class Auto4A extends LinearOpMode
         while (opModeIsActive() && pathPosition != null) {
             kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
                     encoderRight.getCurrentPosition(),
-                    encoderBack.getCurrentPosition());
+                    -encoderBack.getCurrentPosition());
 
             pathPosition = path.getPosition(currentPathIndex);
 
@@ -250,7 +250,7 @@ public class Auto4A extends LinearOpMode
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
     {
         double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), target.getVr() * Math.PI/180,System.currentTimeMillis());
-        double x = Xpidf.update(-target.getX(),-currentPosition.getX(), -target.getVx(), System.currentTimeMillis());
+        double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
         //double y = 0; double x = 0;
         performGlobalMovement(x,y,rotation);
@@ -264,7 +264,7 @@ public class Auto4A extends LinearOpMode
     public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
     {
         if(target != null) {
-            boolean clear = isInBetween(-currentPosition.getX(), -currentPosition.getX() +currentPosition.getVx(), -target.getX(), PATH_TOLERANCE)
+            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() -currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
                     && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
                     && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE)
                     ;

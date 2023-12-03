@@ -220,17 +220,17 @@ public class Auto2F extends LinearOpMode
         while (opModeIsActive() && pathPosition != null) {
             kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
                     encoderRight.getCurrentPosition(),
-                    encoderBack.getCurrentPosition());
+                    -encoderBack.getCurrentPosition());
 
             pathPosition = path.getPosition(currentPathIndex);
 
             if (pathPosition != null) {
 
 
-                if (traverseToPosition(pathPosition, new PathMarker(-kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), -kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
+                if (traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
                     currentPathIndex++;
                     if (currentPathIndex < path.length() - 1)
-                        while (checkIfNearPathMarker(path.getPosition(currentPathIndex), new PathMarker(-kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), -kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
+                        while (checkIfNearPathMarker(path.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
                             currentPathIndex++;
                             if (currentPathIndex >= path.length())
                                 break;
@@ -250,7 +250,7 @@ public class Auto2F extends LinearOpMode
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
     {
         double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), target.getVr() * Math.PI/180,System.currentTimeMillis());
-        double x = Xpidf.update(-target.getX(),-currentPosition.getX(), -target.getVx(), System.currentTimeMillis());
+        double x = Xpidf.update(-target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
         //double y = 0; double x = 0;
         performGlobalMovement(x,y,rotation);
@@ -264,7 +264,7 @@ public class Auto2F extends LinearOpMode
     public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
     {
         if(target != null) {
-            boolean clear = isInBetween(-currentPosition.getX(), -currentPosition.getX() +currentPosition.getVx(), -target.getX(), PATH_TOLERANCE)
+            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() -currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
                     && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
                     && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE)
                     ;
