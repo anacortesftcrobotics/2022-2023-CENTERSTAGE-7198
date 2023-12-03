@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.logancode.PathFollower;
+import org.firstinspires.ftc.teamcode.logancode.*;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
@@ -26,6 +26,7 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
     private Rect[] boundRect;
     private Paint rectPaint;
 
+    public int data;
     private boolean isRed;
     private Object origin;
 
@@ -107,7 +108,7 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
 
         //Mat drawing = Mat.zeros(cannyOutput.size(), CvType.CV_8UC3);
 
-        int largestSize = 1000; //Minimum Threshold
+        int largestSize = 800; //Minimum Threshold
         int index = -1;
         for(int i = 0; i < boundRect.length; i++)
         {
@@ -123,17 +124,36 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
         {
             int x = (boundRect[index].x + boundRect[index].width / 2) / (frame.width() / 2);
             x = Math.min(x, 1) + 1;
-            if(origin.getClass().equals(VisionTest.class))
-                ((VisionTest) origin).recieveVisionInfo(x);
-            if(origin.getClass().equals(PathFollower.class))
-                ((PathFollower) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(VisionTest.class))
+//                ((VisionTest) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((PathFollower) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto4F) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto2F) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto4A) origin).recieveVisionInfo(x);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto2A) origin).recieveVisionInfo(x);
+
+            data = x;
         }
         else
         {
-            if(origin.getClass().equals(VisionTest.class))
-                ((VisionTest) origin).recieveVisionInfo(0);
-            if(origin.getClass().equals(PathFollower.class))
-                ((PathFollower) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(VisionTest.class))
+//                ((VisionTest) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((PathFollower) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto4F) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto2F) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto4A) origin).recieveVisionInfo(0);
+//            if(origin.getClass().equals(PathFollower.class))
+//                ((Auto2A) origin).recieveVisionInfo(0);
+            data = 0;
         }
 
         return null;

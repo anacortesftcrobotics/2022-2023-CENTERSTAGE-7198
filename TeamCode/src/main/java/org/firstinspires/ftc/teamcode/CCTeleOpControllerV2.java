@@ -107,14 +107,13 @@ public class CCTeleOpControllerV2 extends OpMode {
 
     public void Controller1() {
         driveMechanum();
-        //controlPixelPlacer();
+        hangerControl();
     }
 
     public void Controller2() {
 
         controlPixelPlacer();
         fingerControl();
-        hangerControl();
         wristControl();
         launchDrone();
     }
@@ -138,12 +137,6 @@ public class CCTeleOpControllerV2 extends OpMode {
     public void controlPixelPlacer() {
 
         telemetry.addData("Current arm position: ", pixelBase.getCurrentPosition() * (pixelArmToRadiansConstant / Math.PI) * 180);
-
-        if(gamepad2.right_bumper)
-        {
-            pidfArmController = new PIDFArmController(0, 0, 0, 0, 0, 0, 0);
-            pidfArmController.launch(-28 * Math.PI / 180, System.currentTimeMillis());
-        }
 
         if (pixelPlacerState == 2) // up
         {
@@ -172,7 +165,7 @@ public class CCTeleOpControllerV2 extends OpMode {
             //pixelArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             //pixelArm.setPower(0.6);
 
-            targetPosition = -32 * Math.PI / 180;
+            targetPosition = -29 * Math.PI / 180;
 
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
@@ -374,7 +367,7 @@ public class CCTeleOpControllerV2 extends OpMode {
     private void hangerControl() {
         //double position = hookArm.getCurrentPosition();
         //double arm = -gamepad2.right_stick_y;
-        boolean elbowToggle = gamepad1.dpad_up;
+        boolean elbowToggle = gamepad1.dpad_left;
         if (elbowToggle && !oldTriangle)
         {
             elbow = !elbow;
@@ -394,7 +387,7 @@ public class CCTeleOpControllerV2 extends OpMode {
 
             }
         }
-        if(gamepad1.dpad_down) //panic reset
+        if(gamepad1.dpad_right) //panic reset
         {
             hookArm.setTargetPosition(0);
             hookArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);

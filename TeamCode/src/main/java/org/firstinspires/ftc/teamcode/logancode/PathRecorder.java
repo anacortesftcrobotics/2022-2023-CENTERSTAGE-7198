@@ -29,6 +29,8 @@ public class PathRecorder extends LinearOpMode {
     private long lastTime;
     //private final double MAX_SPEED = 150; // cm per second. theoretical: 165 cm/s
 
+    int i = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -70,13 +72,15 @@ public class PathRecorder extends LinearOpMode {
 
             if(gamepad1.a)
             {
-                String filename = "path_recorder_output.txt";
+                String filename = "path_recorder_output" + i + ".txt";
                 File file = AppUtil.getInstance().getSettingsFile(filename);
                 ReadWriteFile.writeFile(file, path.serialize());
                 telemetry.log().add("saved to '%s'", filename);
+                i++;
+                path = new Path();
             }
 
-            PerformLocalMovement(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
+            PerformLocalMovement(-gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
 
 
             telemetry.update();
@@ -94,9 +98,9 @@ public class PathRecorder extends LinearOpMode {
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y - x + rx) / denominator;
+        leftBackPower = (y + x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y + x + rx) / denominator;
+        leftFrontPower = (y - x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
