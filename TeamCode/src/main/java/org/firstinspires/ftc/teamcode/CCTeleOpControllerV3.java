@@ -259,17 +259,17 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         updateSpeedCoefficient();
 
-        x = deadZone(x);
-        y = deadZone(y);
-        rx = deadZone(rx);
+        x = deadZone(x,0.02);
+        y = deadZone(y,0.02);
+        rx = deadZone(rx,0.02);
 
         //rx += poleCenter();
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
@@ -311,16 +311,21 @@ public class CCTeleOpControllerV3 extends OpMode {
         }
     }
 
-    //blocks out numbers lower than a threshold. does not remap
-    public double deadZone(double input) {
-        if (Math.abs(input) < 0.01) {
-            return 0;
-        } else {
-            return input;
-        }
+    //remaps input so small values near 0 are 0 and values above a threshold are valued.
+    //The function will reach 1 when double input is 1
+    //
+    //double a is in the range [0 - Infinity)
+    //
+    //calcualated in desmos
+    public double deadZone(double input,double a) {
+
+        a = Math.max(a, 0);
+        return Math.max(x(1+a),a)+Math.min(x(1+a),-a);
     }
 
-    //the following function remaps x to a expnetial equation keeping its sign.
+    //the following function remaps double x to a expnetial equation keeping its sign.
+    //
+    //calculated in desmos
     public double exponentialRemapAnalog(double x) {
         return Math.min(Math.pow(Math.max(x,0),2),1) + Math.pow(Math.max(-Math.min(x,0),2),-1);
     }
