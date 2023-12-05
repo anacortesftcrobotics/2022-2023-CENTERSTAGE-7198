@@ -266,9 +266,9 @@ public class CCTeleOpControllerV2 extends OpMode {
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
@@ -336,7 +336,7 @@ public class CCTeleOpControllerV2 extends OpMode {
 //        }
 //        oldXButton = fingerToggle;
 
-        if(pixelSlide.getCurrentPosition() < -1200)
+        if(pixelSlide.getCurrentPosition() < -3000)
         {
             //open ok
             //close ok

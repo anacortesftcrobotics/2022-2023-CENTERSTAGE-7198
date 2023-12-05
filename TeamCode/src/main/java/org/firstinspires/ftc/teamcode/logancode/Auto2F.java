@@ -296,9 +296,9 @@ public class Auto2F extends LinearOpMode
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
