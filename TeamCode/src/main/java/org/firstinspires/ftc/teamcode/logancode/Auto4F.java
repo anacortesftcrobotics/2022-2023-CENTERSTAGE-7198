@@ -123,6 +123,9 @@ public class Auto4F extends LinearOpMode
 
             //place purple
             placePurple();
+
+            //go to known point
+            followPath(longPath,"Long path inverted",true);
         }
         else
         {
@@ -134,6 +137,9 @@ public class Auto4F extends LinearOpMode
                 followPath(shortPathR, "Right path");
 
                 placePurple();
+
+                //go to known point
+                followPath(shortPathR,"Right path inverted",true);
             }
             else
             {
@@ -141,26 +147,14 @@ public class Auto4F extends LinearOpMode
                 followPath(shortPathL, "Left path");
 
                 placePurple();
+
+                //go to known point
+                followPath(shortPathL,"Left path inverted",true);
             }
         }
 
-        //go to known point
-        PathMarker pathPosition = new PathMarker(0,0,0,0,0,0); //find good x and y or 0 ok
-
-        while(!checkIfNearPathMarker(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())) && opModeIsActive())
-        {
-            PathMarker p = new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad());
-            telemetry.addData("Position", p);
-            telemetry.addData("Distance: ", pathPosition.distance(p));
-
-
-            traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
-            telemetry.update();
-        }
-        PerformLocalMovement(0,0,0);
-
         //go to parking location
-        followPath(finalPath, "final path");
+        //followPath(finalPath, "final path");
 
         //end of linear program //end of linear program //end of linear program //end of linear program
         visionPortal.close();
@@ -210,6 +204,7 @@ public class Auto4F extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
+        wristServo.setPosition(0);
     }
 
     public void followPath(Path path, String name)
@@ -220,9 +215,8 @@ public class Auto4F extends LinearOpMode
     {
         int currentPathIndex = 0;
         if(reverse)
-        {
             currentPathIndex = path.length()-1;
-        }
+
         PathMarker pathPosition = path.getPosition(currentPathIndex);
 
         while (opModeIsActive() && pathPosition != null) {
@@ -232,20 +226,21 @@ public class Auto4F extends LinearOpMode
 
             pathPosition = path.getPosition(currentPathIndex);
 
-            if(reverse)
-                pathPosition = new PathMarker(pathPosition.getX(),pathPosition.getY(),pathPosition.getR(),-pathPosition.getVx(),-pathPosition.getVy(),-pathPosition.getVr());
-
             if (pathPosition != null) {
 
+                if(reverse)
+                    pathPosition = new PathMarker(pathPosition.getX(),pathPosition.getY(),pathPosition.getR(),-pathPosition.getVx(),-pathPosition.getVy(),-pathPosition.getVr());
 
                 if (traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
                     currentPathIndex++;
-                    if (currentPathIndex < path.length() - 1)
+                    if(reverse)
+                        currentPathIndex -= 2;
+                    if (currentPathIndex < path.length() - 1 && currentPathIndex >= 0)
                         while (checkIfNearPathMarker(path.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
                             //change index
                             currentPathIndex++;
                             if(reverse)
-                                currentPathIndex-=2;
+                                currentPathIndex -= 2;
 
                             //check if done both ways
                             if(currentPathIndex < 0)
