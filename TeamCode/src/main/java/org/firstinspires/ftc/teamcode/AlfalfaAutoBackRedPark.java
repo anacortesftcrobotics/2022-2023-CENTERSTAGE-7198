@@ -5,24 +5,23 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Robot: Auto Drive By Time", group="Robot")
-public class AlfalfaAuto extends LinearOpMode {
+import java.util.Timer;
+import java.util.TimerTask;
 
+@Autonomous(name="AlfalfaAutoBackRedPark", group="Robot")
+
+public class AlfalfaAutoBackRedPark extends LinearOpMode {
     /* Declare OpMode members. */
     private DcMotor frontLeft;
     private DcMotor backLeft;
     private DcMotor frontRight;
     private DcMotor backRight;
+    boolean toggle;
 
     private ElapsedTime runtime = new ElapsedTime();
 
-
-    static final double     FORWARD_SPEED = 0.6;
-    static final double     TURN_SPEED    = 0.5;
     public void mecanumX(double forwards,double sideways, double rotate) {
         double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
-
-        telemetry.addData("Forward", forwards);
 
         //does math for mechanim chassis
         frontLeft.setPower((forwards + sideways + rotate) / denominator);
@@ -44,47 +43,26 @@ public class AlfalfaAuto extends LinearOpMode {
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Ready to run");    //
-        telemetry.update();
 
-        // Wait for the game to start (driver presses PLAY)
+
         waitForStart();
-        while (opModeIsActive() && (runtime.seconds() < 3.0)) {
-            mecanumX(0.9,0,0);
+        while (opModeIsActive() && !toggle) {
+            mecanumX(0.75,0,0.25);
+        }
+        while (opModeIsActive()) {
+            new Timer().schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    toggle = true;
+                    mecanumX(0,0,0);                }
+            }, 700 );
         }
 
-        // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
-
-        // Step 1:  Drive forward for 3 seconds
-
-        runtime.reset();
-
-        // Step 2:  Spin right for 1.3 seconds
-        /**leftDrive.setPower(TURN_SPEED);
-        rightDrive.setPower(-TURN_SPEED);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.3)) {
-            telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-
-        // Step 3:  Drive Backward for 1 Second
-        leftDrive.setPower(-FORWARD_SPEED);
-        rightDrive.setPower(-FORWARD_SPEED);
-        runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.0)) {
-            telemetry.addData("Path", "Leg 3: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-        }*/
-
-        // Step 4:  Stop
-        mecanumX(0,0,0);
-
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
         sleep(1000);
     }
 }

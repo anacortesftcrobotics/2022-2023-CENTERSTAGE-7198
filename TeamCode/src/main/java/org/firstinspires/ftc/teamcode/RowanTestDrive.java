@@ -137,26 +137,26 @@ public class RowanTestDrive extends OpMode {
         double taco = gamepad2.left_stick_y;
         telemetry.addData("ViperP", viperSlide.getCurrentPosition());
         /**boolean bucketLimit = !bucketStop.getState();
-        boolean viperToggle = gamepad2.triangle;
-        if (bucketLimit && !oldBucketLimit) {
-            viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            viperSlide.setTargetPosition(-150);
-            viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperSlide.setPower(0.7);
-        }
-        if (viperToggle && !oldTriangle) {
-            viperA = !viperA;
-            if (viperA) {
-                viperSlide.setTargetPosition(-1500);
-                viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                viperSlide.setPower(-0.7);
-            } else {
-                viperSlide.setTargetPosition(0);
-                viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                viperSlide.setPower(0.7);
-            }
+         boolean viperToggle = gamepad2.triangle;
+         if (bucketLimit && !oldBucketLimit) {
+         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+         viperSlide.setTargetPosition(-150);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(0.7);
+         }
+         if (viperToggle && !oldTriangle) {
+         viperA = !viperA;
+         if (viperA) {
+         viperSlide.setTargetPosition(-1500);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(-0.7);
+         } else {
+         viperSlide.setTargetPosition(0);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(0.7);
+         }
 
-        }**/
+         }**/
 
         viperSlide.setPower(taco);
 
@@ -198,9 +198,9 @@ public class RowanTestDrive extends OpMode {
     }
 
     private void hangControl() {
-        /** armControl input: dpad up, right stick Y **/
+        /** armControl input: Triangle, right stick Y **/
         double arm = -gamepad2.right_stick_y;
-        boolean elbowToggle = gamepad2.dpad_up;
+        boolean elbowToggle = gamepad2.y;
         if (elbowToggle && !oldDpadUp) {
             elbow = !elbow;
             if (elbow) {
