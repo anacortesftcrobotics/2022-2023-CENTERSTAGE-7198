@@ -214,7 +214,15 @@ public class Auto4F extends LinearOpMode
 
     public void followPath(Path path, String name)
     {
+        followPath(path,name,false);
+    }
+    public void followPath(Path path, String name,boolean reverse)
+    {
         int currentPathIndex = 0;
+        if(reverse)
+        {
+            currentPathIndex = path.length()-1;
+        }
         PathMarker pathPosition = path.getPosition(currentPathIndex);
 
         while (opModeIsActive() && pathPosition != null) {
@@ -224,6 +232,9 @@ public class Auto4F extends LinearOpMode
 
             pathPosition = path.getPosition(currentPathIndex);
 
+            if(reverse)
+                pathPosition = new PathMarker(pathPosition.getX(),pathPosition.getY(),pathPosition.getR(),-pathPosition.getVx(),-pathPosition.getVy(),-pathPosition.getVr());
+
             if (pathPosition != null) {
 
 
@@ -231,7 +242,14 @@ public class Auto4F extends LinearOpMode
                     currentPathIndex++;
                     if (currentPathIndex < path.length() - 1)
                         while (checkIfNearPathMarker(path.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
+                            //change index
                             currentPathIndex++;
+                            if(reverse)
+                                currentPathIndex-=2;
+
+                            //check if done both ways
+                            if(currentPathIndex < 0)
+                                break;
                             if (currentPathIndex >= path.length())
                                 break;
                         }

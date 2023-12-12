@@ -64,14 +64,14 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
 
         if(isRed)
         {
-            Scalar lower_red = new Scalar(0, 150, 50);
-            Scalar upper_red = new Scalar(20, 255, 200);
+            Scalar lower_red = new Scalar(0, 150, 30);
+            Scalar upper_red = new Scalar(20, 255, 255);
 
             Core.inRange(ourFrame, lower_red, upper_red, mask);
         }
         else {
-            Scalar lower_blue = new Scalar(106, 150, 50); //bright is 100 to 255
-            Scalar upper_blue = new Scalar(146, 255, 200);
+            Scalar lower_blue = new Scalar(106, 150, 30); //bright is 100 to 255
+            Scalar upper_blue = new Scalar(146, 255, 255);
 
             Core.inRange(ourFrame, lower_blue, upper_blue, mask);
         }
@@ -169,7 +169,11 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
         int largestSize = 0;
         int index = 0;
         for(int i = 0; i < boundRect.length; i++)
+
         {
+            if(boundRect == null)
+                continue;
+
             int currentSize = boundRect[i].width * boundRect[i].height;
             if(currentSize > largestSize)
             {

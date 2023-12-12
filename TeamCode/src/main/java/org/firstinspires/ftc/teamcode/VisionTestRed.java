@@ -9,6 +9,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 public class VisionTestRed extends OpMode {
 
     // Field definitions
+    int visionData;
     VisionPortal visionPortal;
     Team7198PropProcessor visProcessor;
 
@@ -31,16 +32,13 @@ public class VisionTestRed extends OpMode {
     @Override
     public void loop() {
 
+        visionData = visProcessor.data;
+        telemetry.addLine("" + visionData);
+        telemetry.update();
     }
 
     public void stop()
     {
         visionPortal.close();
-    }
-
-    public void recieveVisionInfo(int x)
-    {
-        telemetry.addLine("" + x);
-        telemetry.update();
     }
 }

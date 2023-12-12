@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
 
+import java.security.InvalidParameterException;
+
 @TeleOp
 @Config
 public class CCTeleOpControllerV3 extends OpMode {
@@ -122,7 +124,7 @@ public class CCTeleOpControllerV3 extends OpMode {
     public void wristControl()
     {
         if(gamepad2.dpad_down)
-            wristServo.setPosition(0.86);
+            wristServo.setPosition(0.87);
         else
             wristServo.setPosition(0.4);
     }
@@ -166,7 +168,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             //pixelArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             //pixelArm.setPower(0.6);
 
-            targetPosition = -29 * Math.PI / 180;
+            targetPosition = -30 * Math.PI / 180;
 
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
@@ -259,32 +261,29 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         updateSpeedCoefficient();
 
-        x = deadZone(x,0.02);
-        y = deadZone(y,0.02);
-        rx = deadZone(rx,0.02);
+        x = exponentialRemapAnalog(deadZone(x,0.02),2);
+        y = exponentialRemapAnalog(deadZone(y,0.02),2);
+        rx = exponentialRemapAnalog(deadZone(rx,0.02),2);
+
+        telemetry.addData("Remapped Y: ", y);
 
         //rx += poleCenter();
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y - x + rx) / denominator;
-        rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y + x + rx) / denominator;
+        leftBackPower   = (y - x + rx) / denominator;
+        rightBackPower  = (y + x - rx) / denominator;
+        leftFrontPower  = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
-        leftBackPower = Math.cbrt(leftBackPower);
-        rightBackPower = Math.cbrt(rightBackPower);
-        leftFrontPower = Math.cbrt(leftFrontPower);
+        leftBackPower   = Math.cbrt(leftBackPower);
+        rightBackPower  = Math.cbrt(rightBackPower);
+        leftFrontPower  = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBackPower = exponentialRemapAnalog(leftBackPower);
-        rightBackPower  = exponentialRemapAnalog(rightBackPower);
-        leftFrontPower  = exponentialRemapAnalog(leftFrontPower);
-        rightFrontPower = exponentialRemapAnalog(rightFrontPower);
-
-        leftBackPower = (leftBackPower * speedCoefficient);
-        rightBackPower = (rightBackPower * speedCoefficient);
-        leftFrontPower = (leftFrontPower * speedCoefficient);
+        leftBackPower   = (leftBackPower * speedCoefficient);
+        rightBackPower  = (rightBackPower * speedCoefficient);
+        leftFrontPower  = (leftFrontPower * speedCoefficient);
         rightFrontPower = (rightFrontPower * speedCoefficient);
 
         leftBack.setPower(leftBackPower);
@@ -311,23 +310,24 @@ public class CCTeleOpControllerV3 extends OpMode {
         }
     }
 
-    //remaps input so small values near 0 are 0 and values above a threshold are valued.
-    //The function will reach 1 when double input is 1
-    //
-    //double a is in the range [0 - Infinity)
-    //
-    //calcualated in desmos
+    /**
+     * remaps input so small values near 0 are 0 and values above a threshold are valued.
+     * The function will reach 1 when double input is 1.
+     *
+     * @param input the input to be mapped
+     * @param a a non-negative real number
+     */
     public double deadZone(double input,double a) {
-
-        a = Math.max(a, 0);
-        return Math.max(x(1+a),a)+Math.min(x(1+a),-a);
+        return Math.max(input*(1+a),a)+Math.min(input*(1+a),-a);
     }
 
-    //the following function remaps double x to a expnetial equation keeping its sign.
-    //
-    //calculated in desmos
-    public double exponentialRemapAnalog(double x) {
-        return Math.min(Math.pow(Math.max(x,0),2),1) + Math.pow(Math.max(-Math.min(x,0),2),-1);
+    /**
+     * Maps input to a exponential equation keeping its sign. (calculated in desmos)
+     * @param input the input to be mapped
+     * @param exponent the power of the equation
+     */
+    public double exponentialRemapAnalog(double input, double exponent) {
+        return Math.min(Math.pow(Math.max(input,0),exponent),1) + Math.max(-Math.pow(Math.min(input,0),exponent),-1);
     }
 
     private void fingerControl() {
