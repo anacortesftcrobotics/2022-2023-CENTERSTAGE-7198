@@ -125,7 +125,7 @@ public class AutoTest_PID_Zeroing extends LinearOpMode
 
             PathMarker pathPosition = new PathMarker(0,0,0,0,0,0);
 
-            telemetry.addLine("position data [x,y,r] (Euler): [" + roundBetter(kaiOdo.getX(),1) + ", " + roundBetter(kaiOdo.getY(),1) + ", " + roundBetter(kaiOdo.getHDeg(),1) + "]");
+            telemetry.addLine("position data [x,y,r] (Euler): [" + LogsUtils.roundBetter(kaiOdo.getX(),1) + ", " + LogsUtils.roundBetter(kaiOdo.getY(),1) + ", " + LogsUtils.roundBetter(kaiOdo.getHDeg(),1) + "]");
 
             traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
 
@@ -134,13 +134,6 @@ public class AutoTest_PID_Zeroing extends LinearOpMode
         }
 
         visionPortal.close();
-    }
-
-
-    private double roundBetter(double x, double p)
-    {
-        return Math.round(x * Math.pow(10,p)) / Math.pow(10,p);
-
     }
 
     public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)

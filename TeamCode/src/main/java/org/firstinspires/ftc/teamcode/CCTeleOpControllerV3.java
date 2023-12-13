@@ -5,8 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
-
-import java.security.InvalidParameterException;
+import org.firstinspires.ftc.teamcode.logancode.LogsUtils;
 
 @TeleOp
 @Config
@@ -261,9 +260,9 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         updateSpeedCoefficient();
 
-        x = exponentialRemapAnalog(deadZone(x,0.02),2);
-        y = exponentialRemapAnalog(deadZone(y,0.02),2);
-        rx = exponentialRemapAnalog(deadZone(rx,0.02),2);
+        x = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(x,0.02),2);
+        y = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(y,0.02),2);
+        rx = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(rx,0.02),2);
 
         telemetry.addData("Remapped Y: ", y);
 
@@ -308,26 +307,6 @@ public class CCTeleOpControllerV3 extends OpMode {
 
             speedCoefficient = 0.5;
         }
-    }
-
-    /**
-     * remaps input so small values near 0 are 0 and values above a threshold are valued.
-     * The function will reach 1 when double input is 1.
-     *
-     * @param input the input to be mapped
-     * @param a a non-negative real number
-     */
-    public double deadZone(double input,double a) {
-        return Math.max(input*(1+a),a)+Math.min(input*(1+a),-a);
-    }
-
-    /**
-     * Maps input to a exponential equation keeping its sign. (calculated in desmos)
-     * @param input the input to be mapped
-     * @param exponent the power of the equation
-     */
-    public double exponentialRemapAnalog(double input, double exponent) {
-        return Math.min(Math.pow(Math.max(input,0),exponent),1) + Math.max(-Math.pow(Math.min(input,0),exponent),-1);
     }
 
     private void fingerControl() {
