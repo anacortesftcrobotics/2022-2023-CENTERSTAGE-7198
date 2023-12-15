@@ -1,0 +1,7 @@
+x0; y0; r0; vx0; vy0; vr0;
+x0; y0; r0; vx0; vy0; vr0;
+x0; y0; r0; vx0; vy0; vr0;
+x0; y0; r0; vx0; vy0; vr0;
+x0; y0; r0; vx0; vy0; vr0;
+x0; y0; r0; vx0; vy0; vr0;
+
