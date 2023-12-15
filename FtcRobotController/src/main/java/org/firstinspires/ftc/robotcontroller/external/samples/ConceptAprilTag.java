@@ -195,9 +195,8 @@ public class ConceptAprilTag extends LinearOpMode {
      */
     private void telemetryAprilTag() {
 
-        /*
-        List<AprilTagDetection> currentDetections = april
-        Tag.getDetections();
+
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
         // Step through the list of detections and display info for each one.
@@ -218,7 +217,7 @@ public class ConceptAprilTag extends LinearOpMode {
         telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
         telemetry.addLine("RBE = Range, Bearing & Elevation");
 
-         */
+
     }   // end method telemetryAprilTag()
 
 }   // end class

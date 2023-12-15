@@ -105,13 +105,13 @@ public class RowanTestDrive extends OpMode {
         intakeShoulder.setVelocity(928.7);
         //P: Acceleration at start (snappiness) I: How much acceleration at beginning (overall snappiness)
         // D:How much negative acceleration at end (cushion) F: Any constant forces on motor (ex: gravity)
-        intakeShoulder.setVelocityPIDFCoefficients(15.625,2,4,0);
+        intakeShoulder.setVelocityPIDFCoefficients(15.625,2.5,4.75,0);
         //intakeShoulder.setPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION, new PIDFCoefficients(0,0,0    ,0));
     }
     //static Timer myTimer = new Timer()
     @Override
     public void loop() {
-        mecanumX();
+        mecanumX(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         hangControl();
         viper();
         intakeControl();
@@ -137,26 +137,26 @@ public class RowanTestDrive extends OpMode {
         double taco = gamepad2.left_stick_y;
         telemetry.addData("ViperP", viperSlide.getCurrentPosition());
         /**boolean bucketLimit = !bucketStop.getState();
-        boolean viperToggle = gamepad2.triangle;
-        if (bucketLimit && !oldBucketLimit) {
-            viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            viperSlide.setTargetPosition(-150);
-            viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperSlide.setPower(0.7);
-        }
-        if (viperToggle && !oldTriangle) {
-            viperA = !viperA;
-            if (viperA) {
-                viperSlide.setTargetPosition(-1500);
-                viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                viperSlide.setPower(-0.7);
-            } else {
-                viperSlide.setTargetPosition(0);
-                viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                viperSlide.setPower(0.7);
-            }
+         boolean viperToggle = gamepad2.triangle;
+         if (bucketLimit && !oldBucketLimit) {
+         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+         viperSlide.setTargetPosition(-150);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(0.7);
+         }
+         if (viperToggle && !oldTriangle) {
+         viperA = !viperA;
+         if (viperA) {
+         viperSlide.setTargetPosition(-1500);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(-0.7);
+         } else {
+         viperSlide.setTargetPosition(0);
+         viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         viperSlide.setPower(0.7);
+         }
 
-        }**/
+         }**/
 
         viperSlide.setPower(taco);
 
@@ -184,10 +184,7 @@ public class RowanTestDrive extends OpMode {
 
     }*/
 
-    private void mecanumX() {
-        double forwards = -gamepad1.left_stick_y;
-        double sideways = gamepad1.left_stick_x;
-        double rotate = gamepad1.right_stick_x;
+    public void mecanumX(double forwards,double sideways, double rotate) {
         double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
 
         telemetry.addData("Forward", forwards);
@@ -201,9 +198,9 @@ public class RowanTestDrive extends OpMode {
     }
 
     private void hangControl() {
-        /** armControl input: dpad up, right stick Y **/
+        /** armControl input: Triangle, right stick Y **/
         double arm = -gamepad2.right_stick_y;
-        boolean elbowToggle = gamepad2.dpad_up;
+        boolean elbowToggle = gamepad2.y;
         if (elbowToggle && !oldDpadUp) {
             elbow = !elbow;
             if (elbow) {
@@ -260,8 +257,8 @@ public class RowanTestDrive extends OpMode {
         oldXButton = fingerToggle;
     }
     private void openBucket() {
-        /** openBucket input: dpad down **/
-        boolean bucketToggle = gamepad2.dpad_down;
+        /** openBucket input: A **/
+        boolean bucketToggle = gamepad2.a;
         if (bucketToggle && !oldDpadDown) {
             bucket = !bucket;
             if (bucket) {
