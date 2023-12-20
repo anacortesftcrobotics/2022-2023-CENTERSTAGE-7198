@@ -89,6 +89,10 @@ public class PathRecorder extends LinearOpMode {
 
     public void PerformLocalMovement(double x, double y, double rx)
     {
+        x = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(x,0.02),2);
+        y = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(y,0.02),2);
+        rx = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(rx,0.02),2);
+
         double leftBackPower;
         double rightBackPower;
         double leftFrontPower;
@@ -98,9 +102,9 @@ public class PathRecorder extends LinearOpMode {
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
-        rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftBackPower   = (y - x + rx) / denominator;
+        rightBackPower  = (y + x - rx) / denominator;
+        leftFrontPower  = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);

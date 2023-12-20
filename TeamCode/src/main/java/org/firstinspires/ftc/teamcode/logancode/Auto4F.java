@@ -98,7 +98,7 @@ public class Auto4F extends LinearOpMode
 
         fingerRight.setPosition(0);
         fingerLeft.setPosition(1);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
 
         waitForStart();
 
@@ -154,7 +154,7 @@ public class Auto4F extends LinearOpMode
         }
 
         //go to parking location
-        //followPath(finalPath, "final path");
+        followPath(finalPath, "final path");
 
         //end of linear program //end of linear program //end of linear program //end of linear program
         visionPortal.close();
@@ -196,7 +196,7 @@ public class Auto4F extends LinearOpMode
             if(pixelSlide.getCurrentPosition() < -5000)
             {
                 fingerLeft.setPosition(0.54);
-                i = -80;
+                i = -40;
                 backUp = true;
             }
 
@@ -204,7 +204,7 @@ public class Auto4F extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
     }
 
     public void followPath(Path path, String name)
@@ -319,10 +319,10 @@ public class Auto4F extends LinearOpMode
         leftFrontPower = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBack.setPower(leftBackPower * 0.5);
-        rightBack.setPower(rightBackPower * 0.5);
-        leftFront.setPower(leftFrontPower * 0.5);
-        rightFront.setPower(rightFrontPower * 0.5);
+        leftBack.setPower(leftBackPower * 0.75);
+        rightBack.setPower(rightBackPower * 0.75);
+        leftFront.setPower(leftFrontPower * 0.75);
+        rightFront.setPower(rightFrontPower * 0.75);
 
     }
 

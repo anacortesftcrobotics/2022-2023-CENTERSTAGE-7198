@@ -98,7 +98,7 @@ public class Auto2A extends LinearOpMode
 
         fingerRight.setPosition(0);
         fingerLeft.setPosition(1);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
 
         waitForStart();
 
@@ -210,6 +210,7 @@ public class Auto2A extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
+        wristServo.setPosition(0.4);
     }
 
     public void followPath(Path path, String name)

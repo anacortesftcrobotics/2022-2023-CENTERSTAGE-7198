@@ -98,7 +98,7 @@ public class Auto4A extends LinearOpMode
 
         fingerRight.setPosition(0);
         fingerLeft.setPosition(1);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
 
         waitForStart();
 
@@ -196,7 +196,7 @@ public class Auto4A extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -1000)
+            if(pixelSlide.getCurrentPosition() < -3000)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)
@@ -210,6 +210,7 @@ public class Auto4A extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
+        wristServo.setPosition(0.4);
     }
 
     public void followPath(Path path, String name)

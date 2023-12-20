@@ -126,6 +126,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             wristServo.setPosition(0.87);
         else
             wristServo.setPosition(0.4);
+
     }
 
     public void launchDrone()
@@ -151,7 +152,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             if(Math.abs(targetPosition - (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
                 telemetry.addLine("targeting good");
-                pixelSlide.setTargetPosition(-5200);
+                pixelSlide.setTargetPosition(-5100);
                 pixelSlide.setPower(-1);
                 runPixelSlide(1);
             }
@@ -172,7 +173,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
                 telemetry.addLine("targeting good");
-                pixelSlide.setTargetPosition(-5200);
+                pixelSlide.setTargetPosition(-5100);
                 pixelSlide.setPower(-1);
                 runPixelSlide(2);
             }
@@ -193,7 +194,7 @@ public class CCTeleOpControllerV3 extends OpMode {
 
                 if (gamepad2.a != oldAButtonC2 && gamepad2.a)
                     pixelPlacerState = 1;
-                else if (gamepad2.b != oldBButtonC2 && gamepad2.b)
+                else if (gamepad2.y != oldBButtonC2 && gamepad2.y)
                     pixelPlacerState = 2;
             }
 
@@ -217,7 +218,7 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         //always keep at end
         oldAButtonC2 = gamepad2.a;
-        oldBButtonC2 = gamepad2.b;
+        oldBButtonC2 = gamepad2.y;
 
         //pixelArm.setPower(gamepad2.left_stick_y);
 
@@ -311,7 +312,7 @@ public class CCTeleOpControllerV3 extends OpMode {
 
     private void fingerControl() {
 
-        if(pixelSlide.getCurrentPosition() < -1200)
+        if(pixelSlide.getCurrentPosition() < -3200)
         {
             //open ok
             //close ok
