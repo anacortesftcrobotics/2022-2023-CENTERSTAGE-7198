@@ -154,12 +154,15 @@ public class CenterStageRobot {
         double adjustedSidePowerBack = (forwards - sideways + rotate) / denominator;
 
         // TODO: fix or remove this once the robot's weight is more balanced
-        if (forwards != 0) {
+        if (forwards > 0) {
             adjustedSidePowerFront += .1;
             adjustedSidePowerBack += .1;
+        } else if (forwards < 0) {
+            adjustedSidePowerFront -= .1;
+            adjustedSidePowerBack -= .1;
         }
 
-        //does math for mecanum chassis
+        // does math for mecanum chassis
         frontLeft.setPower(adjustedSidePowerFront);
         backLeft.setPower(adjustedSidePowerBack);
         frontRight.setPower((forwards - sideways - rotate) / denominator);
