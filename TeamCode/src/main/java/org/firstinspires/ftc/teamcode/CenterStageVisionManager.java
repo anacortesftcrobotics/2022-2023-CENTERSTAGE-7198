@@ -4,13 +4,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.opencv.core.Core;
 import org.opencv.core.Scalar;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +16,7 @@ public class CenterStageVisionManager {
 
     static final private int DEFAULT_ZONE_IF_VISION_FAILS = 3;
     VisionPortal visionPortal;
-    TeamProp8934Processor visProcessor;
+    CenterStage8934PropProcessor visProcessor;
     private AprilTagProcessor aprilTag;              // Used for managing the AprilTag detection process.
     private Scalar colorUpperBound;
     private Scalar colorLowerBound;
@@ -36,7 +33,7 @@ public class CenterStageVisionManager {
             colorUpperBound = new Scalar(146, 255, 200);
         }
 
-        visProcessor = new TeamProp8934Processor(colorLowerBound, colorUpperBound);
+        visProcessor = new CenterStage8934PropProcessor(colorLowerBound, colorUpperBound);
 
         // Create the AprilTag processor by using a builder.
         aprilTag = new AprilTagProcessor.Builder().build();

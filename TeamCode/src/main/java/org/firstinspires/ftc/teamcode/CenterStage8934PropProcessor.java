@@ -4,26 +4,20 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.function.Consumer;
 import org.firstinspires.ftc.robotcore.external.function.Continuation;
 import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
-import org.firstinspires.ftc.teamcode.logancode.*;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.android.Utils;
 import org.opencv.core.*;
-import org.opencv.objdetect.*;
-import org.opencv.features2d.*;
 import org.opencv.imgproc.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class TeamProp8934Processor implements VisionProcessor, CameraStreamSource
+public class CenterStage8934PropProcessor implements VisionProcessor, CameraStreamSource
 {
     private CameraCalibration cCal;
     private Rect[] boundRect;
@@ -39,13 +33,13 @@ public class TeamProp8934Processor implements VisionProcessor, CameraStreamSourc
     private final AtomicReference<Bitmap> lastFrame =
             new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
 
-    public TeamProp8934Processor(boolean isRed, Object origin)
+    public CenterStage8934PropProcessor(boolean isRed, Object origin)
     {
         this.isRed = isRed;
         this.origin = origin;
     }
 
-    public TeamProp8934Processor(Scalar colorLowerBound, Scalar colorUpperBound)
+    public CenterStage8934PropProcessor(Scalar colorLowerBound, Scalar colorUpperBound)
     {
         this.colorLowerBound = colorLowerBound;
         this.colorUpperBound = colorUpperBound;
