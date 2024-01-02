@@ -1,27 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import com.qualcomm.robotcore.hardware.*;
 
 public class CenterStageRobot {
-
-    DcMotor frontLeft, frontRight, backLeft, backRight;
-    DcMotor viperSlide;
-    DcMotor hookArm;
-    Servo intakeElbow;
-    DcMotor encoderLeft, encoderRight, encoderCenter;
-    Servo hookElbow;
-    Servo fingerLf;
-    Servo fingerRf;
-    Servo shoulderServo;
-    Servo bucketServo;
-
-    public CenterStageRobot(CenterStageAutoBackstage.ALLIANCE thisAlliance, HardwareMap hardwareMap)
+    Servo bucketServo, shoulderServo, intakeElbow, hookElbow, fingerLf, fingerRf;
+    DcMotor frontLeft, frontRight, backLeft, backRight, viperSlide, hookArm;
+    DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
+    public CenterStageRobot(HardwareMap hardwareMap)
     {
-
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
@@ -81,20 +67,24 @@ public class CenterStageRobot {
         hookElbow.setPosition(0);
         intakeElbow.setPosition(0.13);
     }
-
+    public void openBucket()
+    {
+        bucketServo.setPosition(0.1);
+    }
+    public void closeBucket()
+    {
+        bucketServo.setPosition(0);
+    }
     public void halt()
     {
         mecanumX(0, 0, 0);
         roboNap(50);
     }
-
     public void setIntakeToCameraViewing()
     {
-//        shoulderServo.setPosition(0.3);
-        shoulderServo.setPosition(0.42);
+        shoulderServo.setPosition(0.5);
         roboNap(100);
         intakeElbow.setPosition(0.13); // bump up a little higher to help the camera see
-//        intakeElbow.setPosition(0.43);
         roboNap(400);
     }
     public void setIntakeToAutoScore()
@@ -104,15 +94,81 @@ public class CenterStageRobot {
         intakeElbow.setPosition(0.43);
         roboNap(400);
     }
-
+    public void closeBothFingers()
+    {
+        fingerRf.setPosition(1);
+        fingerLf.setPosition(0);
+    }
     public void setIntakeToBatteringRam()
     {
-        // use the intake elbow as a battering ram to move the prop out of the way
-        intakeElbow.setPosition(.83);
-        shoulderServo.setPosition(.3);
+        intakeElbow.setPosition(1);
+        //shoulderServo.setPosition(.37);
+        shoulderServo.setPosition(0.32);
         roboNap(100);
     }
+    public void depositPixelsInBucketDragOff()
+    {
+        viperSlide.setPower(-.3);
+        roboNap(350);
+        viperSlide.setPower(0);
+        shoulderServo.setPosition(0.9);
+        roboNap(800);
+        intakeElbow.setPosition(0);
+        closeBothFingers();
+        roboNap(200);
+        viperSlide.setPower(-.3);
+        roboNap(500);
+        viperSlide.setPower(0);
+        roboNap(100);
+        //
+        shoulderServo.setPosition(.6);
+        intakeElbow.setPosition(.1);
+        roboNap(500);
+        setIntakeToBatteringRam();
+        viperSlide.setPower(.3);
+    }
+    public void intakeDownGrabPixelsComeUp()
+    {
+       intakeElbow.setPosition(1);
+        roboNap(200);
+        shoulderServo.setPosition(0.1);
+        roboNap(300);
+        fingerRf.setPosition(0);
+        fingerLf.setPosition(1);
+        roboNap(700);
+        setIntakeToBatteringRam();
+    }
 
+    // wrapper around mecanumX and roboNap, because commonly those are called together
+    public void drive(double forwards, double sideways, double rotate, int sleepMillis)
+    {
+        mecanumX(forwards, sideways, rotate);
+        if (sleepMillis > 0) {
+            roboNap(sleepMillis);
+        }
+    }
+    public void mecanumX(double forwards,double sideways, double rotate) {
+        double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
+
+        double adjustedSidePowerFront = (forwards + sideways + rotate) / denominator;
+        double adjustedSidePowerBack = (forwards - sideways + rotate) / denominator;
+
+        // TODO: fix or remove this once the robot's weight is more balanced
+        if (forwards != 0) {
+            adjustedSidePowerFront += .1;
+            adjustedSidePowerBack += .1;
+        }
+
+        //does math for mecanum chassis
+        frontLeft.setPower(adjustedSidePowerFront);
+        backLeft.setPower(adjustedSidePowerBack);
+        frontRight.setPower((forwards - sideways - rotate) / denominator);
+        backRight.setPower((forwards + sideways - rotate) / denominator);
+    }
+
+    // TODO: consolidate this with mecanumX
+    // TODO: This is only used by the AprilTag drive-up code (came with the sample code).
+    // TODO: We should only have one way to drive the robot.
     public void moveRobot(double x, double y, double yaw) {
         // Calculate wheel powers.
         double leftFrontPower    =  x -y -yaw;
@@ -137,32 +193,6 @@ public class CenterStageRobot {
         frontRight.setPower(rightFrontPower);
         backLeft.setPower(leftBackPower);
         backRight.setPower(rightBackPower);
-    }
-    public void mecanumX(double forwards,double sideways, double rotate) {
-        double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
-
-        double adjustedSidePowerFront = (forwards + sideways + rotate) / denominator;
-        double adjustedSidePowerBack = (forwards - sideways + rotate) / denominator;
-
-        // TODO: fix or remove this once the robot's weight is more balanced
-        if (forwards != 0) {
-            adjustedSidePowerFront += .1;
-            adjustedSidePowerBack += .1;
-        }
-
-        //does math for mecanum chassis
-        frontLeft.setPower(adjustedSidePowerFront);
-        backLeft.setPower(adjustedSidePowerBack);
-        frontRight.setPower((forwards - sideways - rotate) / denominator);
-        backRight.setPower((forwards + sideways - rotate) / denominator);
-    }
-
-    public void drive(double forwards, double sideways, double rotate, int sleepMillis)
-    {
-        mecanumX(forwards, sideways, rotate);
-        if (sleepMillis > 0) {
-            roboNap(sleepMillis);
-        }
     }
     public void roboNap(int millis)
     {
