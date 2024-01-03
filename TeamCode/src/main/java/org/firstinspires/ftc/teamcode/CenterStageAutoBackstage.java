@@ -112,29 +112,29 @@ public class CenterStageAutoBackstage extends LinearOpMode
         // stop moving
         theRobot.halt();
         theRobot.setIntakeToAutoScore();
-        theRobot.drive(0,.2,0,1100);
+        theRobot.drive(0,.2,0,700);
 
         // final approach
-       theRobot.drive(0.2,0,0,500);
+       theRobot.drive(0.2,0,0,600);
 
         // drop the yellow pixel
         theRobot.closeRightFinger();
-        theRobot.drive(-0.2,0,0,1500);
+        theRobot.drive(-0.2,0,0,800);
 
 
         // strafe to park
         if (theDangPropZone == 1) {
-            theRobot.drive(0,-0.4,0,1200);
+            theRobot.drive(0,-0.4,0,900);
         } else if (theDangPropZone == 2) {
-            theRobot.drive(0,-0.4,0,1800);
+            theRobot.drive(0,-0.4,0,1500);
         } else {
-            theRobot.drive(0,-0.4,0,2000);
+            theRobot.drive(0,-0.4,0,1700);
         }
 
         // fancy park
-        theRobot.drive(0,0,-0.2,600);
-        theRobot.drive(0.2,0,0,750);
-        theRobot.drive(0,0,-0.2,200);
+        theRobot.drive(0,0,-0.2,300);
+        theRobot.drive(0.2,0,0,1000);
+        theRobot.drive(0,0,.3,1500);
         theRobot.halt();
     }
 
@@ -147,7 +147,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
                 theRobot.drive(0,0,0.4,1500);
             }
             else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-                theRobot.drive(0,0,-0.4,500);
+                theRobot.drive(0,0,-0.2,300);
             }
         }
         else if (theDangPropPosition == 2) {
@@ -157,7 +157,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
                 theRobot.drive(0,0,0.4,500);
             }
             else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-                theRobot.drive(0,0,-0.4,1000);
+                theRobot.drive(0,0,-0.4,800);
             }
         }
         else {
@@ -171,7 +171,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
             else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
                 theRobot.drive(-0.2,0,0,1000);
                 theRobot.drive(0,-0.3,0,500);
-                theRobot.drive(0,0,-0.4,1700);
+                theRobot.drive(0,0,-0.4,1300);
             }
         }
 
@@ -180,7 +180,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
 
     private void scorePurplePixelCenter()
     {
-        theRobot.drive(0.5,0,0,450);
+        theRobot.drive(0.5,0,0,510);
         theRobot.halt();
         theRobot.setIntakeToBatteringRam();
 
@@ -192,7 +192,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.placePurplePixel();
 
         // back away
-        theRobot.drive(-0.28,0,0,1000);
+        theRobot.drive(-0.28,0,0,400);
         theRobot.setIntakeToCameraViewing();
     }
     private void scorePurplePixelRight()
@@ -208,6 +208,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.drive(-0.2,0,0,600);
         // fine positioning
         theRobot.drive(0,0,-0.2,400);
+        theRobot.drive(.2,0,0,300);
         theRobot.halt();
 
         theRobot.placePurplePixel();
@@ -226,7 +227,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
 
         // plow and retreat
         theRobot.drive(0.2,0,0,657);
-        theRobot.drive(-0.2,0,0,600);
+        theRobot.drive(-0.2,0,0,300);
         // fine positioning
         theRobot.drive(0,0,-0.2,400);
         theRobot.halt();
@@ -235,7 +236,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.setIntakeToCameraViewing();
 
         // back away
-        theRobot.drive(-0.2,0,0,1000);
-        theRobot.drive(0,-0.3,0,750);
+        theRobot.drive(-0.2,0,0,500);
+        theRobot.drive(0,-0.3,0,800);
     }
 }

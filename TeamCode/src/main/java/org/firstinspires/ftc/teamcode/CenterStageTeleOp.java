@@ -17,9 +17,8 @@ public class CenterStageTeleOp extends OpMode
     GamepadEx fancyGamePad, fancyDrivePad;
     ButtonReader aReader, lbReader, rbReader, xReader, yReader, bReader, dpad_downReader, dpadUpReader;
     TriggerReader ltReader, rtReader;
-    private boolean fDriveMode = false;
     RevIMU imu;
-
+    private boolean fDriveMode = false;
     @Override
     public void init()
     {
@@ -91,7 +90,8 @@ public class CenterStageTeleOp extends OpMode
         if (xReader.wasJustReleased()) {
             theRobot.intakeDownGrabPixelsComeUp();
         } else if (bReader.wasJustReleased()) {
-            theRobot.depositPixelsInBucketDragOff();
+            theRobot.loadPixelsInBucket();
+
         } else if (yReader.wasJustReleased()) {
            theRobot.setIntakeToBatteringRam();
         }
@@ -115,7 +115,7 @@ public class CenterStageTeleOp extends OpMode
         if (dpad_downReader.wasJustReleased()) { theRobot.closeBothFingers(); } // reset pixel picker-uppers
 
         double viperPower = gamepad2.left_stick_y;
-        theRobot.viperSlide.setPower(viperPower);
+        theRobot.safeViperSlide(viperPower);
 
         // enable/disable experimental fDrive
         if (dpadUpReader.wasJustReleased()) {
@@ -124,12 +124,14 @@ public class CenterStageTeleOp extends OpMode
                 theRobot.frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
                 theRobot.backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
                 fDriveMode = false;
+                gamepad1.rumbleBlips(1);
                 telemetry.addLine("drive mode: normal");
             } else {
                 // enable fDrive
                 theRobot.frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
                 theRobot.backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
                 fDriveMode = true;
+                gamepad1.rumbleBlips(3);
                 telemetry.addLine("drive mode: fDrive");
             }
         }

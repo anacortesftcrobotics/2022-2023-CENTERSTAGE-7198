@@ -1,11 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ThreadPool;
+
+import java.util.concurrent.ExecutorService;
 
 public class CenterStageRobot {
     Servo bucketServo, shoulderServo, intakeElbow, hookElbow, fingerLf, fingerRf;
     DcMotor frontLeft, frontRight, backLeft, backRight, viperSlide, hookArm;
     DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
+    private ExecutorService threadExecuter;
+    private Runnable backgroundThread;
+    private boolean viperThreadLock = false;
     public CenterStageRobot(HardwareMap hardwareMap)
     {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -33,6 +39,17 @@ public class CenterStageRobot {
         hookArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        threadExecuter = ThreadPool.newSingleThreadExecutor("loadPixel");
+        backgroundThread = () -> {
+            try {
+                viperThreadLock = true;
+                this.depositPixelsInBucketDragOff();
+                viperThreadLock = false;
+            } catch (Throwable t) {
+                // hm, should probably throw an error
+            }
+        };
     }
 
     // used in Auto to intake the pixels
@@ -106,26 +123,43 @@ public class CenterStageRobot {
         shoulderServo.setPosition(0.32);
         roboNap(100);
     }
-    public void depositPixelsInBucketDragOff()
+
+    // We transfer from intake to deposit in a background thread because it takes a while.
+    // It needs to be accurate, but we should be able to move the drivetrain while its happening.
+    public void loadPixelsInBucket()
     {
-        viperSlide.setPower(-.3);
-        roboNap(350);
-        viperSlide.setPower(0);
-        shoulderServo.setPosition(0.9);
+        threadExecuter.submit(backgroundThread);
+    }
+
+    public void safeViperSlide(double power)
+    {
+        if (! viperThreadLock) {
+            viperSlide.setPower(power);
+        }
+    }
+    public void depositPixelsInBucketDragOff() // this is the code that actually loads the bucket
+    {
+        roboNap(10);
+        shoulderServo.setPosition(0.86);
         roboNap(800);
         intakeElbow.setPosition(0);
+        roboNap(100);
         closeBothFingers();
-        roboNap(200);
+        roboNap(100);
+
         viperSlide.setPower(-.3);
-        roboNap(500);
+        roboNap(600); // into the bucket
         viperSlide.setPower(0);
         roboNap(100);
-        //
+
+        setIntakeToBatteringRam();
+
+        /*
         shoulderServo.setPosition(.6);
         intakeElbow.setPosition(.1);
         roboNap(500);
-        setIntakeToBatteringRam();
         viperSlide.setPower(.3);
+*/
     }
     public void intakeDownGrabPixelsComeUp()
     {
