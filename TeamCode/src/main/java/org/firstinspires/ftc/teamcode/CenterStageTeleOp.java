@@ -91,9 +91,8 @@ public class CenterStageTeleOp extends OpMode
             theRobot.intakeDownGrabPixelsComeUp();
         } else if (bReader.wasJustReleased()) {
             theRobot.loadPixelsInBucket();
-
         } else if (yReader.wasJustReleased()) {
-           theRobot.setIntakeToBatteringRam();
+            theRobot.setIntakeToBatteringRam();
         }
 
         // drive screw out

@@ -119,7 +119,6 @@ public class CenterStageRobot {
     public void setIntakeToBatteringRam()
     {
         intakeElbow.setPosition(1);
-        //shoulderServo.setPosition(.37);
         shoulderServo.setPosition(0.32);
         roboNap(100);
     }
