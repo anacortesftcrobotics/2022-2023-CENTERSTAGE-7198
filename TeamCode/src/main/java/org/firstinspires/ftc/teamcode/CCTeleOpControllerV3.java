@@ -53,6 +53,7 @@ public class CCTeleOpControllerV3 extends OpMode {
     private boolean firstTimeSlide = false;
 
     private double targetPosition;
+    boolean isUp;
 
     @Override
     public void init() {
@@ -85,7 +86,7 @@ public class CCTeleOpControllerV3 extends OpMode {
         //kg:-1
         //kv:-1.5
         //p:-1.2
-        pidfArmController.launch(-28 *Math.PI/180,System.currentTimeMillis());
+        pidfArmController.launch(-15 *Math.PI/180,System.currentTimeMillis());
 
         //pixelArm.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(0, 0, 0, 0));
 
@@ -122,10 +123,13 @@ public class CCTeleOpControllerV3 extends OpMode {
 
     public void wristControl()
     {
-        if(gamepad2.dpad_down)
+        wristServo.setPosition(0.2);
+
+        if(gamepad2.dpad_down && pixelSlide.getCurrentPosition() < -2200 && !isUp)
             wristServo.setPosition(0.87);
-        else
+        if(pixelSlide.getCurrentPosition() < -2200 && isUp)
             wristServo.setPosition(0.4);
+
 
     }
 
@@ -141,13 +145,15 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         telemetry.addData("Current arm position: ", pixelBase.getCurrentPosition() * (pixelArmToRadiansConstant / Math.PI) * 180);
 
+        isUp = false;
         if (pixelPlacerState == 2) // up
         {
+            isUp = true;
             //pixelArm.setTargetPosition(-568);
             //pixelArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             //pixelArm.setPower(-0.6);
 
-            targetPosition = 160 * Math.PI / 180;
+            targetPosition = 125 * Math.PI / 180;
 
             if(Math.abs(targetPosition - (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
@@ -168,7 +174,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             //pixelArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             //pixelArm.setPower(0.6);
 
-            targetPosition = -30 * Math.PI / 180;
+            targetPosition = -48 * Math.PI / 180;
 
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
@@ -190,7 +196,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             ///pixelArm.setPower(-0.6);
             if(pixelSlide.getCurrentPosition() > -300)
             {
-                targetPosition = -25 * Math.PI / 180;
+                targetPosition = -42 * Math.PI / 180;
 
                 if (gamepad2.a != oldAButtonC2 && gamepad2.a)
                     pixelPlacerState = 1;
@@ -367,7 +373,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             hookArm.setTargetPosition(0);
             hookArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             hookArm.setPower(1);
-            hookElbow.setPosition(0.97);
+            hookElbow.setPosition(1);
         }
 
         telemetry.addData("HookArm position [0-1]: ", -hookArm.getCurrentPosition() / 2400);
