@@ -43,13 +43,15 @@ public class CenterStageAutoBackstage extends LinearOpMode
         if (opModeInInit()) {
             initializeGameConfig();
             initializeSystem();
-            theRobot.grabInitialPixels();
+            //theRobot.grabInitialPixels();
         }
 
         waitForStart(); // ready to rock
 
         while (opModeIsActive()) {
             if (this.TeamPropLocation == -1) {
+                theRobot.grabInitialPixels();
+                theRobot.roboNap(200);
                 this.TeamPropLocation = visionManager.getDetectedSpikeMark();
                 telemetry.addData("auto", "detected prop = %d", this.TeamPropLocation);
                 scorePurplePixelandTurn(this.TeamPropLocation);
@@ -154,10 +156,10 @@ public class CenterStageAutoBackstage extends LinearOpMode
             scorePurplePixelCenter();
             // rotate into viewing position
             if (THIS_ALLIANCE == ALLIANCE.RED) {
-                theRobot.drive(0,0,0.4,500);
+                theRobot.drive(0,0,0.4,750);
             }
             else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-                theRobot.drive(0,0,-0.4,800);
+                theRobot.drive(0,0,-0.4,600);
             }
         }
         else {
@@ -165,8 +167,9 @@ public class CenterStageAutoBackstage extends LinearOpMode
             scorePurplePixelRight();
             // back away and rotate into viewing position
             if (THIS_ALLIANCE == ALLIANCE.RED) {
-                theRobot.drive(-0.2,0,0,1000);
-                theRobot.drive(0,0.3,0,2000);
+                theRobot.drive(-0.2,0,0,600);
+                theRobot.drive(0,0.3,0,1000);
+                theRobot.drive(0,0,.2,500);
             }
             else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
                 theRobot.drive(-0.2,0,0,1000);
@@ -182,17 +185,20 @@ public class CenterStageAutoBackstage extends LinearOpMode
     {
         theRobot.drive(0.5,0,0,510);
         theRobot.halt();
+        theRobot.drive(0,0,-.2,175);
+        theRobot.halt();
         theRobot.setIntakeToBatteringRam();
 
+
         // overshoot to plow the prop
-        theRobot.drive(0.2,0,0,850);
+        theRobot.drive(0.2,0,0,1000);
         // back up to the tape
-        theRobot.drive(-0.2,0,0,350);
+        theRobot.drive(-0.2,0,0,400);
         theRobot.halt();
         theRobot.placePurplePixel();
 
         // back away
-        theRobot.drive(-0.28,0,0,400);
+        theRobot.drive(-0.2,0,0,400);
         theRobot.setIntakeToCameraViewing();
     }
     private void scorePurplePixelRight()
@@ -208,7 +214,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.drive(-0.2,0,0,600);
         // fine positioning
         theRobot.drive(0,0,-0.2,400);
-        theRobot.drive(.2,0,0,300);
+        theRobot.drive(.2,0,0,100);
         theRobot.halt();
 
         theRobot.placePurplePixel();
@@ -217,7 +223,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
     private void scorePurplePixelLeft()
     {
         // approach
-        theRobot.drive(.5,0, 0, 600);
+        theRobot.drive(.5,0, 0, 500);
         theRobot.halt();
 
         theRobot.setIntakeToBatteringRam();

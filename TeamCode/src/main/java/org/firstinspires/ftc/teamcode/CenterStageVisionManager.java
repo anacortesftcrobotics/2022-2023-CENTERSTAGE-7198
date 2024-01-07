@@ -112,7 +112,7 @@ public class CenterStageVisionManager {
     public void enableAprilTagProcessor() {
         visionPortal.setProcessorEnabled(visProcessor, false);
         visionPortal.setProcessorEnabled(aprilTag, true);
-        setManualExposure(6, 250);  // Use low exposure time to reduce motion blur
+        setManualExposure(1, 200);  // Use low exposure time to reduce motion blur
     }
     private void setManualExposure(int exposureMS, int gain) {
 
