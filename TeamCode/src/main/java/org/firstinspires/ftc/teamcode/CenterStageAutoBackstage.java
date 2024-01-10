@@ -58,10 +58,22 @@ public class CenterStageAutoBackstage extends LinearOpMode
                 visionManager.enableAprilTagProcessor();
             }
             if (! arrivedAtAprilTag) {
-                // this function will occur repeatedly as the robot homes in on it
-                driveToAprilTag(this.TeamPropLocation);
+                // this function will occur repeatedly as the robot hones in on it
+                if(THIS_ALLIANCE == ALLIANCE.RED){
+                    driveToAprilTag(this.TeamPropLocation + 3);
+                }
+                else if(THIS_ALLIANCE == ALLIANCE.BLUE){
+                    driveToAprilTag(this.TeamPropLocation);
+                }
             } else {
                 scoreYellowPixelandPark(this.TeamPropLocation);
+                if(THIS_ALLIANCE == ALLIANCE.BLUE){
+                    theRobot.drive(0,0,.3,1450);
+                }
+                else if(THIS_ALLIANCE == ALLIANCE.RED){
+                    theRobot.drive(0,0,-.3,1250);
+                }
+
                 requestOpModeStop();
             }
             telemetry.update();
@@ -86,6 +98,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         double turn = 0;        // Desired turning power/speed (-1 to +1)
 
         targetAprilTag = visionManager.getDetectedAprilTag(DetectedPropZone);
+
         if (targetAprilTag != null) {
             // "error" here refers to the remaining distance to target.
             double rangeError = (targetAprilTag.ftcPose.range - DESIRED_DISTANCE);
@@ -136,7 +149,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         // fancy park
         theRobot.drive(0,0,-0.2,300);
         theRobot.drive(0.2,0,0,1000);
-        theRobot.drive(0,0,.3,1500);
+        //theRobot.drive(0,0,.3,1500);
         theRobot.halt();
     }
 
@@ -245,4 +258,5 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.drive(-0.2,0,0,500);
         theRobot.drive(0,-0.3,0,800);
     }
+
 }

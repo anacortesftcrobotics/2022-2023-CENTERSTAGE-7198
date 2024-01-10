@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.RevIMU;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="CenterStage 8934 TeleOp", group="8934 TeleOp")
@@ -15,7 +16,7 @@ public class CenterStageTeleOp extends OpMode
     private MecanumDrive fDrive;
     Motor frontLeftX, frontRightX, backLeftX, backRightX;
     GamepadEx fancyGamePad, fancyDrivePad;
-    ButtonReader aReader, lbReader, rbReader, xReader, yReader, bReader, dpad_downReader, dpadUpReader;
+    ButtonReader aReader, lbReader, rbReader, xReader, yReader, bReader, dpad_downReader, dpadUpReader, dpad_leftReader;
     TriggerReader ltReader, rtReader;
     RevIMU imu;
     private boolean fDriveMode = false;
@@ -34,6 +35,7 @@ public class CenterStageTeleOp extends OpMode
         xReader = new ButtonReader(fancyGamePad, GamepadKeys.Button.X);
         yReader = new ButtonReader(fancyGamePad, GamepadKeys.Button.Y);
         dpad_downReader = new ButtonReader(fancyGamePad, GamepadKeys.Button.DPAD_DOWN);
+        dpad_leftReader = new ButtonReader(fancyGamePad, GamepadKeys.Button.DPAD_LEFT);
 
         // experimental fDrive
         fancyDrivePad = new GamepadEx(gamepad1);
@@ -80,6 +82,7 @@ public class CenterStageTeleOp extends OpMode
         yReader.readValue();
         dpad_downReader.readValue();
         dpadUpReader.readValue();
+        dpad_leftReader.readValue();
 
         if (aReader.isDown()) {
             theRobot.openBucket();
@@ -102,6 +105,11 @@ public class CenterStageTeleOp extends OpMode
             theRobot.hookArm.setPower(0);
         }
 
+        if(dpad_leftReader.wasJustReleased()){
+            theRobot.launcherServo.setPosition(-1);
+        }
+
+
         // drive screw in
         if (rtReader.isDown()) {
             theRobot.hookArm.setPower(- fancyGamePad.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
@@ -115,6 +123,20 @@ public class CenterStageTeleOp extends OpMode
 
         double viperPower = gamepad2.left_stick_y;
         theRobot.safeViperSlide(viperPower);
+        /*
+       if(theRobot.bucketStop.getState() == false){
+           theRobot.viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       }
+        if(theRobot.viperSlide.getCurrentPosition() >= -2000) {
+            theRobot.safeViperSlide(viperPower);
+        }
+        else if(theRobot.viperSlide.getCurrentPosition() <= -1800){
+            theRobot.viperSlide.setPower(0);
+        }
+        */
+        telemetry.addData("Encoder pos: ",theRobot.viperSlide.getCurrentPosition());
+        telemetry.addData("bucket stop state: ", theRobot.bucketStop.getState());
+        telemetry.update();
 
         // enable/disable experimental fDrive
         if (dpadUpReader.wasJustReleased()) {

@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.util.ThreadPool;
 import java.util.concurrent.ExecutorService;
 
 public class CenterStageRobot {
-    Servo bucketServo, shoulderServo, intakeElbow, hookElbow, fingerLf, fingerRf;
+    DigitalChannel bucketStop;
+    Servo bucketServo, shoulderServo, intakeElbow, hookElbow, fingerLf, fingerRf, launcherServo;
     DcMotor frontLeft, frontRight, backLeft, backRight, viperSlide, hookArm;
     DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
     private ExecutorService threadExecuter;
@@ -26,6 +27,8 @@ public class CenterStageRobot {
         intakeElbow = hardwareMap.get(Servo.class, "intakeWrist");
         shoulderServo = hardwareMap.get(Servo.class, "shoulder");
         bucketServo = hardwareMap.get(Servo.class, "bucketServo");
+        bucketStop = hardwareMap.get(DigitalChannel.class, "bucketStop");
+        launcherServo = hardwareMap.get(Servo.class, "launcherServo");
 
         // odometry wheels
         encoderLeft = backRight;
