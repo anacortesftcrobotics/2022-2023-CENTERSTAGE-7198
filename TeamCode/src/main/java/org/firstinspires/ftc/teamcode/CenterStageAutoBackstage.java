@@ -127,7 +127,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         // stop moving
         theRobot.halt();
         theRobot.setIntakeToAutoScore();
-        theRobot.drive(0,.2,0,700);
+        theRobot.drive(0,.2,0,500);
 
         // final approach
        theRobot.drive(0.2,0,0,600);
@@ -211,7 +211,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
         theRobot.placePurplePixel();
 
         // back away
-        theRobot.drive(-0.2,0,0,400);
+        theRobot.drive(-0.2,0,0,200);
         theRobot.setIntakeToCameraViewing();
     }
     private void scorePurplePixelRight()

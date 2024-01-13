@@ -89,11 +89,11 @@ public class CenterStageRobot {
     }
     public void openBucket()
     {
-        bucketServo.setPosition(0.1);
+        bucketServo.setPosition(0.6);
     }
     public void closeBucket()
     {
-        bucketServo.setPosition(0);
+        bucketServo.setPosition(.8);
     }
     public void halt()
     {

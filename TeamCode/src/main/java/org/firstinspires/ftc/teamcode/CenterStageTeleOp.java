@@ -51,6 +51,7 @@ public class CenterStageTeleOp extends OpMode
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
+        theRobot.launcherServo.setPosition(.73);
     }
 
     /*
@@ -105,7 +106,7 @@ public class CenterStageTeleOp extends OpMode
             theRobot.hookArm.setPower(0);
         }
 
-        if(dpad_leftReader.wasJustReleased()){
+        if(dpad_leftReader.wasJustReleased()) {
             theRobot.launcherServo.setPosition(-1);
         }
 
