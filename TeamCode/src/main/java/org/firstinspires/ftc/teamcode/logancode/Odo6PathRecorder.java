@@ -62,6 +62,8 @@ public class Odo6PathRecorder extends LinearOpMode {
 
             telemetry.addLine("Internal Position:");
             telemetry.addData("(X, Y, Radians)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHeadingRad() *10)/10d);
+            kaiOdo.telemOdometry(telemetry);
+
             telemetry.addLine("Path count: " + path.length());
 
             xOld = kaiOdo.getX();

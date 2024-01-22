@@ -33,6 +33,8 @@ public class CCTeleOpControllerV3 extends OpMode {
     Servo wristServo;
     Servo droneServo;
 
+    DigitalChannel pixelSlideSwitch;
+
     boolean fingers;
     boolean oldXButton;
     boolean oldAButtonC2;
@@ -53,7 +55,10 @@ public class CCTeleOpControllerV3 extends OpMode {
     private boolean firstTimeSlide = false;
 
     private double targetPosition;
-    boolean isUp;
+
+    private int zeroOffset = 20;
+     boolean isUp;
+
 
     @Override
     public void init() {
@@ -81,6 +86,8 @@ public class CCTeleOpControllerV3 extends OpMode {
         pixelSlide = hardwareMap.get(DcMotorEx.class, "pixelSlide");
         pixelSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         pixelSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        pixelSlideSwitch = hardwareMap.get(DigitalChannel.class, "PSSwitch");
 
         pidfArmController = new PIDFArmController(p,i,d,kv,ka,kg,0);
         //kg:-1
@@ -111,6 +118,7 @@ public class CCTeleOpControllerV3 extends OpMode {
     public void Controller1() {
         driveMechanum();
         hangerControl();
+        launchDrone();
     }
 
     public void Controller2() {
@@ -118,32 +126,53 @@ public class CCTeleOpControllerV3 extends OpMode {
         controlPixelPlacer();
         fingerControl();
         wristControl();
-        launchDrone();
     }
 
     public void wristControl()
     {
-        wristServo.setPosition(0.2);
 
-        if(gamepad2.dpad_down && pixelSlide.getCurrentPosition() < -2200 && !isUp)
-            wristServo.setPosition(0.87);
-        if(pixelSlide.getCurrentPosition() < -2200 && isUp)
-            wristServo.setPosition(0.4);
+
+//        if(gamepad2.dpad_down && pixelSlidePosition() < -1900 && !isUp)
+//            wristServo.setPosition(0.87);
+//        else
+//            wristServo.setPosition(0.2);
+
+        if(pixelPlacerState == 1)
+        {
+            wristServo.setPosition(0.77);
+        }
+        else if(pixelPlacerState == 2)
+        {
+            wristServo.setPosition(0);
+        }
+        else
+        {
+            wristServo.setPosition(0.2);
+        }
 
 
     }
 
     public void launchDrone()
     {
-        if(gamepad2.left_stick_button)
+        if(gamepad1.left_bumper)
             droneServo.setPosition(0);
         else
             droneServo.setPosition(1);
+
+        telemetry.addData("Drone Servo", droneServo.getPosition());
     }
 
     public void controlPixelPlacer() {
 
         telemetry.addData("Current arm position: ", pixelBase.getCurrentPosition() * (pixelArmToRadiansConstant / Math.PI) * 180);
+
+        //limit switch zero
+        if(pixelSlideSwitch.getState())
+        {
+            telemetry.addLine("Zeroing");
+            zeroOffset = pixelSlide.getCurrentPosition();
+        }
 
         isUp = false;
         if (pixelPlacerState == 2) // up
@@ -179,7 +208,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
                 telemetry.addLine("targeting good");
-                pixelSlide.setTargetPosition(-5100);
+                pixelSlide.setTargetPosition(-2880);
                 pixelSlide.setPower(-1);
                 runPixelSlide(2);
             }
@@ -194,7 +223,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             //pixelArm.setTargetPosition(-30);
             //pixelArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             ///pixelArm.setPower(-0.6);
-            if(pixelSlide.getCurrentPosition() > -300)
+            if(pixelSlidePosition() > -300)
             {
                 targetPosition = -42 * Math.PI / 180;
 
@@ -228,9 +257,15 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         //pixelArm.setPower(gamepad2.left_stick_y);
 
-        telemetry.addData("Arm extention position", pixelSlide.getCurrentPosition());
+        telemetry.addData("Arm extention position", pixelSlidePosition());
 
         telemetry.addData("Slide if",firstTimeSlide);
+    }
+
+    public int pixelSlidePosition()
+    {
+        //offset from limit switch
+        return -zeroOffset + pixelSlide.getCurrentPosition();
     }
 
     public void resetPixelSlide()
@@ -271,7 +306,7 @@ public class CCTeleOpControllerV3 extends OpMode {
         y = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(y,0.02),2);
         rx = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(rx,0.02),2);
 
-        telemetry.addData("Remapped Y: ", y);
+        //telemetry.addData("Remapped Y: ", y);
 
         //rx += poleCenter();
 
@@ -318,7 +353,7 @@ public class CCTeleOpControllerV3 extends OpMode {
 
     private void fingerControl() {
 
-        if(pixelSlide.getCurrentPosition() < -3200)
+        if(pixelPlacerState != 0)
         {
             //open ok
             //close ok
@@ -326,13 +361,6 @@ public class CCTeleOpControllerV3 extends OpMode {
             boolean fingerToggle = gamepad2.x;
             if (fingerToggle && !oldXButton) {
                 fingers = !fingers;
-                if (fingers) {
-                    fingerRight.setPosition(1);
-                    fingerLeft.setPosition(0);
-                } else {
-                    fingerRight.setPosition(0.6);
-                    fingerLeft.setPosition(0.54);
-                }
             }
             oldXButton = fingerToggle;
 
@@ -341,8 +369,15 @@ public class CCTeleOpControllerV3 extends OpMode {
         {
             //auto close
 
+            fingers = true;
+        }
+
+        if (fingers) {
             fingerRight.setPosition(1);
             fingerLeft.setPosition(0);
+        } else {
+            fingerRight.setPosition(0.6);
+            fingerLeft.setPosition(0.54);
         }
     }
 

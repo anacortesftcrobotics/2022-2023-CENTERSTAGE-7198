@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.odometry;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.kinematics.Pose2D;
 
 /**
@@ -58,6 +59,12 @@ public class _7198_OdoController {
         );
     }
 
+    public void telemOdometry(Telemetry telemetry)
+    {
+        telemetry.addLine("encoder positions");
+        telemetry.addData("L, R, B", encoderLeft.getCurrentPosition() + " " + encoderRight.getCurrentPosition() + " " + encoderBack.getCurrentPosition());
+    }
+
     public Odometry acessOdo6()
     {
         return odo;
@@ -72,7 +79,7 @@ public class _7198_OdoController {
         lastEncoder3 = encoder3;
 
         encoder1 = encoderLeft.getCurrentPosition();
-        encoder2 = encoderRight.getCurrentPosition();
+        encoder2 = -encoderRight.getCurrentPosition();
         encoder3 = encoderBack.getCurrentPosition();
     }
 

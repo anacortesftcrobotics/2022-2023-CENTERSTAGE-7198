@@ -196,7 +196,7 @@ public class Auto2A extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -1000)
+            if(pixelSlide.getCurrentPosition() < -800)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)

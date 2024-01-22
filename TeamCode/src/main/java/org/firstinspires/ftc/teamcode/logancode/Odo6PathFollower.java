@@ -116,7 +116,7 @@ public class Odo6PathFollower  extends LinearOpMode
 
         int currentPathIndex = 0;
 
-        int fileId = hardwareMap.appContext.getResources().getIdentifier("path_for_x", "raw", hardwareMap.appContext.getPackageName());
+        int fileId = hardwareMap.appContext.getResources().getIdentifier("forward_test_path", "raw", hardwareMap.appContext.getPackageName());
         Odo6Path autonomousPath = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         int fileId1 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
@@ -181,14 +181,29 @@ public class Odo6PathFollower  extends LinearOpMode
         //return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
     }
 
+//    public boolean checkIfNear(PoseVelocity2D target, PathMarker currentPosition)
+//    {
+//        if(target != null) {
+//            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
+//                    ;
+//            return clear;
+//        }
+//        return true;
+//    }
+
     public boolean checkIfNear(PoseVelocity2D target, PathMarker currentPosition)
     {
-        if(target != null) {
-            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
-                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
-                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
-                    ;
-            return clear;
+        if(target != null)
+        {
+//            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
+//                    ;
+//            return clear;
+
+
         }
         return true;
     }
@@ -201,8 +216,8 @@ public class Odo6PathFollower  extends LinearOpMode
     public void performGlobalMovement(double x, double y, double rx)
     {
         double xl, yl;
-        yl = (x * Math.cos(kaiOdo.getHeadingRad())) + (y * Math.sin(kaiOdo.getHeadingRad()));
-        xl = (x * Math.sin(kaiOdo.getHeadingRad())) - (y * Math.cos(kaiOdo.getHeadingRad()));
+        xl = (x * Math.cos(kaiOdo.getHeadingRad())) + (y * Math.sin(kaiOdo.getHeadingRad()));
+        yl = (x * Math.sin(kaiOdo.getHeadingRad())) - (y * Math.cos(kaiOdo.getHeadingRad()));
 
         PerformLocalMovement(xl,yl,rx);
     }

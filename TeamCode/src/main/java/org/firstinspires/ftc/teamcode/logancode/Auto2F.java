@@ -57,7 +57,7 @@ public class Auto2F extends LinearOpMode
     private PIDFController Rpidf = new PIDFController(0.01,0,0,14,0.8);
     //0.9 : 0.000008 : 0
 
-    private final double PATH_TOLERANCE = 4.5;
+    private final double PATH_TOLERANCE = 5.5;
 
     public void runOpMode() {
         mapHardware();
@@ -196,7 +196,7 @@ public class Auto2F extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -1000)
+            if(pixelSlide.getCurrentPosition() < -800)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)

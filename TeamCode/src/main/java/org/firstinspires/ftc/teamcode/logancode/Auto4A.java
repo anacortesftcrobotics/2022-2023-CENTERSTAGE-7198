@@ -170,7 +170,7 @@ public class Auto4A extends LinearOpMode
     {
         boolean placed = false;
         boolean backUp = false;
-        double targetPosition = -28 * Math.PI / 180;
+        double targetPosition = -38 * Math.PI / 180;
         int i = -80;
         while (!placed && opModeIsActive())
         {
@@ -196,7 +196,7 @@ public class Auto4A extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -3000)
+            if(pixelSlide.getCurrentPosition() < -800)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)
