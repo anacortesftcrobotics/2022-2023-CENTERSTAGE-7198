@@ -64,14 +64,14 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
 
         if(isRed)
         {
-            Scalar lower_red = new Scalar(0, 150, 50);
-            Scalar upper_red = new Scalar(20, 255, 200);
+            Scalar lower_red = new Scalar(0, 150, 30);
+            Scalar upper_red = new Scalar(20, 255, 255);
 
             Core.inRange(ourFrame, lower_red, upper_red, mask);
         }
         else {
-            Scalar lower_blue = new Scalar(106, 150, 50); //bright is 100 to 255
-            Scalar upper_blue = new Scalar(146, 255, 200);
+            Scalar lower_blue = new Scalar(90, 120, 100); //bright is 100 to 255
+            Scalar upper_blue = new Scalar(150, 255, 255);
 
             Core.inRange(ourFrame, lower_blue, upper_blue, mask);
         }
@@ -112,11 +112,12 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
         int index = -1;
         for(int i = 0; i < boundRect.length; i++)
         {
-            int currentSize = boundRect[i].width * boundRect[i].height;
-            if(currentSize > largestSize)
-            {
-                largestSize = currentSize;
-                index = i;
+            if(boundRect[i] != null) {
+                int currentSize = boundRect[i].width * boundRect[i].height;
+                if (currentSize > largestSize) {
+                    largestSize = currentSize;
+                    index = i;
+                }
             }
         }
 
@@ -167,9 +168,12 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
             return;
 
         int largestSize = 0;
-        int index = 0;
+        int index = -1;
         for(int i = 0; i < boundRect.length; i++)
         {
+            if(boundRect == null || boundRect[i] == null)
+                continue;
+
             int currentSize = boundRect[i].width * boundRect[i].height;
             if(currentSize > largestSize)
             {
@@ -188,12 +192,13 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
 //                    rectPaint);
 //        }
 
-        canvas.drawRect(
-            (float) boundRect[index].tl().x * scaleBmpPxToCanvasPx,
-            (float) boundRect[index].tl().y * scaleBmpPxToCanvasPx,
-            (float) boundRect[index].br().x * scaleBmpPxToCanvasPx,
-            (float) boundRect[index].br().y * scaleBmpPxToCanvasPx,
-            rectPaint);
+        if(index != -1)
+            canvas.drawRect(
+                (float) boundRect[index].tl().x * scaleBmpPxToCanvasPx,
+                (float) boundRect[index].tl().y * scaleBmpPxToCanvasPx,
+                (float) boundRect[index].br().x * scaleBmpPxToCanvasPx,
+                (float) boundRect[index].br().y * scaleBmpPxToCanvasPx,
+                rectPaint);
     }
 
     @Override

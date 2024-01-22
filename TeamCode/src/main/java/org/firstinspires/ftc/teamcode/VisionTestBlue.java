@@ -11,6 +11,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 public class VisionTestBlue extends OpMode {
 
     // Field definitions
+    double visionData;
     VisionPortal visionPortal;
     Team7198PropProcessor visProcessor;
 
@@ -32,17 +33,15 @@ public class VisionTestBlue extends OpMode {
     // Looping sequence of events
     @Override
     public void loop() {
-
+        visionData = visProcessor.data;
+        telemetry.addLine("" + visionData);
+        telemetry.update();
     }
 
     public void stop()
     {
+        visionPortal.stopLiveView();
+        //visionPortal.stopStreaming();
         visionPortal.close();
-    }
-
-    public void recieveVisionInfo(int x)
-    {
-        telemetry.addLine("" + x);
-        telemetry.update();
     }
 }

@@ -51,10 +51,10 @@ public class Auto4F extends LinearOpMode
 
     private double greatestVelocity = 0;
 
-    private PIDFController Xpidf = new PIDFController(0.001,0,0,0.1,0.1);
+    private PIDFController Xpidf = new PIDFController(0.01,0,0,0.1,0.1);
     //0.0045 //0 //0 //0.46 // 0.4
-    private PIDFController Ypidf = new PIDFController(0.001,0,0,0.34,0.15);
-    private PIDFController Rpidf = new PIDFController(0.01,0,0,14,0.8);
+    private PIDFController Ypidf = new PIDFController(-0.01,0,0,0.34,0.15);
+    private PIDFController Rpidf = new PIDFController(0.5,0,0,14,0.8);
     //0.9 : 0.000008 : 0
 
     private final double PATH_TOLERANCE = 4.5;
@@ -98,7 +98,7 @@ public class Auto4F extends LinearOpMode
 
         fingerRight.setPosition(0);
         fingerLeft.setPosition(1);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
 
         waitForStart();
 
@@ -123,6 +123,9 @@ public class Auto4F extends LinearOpMode
 
             //place purple
             placePurple();
+
+            //go to known point
+            followPath(longPath,"Long path inverted",true);
         }
         else
         {
@@ -134,6 +137,9 @@ public class Auto4F extends LinearOpMode
                 followPath(shortPathR, "Right path");
 
                 placePurple();
+
+                //go to known point
+                followPath(shortPathR,"Right path inverted",true);
             }
             else
             {
@@ -141,23 +147,11 @@ public class Auto4F extends LinearOpMode
                 followPath(shortPathL, "Left path");
 
                 placePurple();
+
+                //go to known point
+                followPath(shortPathL,"Left path inverted",true);
             }
         }
-
-        //go to known point
-        PathMarker pathPosition = new PathMarker(0,0,0,0,0,0); //find good x and y or 0 ok
-
-        while(!checkIfNearPathMarker(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())) && opModeIsActive())
-        {
-            PathMarker p = new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad());
-            telemetry.addData("Position", p);
-            telemetry.addData("Distance: ", pathPosition.distance(p));
-
-
-            traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
-            telemetry.update();
-        }
-        PerformLocalMovement(0,0,0);
 
         //go to parking location
         followPath(finalPath, "final path");
@@ -170,7 +164,7 @@ public class Auto4F extends LinearOpMode
     {
         boolean placed = false;
         boolean backUp = false;
-        double targetPosition = -28 * Math.PI / 180;
+        double targetPosition = -38 * Math.PI / 180;
         int i = -80;
         while (!placed && opModeIsActive())
         {
@@ -196,13 +190,13 @@ public class Auto4F extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -1000)
+            if(pixelSlide.getCurrentPosition() < -800)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)
             {
                 fingerLeft.setPosition(0.54);
-                i = -80;
+                i = -40;
                 backUp = true;
             }
 
@@ -210,11 +204,19 @@ public class Auto4F extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
+        wristServo.setPosition(0.4);
     }
 
     public void followPath(Path path, String name)
     {
+        followPath(path,name,false);
+    }
+    public void followPath(Path path, String name,boolean reverse)
+    {
         int currentPathIndex = 0;
+        if(reverse)
+            currentPathIndex = path.length()-1;
+
         PathMarker pathPosition = path.getPosition(currentPathIndex);
 
         while (opModeIsActive() && pathPosition != null) {
@@ -226,12 +228,23 @@ public class Auto4F extends LinearOpMode
 
             if (pathPosition != null) {
 
+                if(reverse)
+                    pathPosition = new PathMarker(pathPosition.getX(),pathPosition.getY(),pathPosition.getR(),-pathPosition.getVx(),-pathPosition.getVy(),-pathPosition.getVr());
 
                 if (traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
                     currentPathIndex++;
-                    if (currentPathIndex < path.length() - 1)
+                    if(reverse)
+                        currentPathIndex -= 2;
+                    if (currentPathIndex < path.length() - 1 && currentPathIndex >= 0)
                         while (checkIfNearPathMarker(path.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()))) {
+                            //change index
                             currentPathIndex++;
+                            if(reverse)
+                                currentPathIndex -= 2;
+
+                            //check if done both ways
+                            if(currentPathIndex < 0)
+                                break;
                             if (currentPathIndex >= path.length())
                                 break;
                         }
@@ -296,9 +309,9 @@ public class Auto4F extends LinearOpMode
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
@@ -306,10 +319,10 @@ public class Auto4F extends LinearOpMode
         leftFrontPower = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBack.setPower(leftBackPower * 0.5);
-        rightBack.setPower(rightBackPower * 0.5);
-        leftFront.setPower(leftFrontPower * 0.5);
-        rightFront.setPower(rightFrontPower * 0.5);
+        leftBack.setPower(leftBackPower * 0.75);
+        rightBack.setPower(rightBackPower * 0.75);
+        leftFront.setPower(leftFrontPower * 0.75);
+        rightFront.setPower(rightFrontPower * 0.75);
 
     }
 

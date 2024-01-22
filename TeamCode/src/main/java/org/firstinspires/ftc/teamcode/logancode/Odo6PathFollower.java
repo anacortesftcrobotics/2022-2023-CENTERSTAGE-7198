@@ -11,10 +11,12 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Team7198PropProcessor;
 import org.firstinspires.ftc.teamcode.kaicode.Odo1;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
+import org.firstinspires.ftc.teamcode.kinematics.PoseVelocity2D;
+import org.firstinspires.ftc.teamcode.odometry._7198_OdoController;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name = "PathFollower_Logan", group = "Autos")
-public class PathFollower extends LinearOpMode
+@Autonomous(name = "Odo6PathFollower_Logan", group = "Autos")
+public class Odo6PathFollower  extends LinearOpMode
 {
 
     //Camera Processing
@@ -27,7 +29,7 @@ public class PathFollower extends LinearOpMode
 
     //Odometry
     private DcMotor encoderRight, encoderLeft, encoderBack;
-    private Odo1 kaiOdo;
+    private _7198_OdoController kaiOdo;
 
 
     private double tempLastDegrees = 0;
@@ -52,7 +54,8 @@ public class PathFollower extends LinearOpMode
         telemetry.addData("Velocity: ", 0);
         telemetry.addData("Target Velocity: ", 0);
 
-        kaiOdo = new Odo1(36.2,25.8,4.8,2000);
+        kaiOdo = new _7198_OdoController();
+        kaiOdo.initializeHardware(hardwareMap);
         //disLtoR tuning log
         //39.37 -> 40deg for 90deg
         //37.37 -> 30deg for 90deg
@@ -113,61 +116,49 @@ public class PathFollower extends LinearOpMode
 
         int currentPathIndex = 0;
 
-        int fileId = hardwareMap.appContext.getResources().getIdentifier("path_for_x", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+        int fileId = hardwareMap.appContext.getResources().getIdentifier("forward_test_path", "raw", hardwareMap.appContext.getPackageName());
+        Odo6Path autonomousPath = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         int fileId1 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt1 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+        Odo6Path autonomousPathAlt1 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
         int fileId2 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt2 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+        Odo6Path autonomousPathAlt2 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
         int fileId3 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt3 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+        Odo6Path autonomousPathAlt3 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         waitForStart();
         while(opModeIsActive())
         {
-            kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
-                    encoderRight.getCurrentPosition(),
-                    encoderBack.getCurrentPosition());
+            kaiOdo.update();
 
-            PathMarker pathPosition = autonomousPath.getPosition(currentPathIndex);
+            PoseVelocity2D pathPosition = autonomousPath.getPosition(currentPathIndex);
 
             if(pathPosition != null)
             {
                 //telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
 
-                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
+                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
                 {
                     currentPathIndex++;
                     if(currentPathIndex < autonomousPath.length() - 1)
-                        while(checkIfNearPathMarker(autonomousPath.getPosition(currentPathIndex),new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
+                        while(checkIfNear(autonomousPath.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
                         {
                             currentPathIndex++;
                             if(currentPathIndex >= autonomousPath.length())
                                 break;
                         }
 
-                    telemetry.addData("Velocity: ", kaiOdo.getDeltaHDeg());
-                    telemetry.addData("Target Velocity: ", pathPosition.getVr());
+                    telemetry.addData("Velocity: ", kaiOdo.getDeltaPose().getHeadingRad());
+                    telemetry.addData("Target Velocity: ", pathPosition.getVheadingRad());
                 }
                 //telemetry.addLine(pathPosition.toString());
                 telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
             }
             else
             {
-                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
+                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad()));
                 telemetry.addLine("done");
             }
-
-            //double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
-            //if(Math.abs(velocity) > Math.abs(greatestVelocity))
-            //    greatestVelocity = velocity;
-
-            //telemetry.addLine("greatest recorded velocity: " + greatestVelocity);
-            //telemetry.addLine("Rotational Velocity: " + velocity);
-
-            //tempLastDegrees = kaiOdo.getHDeg();
-            //pastTime = System.currentTimeMillis();
 
             telemetry.addLine("" + visionData);
             odoTelemetry();
@@ -176,28 +167,43 @@ public class PathFollower extends LinearOpMode
         visionPortal.close();
     }
 
-    public boolean traverseToPosition(PathMarker target, PathMarker currentPosition)
+    public boolean traverseToPosition(PoseVelocity2D target, PathMarker currentPosition)
     {
-        double rotation = Rpidf.update(target.getR() * Math.PI/180,currentPosition.getR(), target.getVr() * Math.PI/180,System.currentTimeMillis());
+        double rotation = Rpidf.update(target.getHeadingRad(),currentPosition.getR(), target.getVheadingRad(),System.currentTimeMillis());
         double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
         //double y = 0; double x = 0;
         performGlobalMovement(x,y,rotation);
 
-        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE));
+        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE));
 
-    return checkIfNearPathMarker(target, currentPosition);
+        return checkIfNear(target, currentPosition);
         //return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
     }
 
-    public boolean checkIfNearPathMarker(PathMarker target, PathMarker currentPosition)
+//    public boolean checkIfNear(PoseVelocity2D target, PathMarker currentPosition)
+//    {
+//        if(target != null) {
+//            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
+//                    ;
+//            return clear;
+//        }
+//        return true;
+//    }
+
+    public boolean checkIfNear(PoseVelocity2D target, PathMarker currentPosition)
     {
-        if(target != null) {
-            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
-                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
-                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getR() * Math.PI/180, PATH_TOLERANCE)
-                    ;
-            return clear;
+        if(target != null)
+        {
+//            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
+//                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
+//                    ;
+//            return clear;
+
+
         }
         return true;
     }
@@ -210,8 +216,8 @@ public class PathFollower extends LinearOpMode
     public void performGlobalMovement(double x, double y, double rx)
     {
         double xl, yl;
-        yl = (x * Math.cos(kaiOdo.getHRad())) + (y * Math.sin(kaiOdo.getHRad()));
-        xl = (x * Math.sin(kaiOdo.getHRad())) - (y * Math.cos(kaiOdo.getHRad()));
+        xl = (x * Math.cos(kaiOdo.getHeadingRad())) + (y * Math.sin(kaiOdo.getHeadingRad()));
+        yl = (x * Math.sin(kaiOdo.getHeadingRad())) - (y * Math.cos(kaiOdo.getHeadingRad()));
 
         PerformLocalMovement(xl,yl,rx);
     }
@@ -245,7 +251,7 @@ public class PathFollower extends LinearOpMode
     public void odoTelemetry()
     {
         telemetry.addLine("Internal Position:");
-        telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
+        telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHeadingRad() *10)/10d);
         telemetry.update();
     }
 
@@ -288,12 +294,5 @@ public class PathFollower extends LinearOpMode
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    public void recieveVisionInfo(int x)
-    {
-
-        visionData = x;
-        //telemetry.update();
     }
 }

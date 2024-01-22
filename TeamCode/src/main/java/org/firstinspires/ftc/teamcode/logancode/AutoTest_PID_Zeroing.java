@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.kaicode.Odo1;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
 import org.firstinspires.ftc.vision.VisionPortal;
 
-@Autonomous(name = "PathFollower_Logan", group = "Autos")
-public class PathFollower extends LinearOpMode
+@Autonomous(name = "AutoTest_PID_Zeroing", group = "Test")
+public class AutoTest_PID_Zeroing extends LinearOpMode
 {
 
     //Camera Processing
@@ -23,7 +23,7 @@ public class PathFollower extends LinearOpMode
     private int visionData = 0;
 
     //Motors
-    private DcMotor leftBack, leftFront, rightBack, rightFront;
+    private DcMotor leftBack, leftFront, rightBack, rightFront, pixelPlacer;
 
     //Odometry
     private DcMotor encoderRight, encoderLeft, encoderBack;
@@ -113,15 +113,8 @@ public class PathFollower extends LinearOpMode
 
         int currentPathIndex = 0;
 
-        int fileId = hardwareMap.appContext.getResources().getIdentifier("path_for_x", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-
-        int fileId1 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt1 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-        int fileId2 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt2 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-        int fileId3 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Path autonomousPathAlt3 = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
+        //int fileId = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
+        //Path autonomousPath = new Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         waitForStart();
         while(opModeIsActive())
@@ -130,44 +123,11 @@ public class PathFollower extends LinearOpMode
                     encoderRight.getCurrentPosition(),
                     encoderBack.getCurrentPosition());
 
-            PathMarker pathPosition = autonomousPath.getPosition(currentPathIndex);
+            PathMarker pathPosition = new PathMarker(0,0,0,0,0,0);
 
-            if(pathPosition != null)
-            {
-                //telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
+            telemetry.addLine("position data [x,y,r] (Euler): [" + LogsUtils.roundBetter(kaiOdo.getX(),1) + ", " + LogsUtils.roundBetter(kaiOdo.getY(),1) + ", " + LogsUtils.roundBetter(kaiOdo.getHDeg(),1) + "]");
 
-                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
-                {
-                    currentPathIndex++;
-                    if(currentPathIndex < autonomousPath.length() - 1)
-                        while(checkIfNearPathMarker(autonomousPath.getPosition(currentPathIndex),new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad())))
-                        {
-                            currentPathIndex++;
-                            if(currentPathIndex >= autonomousPath.length())
-                                break;
-                        }
-
-                    telemetry.addData("Velocity: ", kaiOdo.getDeltaHDeg());
-                    telemetry.addData("Target Velocity: ", pathPosition.getVr());
-                }
-                //telemetry.addLine(pathPosition.toString());
-                telemetry.addLine("Path index: " + currentPathIndex + "/" + autonomousPath.length());
-            }
-            else
-            {
-                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
-                telemetry.addLine("done");
-            }
-
-            //double velocity = (kaiOdo.getHDeg() - tempLastDegrees) / (System.currentTimeMillis()-pastTime);
-            //if(Math.abs(velocity) > Math.abs(greatestVelocity))
-            //    greatestVelocity = velocity;
-
-            //telemetry.addLine("greatest recorded velocity: " + greatestVelocity);
-            //telemetry.addLine("Rotational Velocity: " + velocity);
-
-            //tempLastDegrees = kaiOdo.getHDeg();
-            //pastTime = System.currentTimeMillis();
+            traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHRad(), kaiOdo.getDeltaX(), kaiOdo.getDeltaY(), kaiOdo.getDeltaHRad()));
 
             telemetry.addLine("" + visionData);
             odoTelemetry();
@@ -270,7 +230,7 @@ public class PathFollower extends LinearOpMode
         rightFront = hardwareMap.get(DcMotor.class, "frontRight");
         leftBack = hardwareMap.get(DcMotor.class, "backLeft");
         rightBack = hardwareMap.get(DcMotor.class, "backRight");
-        //pixelPlacer = hardwareMap.get(DcMotorEx.class, "pixelArm");
+        pixelPlacer = hardwareMap.get(DcMotorEx.class, "pixelArm");
 
         encoderBack = rightFront;
         encoderLeft = leftBack;
@@ -281,8 +241,8 @@ public class PathFollower extends LinearOpMode
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        //pixelPlacer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //pixelPlacer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pixelPlacer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pixelPlacer.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

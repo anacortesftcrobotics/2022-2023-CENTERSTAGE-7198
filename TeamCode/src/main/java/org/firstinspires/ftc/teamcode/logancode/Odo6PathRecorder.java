@@ -4,30 +4,29 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.kaicode.Odo1;
+import org.firstinspires.ftc.teamcode.kinematics.PoseVelocity2D;
+import org.firstinspires.ftc.teamcode.odometry._7198_OdoController;
 
 import java.io.File;
 
-@TeleOp(name = "PathRecorder_Logan", group = "Debug/Tool")
-public class PathRecorder extends LinearOpMode {
+@TeleOp(name = "Odo6PathRecorder_Logan", group = "Debug/Tool")
+public class Odo6PathRecorder extends LinearOpMode {
 
-    //Motors
-    private DcMotor leftBack, leftFront, rightBack, rightFront;
+    private DcMotor leftBack, leftFront, rightBack, rightFront, encoderBack, encoderLeft, encoderRight;
 
     //Odometry
-    private DcMotor encoderRight, encoderLeft, encoderBack;
-    private Odo1 kaiOdo;
+    private _7198_OdoController kaiOdo;
+    public  Odo6Path path = new Odo6Path();
+
     double xOld = 0;
     double yOld = 0;
     double rOld = 0;
-
-    public Path path = new Path();
-
-    private PathMarker lastPath;
+    private PoseVelocity2D lastPath;
     private long lastTime;
-    //private final double MAX_SPEED = 150; // cm per second. theoretical: 165 cm/s
 
     int i = 0;
 
@@ -36,39 +35,40 @@ public class PathRecorder extends LinearOpMode {
 
         mapHardware();
         resetDriveEncoder();
-        kaiOdo = new Odo1(36.2,25.8,4.8,2000);
+        kaiOdo = new _7198_OdoController();
+        kaiOdo.initializeHardware(hardwareMap);
 
-        lastPath = new PathMarker(0,0,0,0,0,0);
+        lastPath = new PoseVelocity2D(0,0,0,0,0,0);
         lastTime = System.currentTimeMillis();
 
         waitForStart();
 
         while(opModeIsActive())
         {
-            kaiOdo.setEncoderPos(-encoderLeft.getCurrentPosition(),
-                    encoderRight.getCurrentPosition(),
-                    encoderBack.getCurrentPosition());
+            kaiOdo.update();
 
             double deltaTime = System.currentTimeMillis() - lastTime;
-            PathMarker p =  new PathMarker(kaiOdo.getX(), kaiOdo.getY(),kaiOdo.getHDeg(), (kaiOdo.getX() - xOld) * deltaTime, (kaiOdo.getY() - yOld) * deltaTime, (kaiOdo.getHDeg() - rOld) * deltaTime);
-            if(p.distance(lastPath) > 0.25 + kaiOdo.getDeltaDistance())
+            PoseVelocity2D p =  new PoseVelocity2D(kaiOdo.getX(), kaiOdo.getY(),kaiOdo.getHeadingRad(), (kaiOdo.getX() - xOld) * deltaTime, (kaiOdo.getY() - yOld) * deltaTime, (kaiOdo.getHeadingRad() - rOld) * deltaTime);
+            if(p.distance(lastPath) > 0.25 + kaiOdo.acessOdo6().getDeltaPose().getMagnitude())
             {
                 path.addPathMarker(p);
                 telemetry.addLine("New Path Generated at: " + p);
-                lastPath = new PathMarker(p.getX(),p.getY());
+                lastPath = new PoseVelocity2D(p.getX(),p.getY(), p.getHeadingRad(),p.getVx(),p.getVy(),p.getVheadingRad());
             }
             telemetry.addLine("Path to path dist: " + p.distance(lastPath));
-            telemetry.addLine("Delta val: " + (kaiOdo.getDeltaDistance()));
+            telemetry.addLine("Delta val: " + (kaiOdo.acessOdo6().getDeltaPose().getMagnitude()));
 
             lastTime = System.currentTimeMillis();
 
             telemetry.addLine("Internal Position:");
-            telemetry.addData("(X, Y, Degrees)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHDeg() *10)/10d);
+            telemetry.addData("(X, Y, Radians)", Math.round(kaiOdo.getX() *10)/10d + " : " + Math.round(kaiOdo.getY() *10)/10d + " : " + Math.round(kaiOdo.getHeadingRad() *10)/10d);
+            kaiOdo.telemOdometry(telemetry);
+
             telemetry.addLine("Path count: " + path.length());
 
             xOld = kaiOdo.getX();
             yOld = kaiOdo.getY();
-            rOld = kaiOdo.getHDeg();
+            rOld = kaiOdo.getHeadingRad();
 
             if(gamepad1.a)
             {
@@ -77,7 +77,7 @@ public class PathRecorder extends LinearOpMode {
                 ReadWriteFile.writeFile(file, path.serialize());
                 telemetry.log().add("saved to '%s'", filename);
                 i++;
-                path = new Path();
+                path = new Odo6Path();
             }
 
             PerformLocalMovement(-gamepad1.left_stick_x, gamepad1.left_stick_y, -gamepad1.right_stick_x);
@@ -112,10 +112,10 @@ public class PathRecorder extends LinearOpMode {
         leftFrontPower = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBackPower = (leftBackPower);
-        rightBackPower = (rightBackPower);
-        leftFrontPower = (leftFrontPower);
-        rightFrontPower = (rightFrontPower);
+//        leftBackPower = (leftBackPower);
+//        rightBackPower = (rightBackPower);
+//        leftFrontPower = (leftFrontPower);
+//        rightFrontPower = (rightFrontPower);
 
         leftBack.setPower(leftBackPower);
         rightBack.setPower(rightBackPower);
@@ -146,9 +146,9 @@ public class PathRecorder extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "backLeft");
         rightBack = hardwareMap.get(DcMotor.class, "backRight");
 
-        encoderBack = rightFront;
-        encoderLeft = leftBack;
-        encoderRight = leftFront;
+        //encoderBack = rightFront;
+        //encoderLeft = leftBack;
+        //encoderRight = leftFront;
 
         //colorMan = hardwareMap.get(ColorRangeSensor.class, "colorSensor");
 

@@ -57,7 +57,7 @@ public class Auto2F extends LinearOpMode
     private PIDFController Rpidf = new PIDFController(0.01,0,0,14,0.8);
     //0.9 : 0.000008 : 0
 
-    private final double PATH_TOLERANCE = 4.5;
+    private final double PATH_TOLERANCE = 5.5;
 
     public void runOpMode() {
         mapHardware();
@@ -98,7 +98,7 @@ public class Auto2F extends LinearOpMode
 
         fingerRight.setPosition(0);
         fingerLeft.setPosition(1);
-        wristServo.setPosition(0);
+        wristServo.setPosition(0.4);
 
         waitForStart();
 
@@ -196,7 +196,7 @@ public class Auto2F extends LinearOpMode
                 wristServo.setPosition(0.4);
             }
 
-            if(pixelSlide.getCurrentPosition() < -1000)
+            if(pixelSlide.getCurrentPosition() < -800)
                 wristServo.setPosition(0.86);
 
             if(pixelSlide.getCurrentPosition() < -5000)
@@ -210,6 +210,7 @@ public class Auto2F extends LinearOpMode
             i++;
         }
         pixelBase.setPower(0);
+        wristServo.setPosition(0.4);
     }
 
     public void followPath(Path path, String name)
@@ -296,9 +297,9 @@ public class Auto2F extends LinearOpMode
 
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
         rightBackPower = (y + x - rx) / denominator;
-        leftFrontPower = (y - x + rx) / denominator;
+        leftFrontPower = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower = Math.cbrt(leftBackPower);
