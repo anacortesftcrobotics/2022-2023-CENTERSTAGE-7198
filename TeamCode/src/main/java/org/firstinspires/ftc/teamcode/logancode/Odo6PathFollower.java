@@ -138,7 +138,7 @@ public class Odo6PathFollower  extends LinearOpMode
             {
                 //telemetry.addLine(Math.round(pathPosition.getX() *10)/10d + " : " + Math.round(pathPosition.getY() *10)/10d + " : " + Math.round(pathPosition.getR() *10)/10d);
 
-                if(traverseToPosition(pathPosition, new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
+                if(traverseToPosition(pathPosition, new PoseVelocity2D(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
                 {
                     currentPathIndex++;
                     if(currentPathIndex < autonomousPath.length() - 1)
