@@ -43,7 +43,8 @@ public class Odo6PathFollower  extends LinearOpMode
     private PIDFController Rpidf = new PIDFController(0.9,0,0,8,0.2);
     //0.9 : 0.000008 : 0
 
-    private final double PATH_TOLERANCE = 1.5;
+    private final double PATH_TOLERANCE = 4;
+    private final double PATH_ROTATION_TOLERANCE = Math.PI / 2;
 
     public void runOpMode()
     {
@@ -141,7 +142,7 @@ public class Odo6PathFollower  extends LinearOpMode
                 {
                     currentPathIndex++;
                     if(currentPathIndex < autonomousPath.length() - 1)
-                        while(checkIfNear(autonomousPath.getPosition(currentPathIndex), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
+                        while(checkIfNear(autonomousPath.getPosition(currentPathIndex), new PoseVelocity2D(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad())))
                         {
                             currentPathIndex++;
                             if(currentPathIndex >= autonomousPath.length())
@@ -156,7 +157,7 @@ public class Odo6PathFollower  extends LinearOpMode
             }
             else
             {
-                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PathMarker(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad()));
+                traverseToPosition(autonomousPath.getPosition(autonomousPath.length() - 1), new PoseVelocity2D(kaiOdo.getX(), kaiOdo.getY(), kaiOdo.getHeadingRad(), kaiOdo.getDeltaPose().getY(), kaiOdo.getDeltaPose().getX(), kaiOdo.getDeltaPose().getHeadingRad()));
                 telemetry.addLine("done");
             }
 
@@ -167,15 +168,15 @@ public class Odo6PathFollower  extends LinearOpMode
         visionPortal.close();
     }
 
-    public boolean traverseToPosition(PoseVelocity2D target, PathMarker currentPosition)
+    public boolean traverseToPosition(PoseVelocity2D target, PoseVelocity2D currentPosition)
     {
-        double rotation = Rpidf.update(target.getHeadingRad(),currentPosition.getR(), target.getVheadingRad(),System.currentTimeMillis());
+        double rotation = Rpidf.update(target.getHeadingRad(),currentPosition.getHeadingRad(), target.getVheadingRad(),System.currentTimeMillis());
         double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
         //double y = 0; double x = 0;
         performGlobalMovement(x,y,rotation);
 
-        telemetry.addLine("IsInBetween output: " + isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE));
+        telemetry.addLine("IsInBetween Rotation output: " + isInBetween(currentPosition.getHeadingRad(), currentPosition.getHeadingRad() - currentPosition.getVheadingRad(), target.getHeadingRad(), PATH_TOLERANCE));
 
         return checkIfNear(target, currentPosition);
         //return currentPosition.distance(target) + Math.abs(currentRadRot - target.getR());
@@ -193,15 +194,15 @@ public class Odo6PathFollower  extends LinearOpMode
 //        return true;
 //    }
 
-    public boolean checkIfNear(PoseVelocity2D target, PathMarker currentPosition)
+    public boolean checkIfNear(PoseVelocity2D target, PoseVelocity2D currentPosition)
     {
         if(target != null)
         {
-//            boolean clear = isInBetween(currentPosition.getX(), currentPosition.getX() - currentPosition.getVx(), target.getX(), PATH_TOLERANCE)
-//                    && isInBetween(currentPosition.getY(), currentPosition.getY() - currentPosition.getVy(), target.getY(), PATH_TOLERANCE)
-//                    && isInBetween(currentPosition.getR(), currentPosition.getR() - currentPosition.getVr(), target.getHeadingRad(), PATH_TOLERANCE)
-//                    ;
-//            return clear;
+            boolean clear =
+                    target.distance(currentPosition) < PATH_TOLERANCE
+                    && isInBetween(currentPosition.getHeadingRad(), currentPosition.getHeadingRad() - currentPosition.getVheadingRad(), target.getHeadingRad(), PATH_ROTATION_TOLERANCE)
+                    ;
+            return clear;
 
 
         }
