@@ -147,7 +147,7 @@ public class CCTeleOpControllerV3 extends OpMode {
         }
         else
         {
-            wristServo.setPosition(0.2);
+            wristServo.setPosition(0.05);
         }
 
 
@@ -187,8 +187,7 @@ public class CCTeleOpControllerV3 extends OpMode {
             if(Math.abs(targetPosition - (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
                 telemetry.addLine("targeting good");
-                pixelSlide.setTargetPosition(-5100);
-                pixelSlide.setPower(-1);
+                setPixelSlide();
                 runPixelSlide(1);
             }
             else
@@ -196,6 +195,12 @@ public class CCTeleOpControllerV3 extends OpMode {
                 resetPixelSlide();
                 runPixelSlide(15);
             }
+
+//            if(fingers)
+//            {
+//                pixelPlacerState = 0;
+//                slideState = 0;
+//            }
         }
         else if (pixelPlacerState == 1) // down
         {
@@ -246,8 +251,10 @@ public class CCTeleOpControllerV3 extends OpMode {
         pixelBase.setPower(correction);
 
 
-        if (gamepad2.left_bumper)
+        if (gamepad2.left_bumper) {
             pixelPlacerState = 0;
+            slideState = 0;
+        }
 
         telemetry.addData("Pixel state: ", pixelPlacerState);
 
@@ -261,6 +268,47 @@ public class CCTeleOpControllerV3 extends OpMode {
 
         telemetry.addData("Slide if",firstTimeSlide);
     }
+
+    private int slideState = 1;
+    private final int slideMultiplyer = 900;
+    private final int slideOffset = 0;
+
+    private void setPixelSlide()
+    {
+        if(gamepad2.y)
+        {
+            slideState = 4;
+            tryReturn();
+        }
+        if(gamepad2.b)
+        {
+            slideState = 3;
+            tryReturn();
+        }
+        if(gamepad2.x)
+        {
+            slideState = 2;
+            tryReturn();
+        }
+        if(gamepad2.a)
+        {
+            slideState = 1;
+            tryReturn();
+        }
+
+        pixelSlide.setTargetPosition(-(slideState*slideMultiplyer + slideOffset));
+        pixelSlide.setPower(-1);
+        runPixelSlide(49656+slideState);
+    }
+
+    public void tryReturn()
+    {
+        if(fingers) {
+            pixelPlacerState = 0;
+            slideState = 0;
+        }
+    }
+
 
     public int pixelSlidePosition()
     {
@@ -317,10 +365,10 @@ public class CCTeleOpControllerV3 extends OpMode {
         leftFrontPower  = (y + x + rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
-        leftBackPower   = Math.cbrt(leftBackPower);
-        rightBackPower  = Math.cbrt(rightBackPower);
-        leftFrontPower  = Math.cbrt(leftFrontPower);
-        rightFrontPower = Math.cbrt(rightFrontPower);
+//        leftBackPower   = Math.cbrt(leftBackPower);
+//        rightBackPower  = Math.cbrt(rightBackPower);
+//        leftFrontPower  = Math.cbrt(leftFrontPower);
+//        rightFrontPower = Math.cbrt(rightFrontPower);
 
         leftBackPower   = (leftBackPower * speedCoefficient);
         rightBackPower  = (rightBackPower * speedCoefficient);

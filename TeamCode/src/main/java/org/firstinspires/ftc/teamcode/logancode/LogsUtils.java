@@ -35,4 +35,26 @@ public class LogsUtils {
     public static double exponentialRemapAnalog(double input, double exponent) {
         return Math.min(Math.pow(Math.max(input,0),exponent),1) + Math.max(-Math.pow(Math.min(input,0),exponent),-1);
     }
+
+    /**
+     * Maps input to a exponential equation keeping its sign. (calculated in desmos)
+     * @param input the input to be clamped
+     * @param min the minimum value (inclusive)
+     * @param max the maximum value (inclusive)
+     */
+    public static double clamp(double input, double min, double max)
+    {
+        return Math.max(Math.min(input,max),min);
+    }
+
+    /**
+     * Maps input to a exponential equation keeping its sign. (calculated in desmos)
+     * @param input the input to be clamped
+     * @param min the minimum value (inclusive)
+     * @param max the maximum value (inclusive)
+     */
+    public static int clamp(int input, int min, int max)
+    {
+        return Math.max(Math.min(input,max),min);
+    }
 }

@@ -43,7 +43,7 @@ public class Odo6PathFollower  extends LinearOpMode
     private PIDFController Rpidf = new PIDFController(0.9,0,0,8,0.2);
     //0.9 : 0.000008 : 0
 
-    private final double PATH_TOLERANCE = 4;
+    private final double PATH_TOLERANCE = 16;
     private final double PATH_ROTATION_TOLERANCE = Math.PI / 2;
 
     public void runOpMode()
@@ -117,15 +117,8 @@ public class Odo6PathFollower  extends LinearOpMode
 
         int currentPathIndex = 0;
 
-        int fileId = hardwareMap.appContext.getResources().getIdentifier("forward_test_path", "raw", hardwareMap.appContext.getPackageName());
+        int fileId = hardwareMap.appContext.getResources().getIdentifier("long_path", "raw", hardwareMap.appContext.getPackageName());
         Odo6Path autonomousPath = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-
-        int fileId1 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Odo6Path autonomousPathAlt1 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-        int fileId2 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Odo6Path autonomousPathAlt2 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
-        int fileId3 = hardwareMap.appContext.getResources().getIdentifier("path_recorder_output", "raw", hardwareMap.appContext.getPackageName());
-        Odo6Path autonomousPathAlt3 = new Odo6Path(hardwareMap.appContext.getResources().openRawResource(fileId), telemetry);
 
         waitForStart();
         while(opModeIsActive())
@@ -173,7 +166,7 @@ public class Odo6PathFollower  extends LinearOpMode
         double rotation = Rpidf.update(target.getHeadingRad(),currentPosition.getHeadingRad(), target.getVheadingRad(),System.currentTimeMillis());
         double x = Xpidf.update(target.getX(),currentPosition.getX(), target.getVx(), System.currentTimeMillis());
         double y = Ypidf.update(target.getY(), currentPosition.getY(), target.getVy(), System.currentTimeMillis());
-        //double y = 0; double x = 0;
+        //double y = 0; double x = 0; double r = 0;
         performGlobalMovement(x,y,rotation);
 
         telemetry.addLine("IsInBetween Rotation output: " + isInBetween(currentPosition.getHeadingRad(), currentPosition.getHeadingRad() - currentPosition.getVheadingRad(), target.getHeadingRad(), PATH_TOLERANCE));
@@ -217,8 +210,8 @@ public class Odo6PathFollower  extends LinearOpMode
     public void performGlobalMovement(double x, double y, double rx)
     {
         double xl, yl;
-        xl = (x * Math.cos(kaiOdo.getHeadingRad())) + (y * Math.sin(kaiOdo.getHeadingRad()));
-        yl = (x * Math.sin(kaiOdo.getHeadingRad())) - (y * Math.cos(kaiOdo.getHeadingRad()));
+        xl = (-x * Math.cos(kaiOdo.getHeadingRad())) + (y * Math.sin(kaiOdo.getHeadingRad()));
+        yl = (-x * Math.sin(kaiOdo.getHeadingRad())) - (y * Math.cos(kaiOdo.getHeadingRad()));
 
         PerformLocalMovement(xl,yl,rx);
     }
