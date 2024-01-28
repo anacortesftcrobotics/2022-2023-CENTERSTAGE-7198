@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode.logancode;
 
+import com.qualcomm.hardware.lynx.LynxEmbeddedBNO055IMUNew;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ThreadPool;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
+import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
 
 import java.util.concurrent.ExecutorService;
 
@@ -14,6 +22,9 @@ public class _7198CSRobot {
     DcMotor frontLeft, frontRight, backLeft, backRight, pixelBase, pixelSlide;
     DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
     PIDFArmController pidfArmController;
+    IMU imu;
+    PoseTracker imuAngleTracker;
+    PIDFController rotationPIDF = new PIDFController(0.002,0,0.00004,0,0);
     double pixelArmToRadiansConstant = -1 / 50.9 * 4.5 * (Math.PI/180);
 
     public static double p = -1.3;
@@ -24,9 +35,12 @@ public class _7198CSRobot {
     public static double ka;
     private ExecutorService threadExecuter;
     private Runnable backgroundThread;
+    private LinearOpMode linearOpMode;
     private boolean viperThreadLock = false;
-    public _7198CSRobot(HardwareMap hardwareMap)
+    public _7198CSRobot(HardwareMap hardwareMap, LinearOpMode linearOpMode)
     {
+        this.linearOpMode = linearOpMode;
+
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
@@ -50,6 +64,24 @@ public class _7198CSRobot {
 
         pixelSlideSwitch = hardwareMap.get(DigitalChannel.class, "PSSwitch");
 
+        imu = hardwareMap.get(IMU.class,"imu");
+
+        IMU.Parameters myIMUparameters;
+
+         myIMUparameters = new IMU.Parameters(
+              new RevHubOrientationOnRobot(
+                   RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                   RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+              )
+         );
+
+         imu.initialize(myIMUparameters);
+         imu.resetYaw();
+         imuAngleTracker = new PoseTracker(imu);
+         imuAngleTracker.resetAngle();
+
+           // Get Robot Orientation
+
         // odometry wheels
         encoderLeft = backRight;
         encoderCenter = backLeft;
@@ -58,6 +90,7 @@ public class _7198CSRobot {
         //reverses direction of wheels (left)
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
 
         pidfArmController = new PIDFArmController(p,i,d,kv,ka,kg,0);
         //kg:-1
@@ -77,6 +110,35 @@ public class _7198CSRobot {
         };
     }
 
+    public Orientation getMyRobotOrientation()
+    {
+        return imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+    }
+
+    //angles in degrees
+    public void setRobotRotation(double forward, double sideways, double angle, double armAngle, Telemetry telemetry)
+    {
+        int timer = 50;
+        while(timer > 0 && linearOpMode.opModeIsActive())
+        {
+            telemetry.addData("IMU angle: ",imuAngleTracker.getAngle());
+            telemetry.addData("IMU direct report", imu.getRobotYawPitchRollAngles());
+            double correction = rotationPIDF.update(angle, imuAngleTracker.getAngle(), System.currentTimeMillis());
+            telemetry.addData("Correction: ",correction);
+
+            mecanumX(forward, sideways, correction);
+            SetArmAngle(armAngle);
+
+            telemetry.update();
+
+            if(Math.abs(angle - imuAngleTracker.getAngle()) < 2.5)
+            {
+                timer--;
+            }
+        }
+        mecanumX(0,0,0);
+    }
+
     //FIXME: Bro, this needs to happen every update! do looping control flow 💀
     public void SetArmAngle(Telemetry telemetry, double targetPosition) {
         targetPosition = targetPosition*Math.PI/180;
@@ -89,13 +151,24 @@ public class _7198CSRobot {
         pixelBase.setPower(correction);
     }
 
+    public void SetArmAngle(double targetPosition) {
+        targetPosition = targetPosition*Math.PI/180;
+        //telemetry.addData("target: ", targetPosition / Math.PI * 180);
+        //telemetry.addData("error: ", targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant));
+        //50.9 to 1 ; 105*Math.PI/180
+        double correction = pidfArmController.updateArm(targetPosition, (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant), 0,System.currentTimeMillis());
+        //telemetry.addData("correction: ", correction);
+
+        pixelBase.setPower(correction);
+    }
+
     public void LimpArm()
     {
         pixelBase.setPower(0);
     }
 
     // used in Auto to intake the pixels
-    public void grabInitialPixels()
+    public void grabInitialPixels(double armAngle)
     {
         // TODO: generalize to a teleop automation
         // TODO: replace with autograb that uses sensors
@@ -107,7 +180,7 @@ public class _7198CSRobot {
         //close fingers
         fingerRight.setPosition(1);
         fingerLeft.setPosition(0);
-        roboNap(1500);
+        robotArmNap(1500, armAngle);
 
         //setIntakeToCameraViewing();
     }
@@ -135,10 +208,10 @@ public class _7198CSRobot {
         //hookElbow.setPosition(0);
         //intakeElbow.setPosition(0.13);
     }
-    public void halt()
+    public void halt(double armAngle)
     {
         mecanumX(0, 0, 0);
-        roboNap(50);
+        robotArmNap(50,armAngle);
     }
     @Deprecated
     public void setIntakeToCameraViewing()
@@ -160,12 +233,12 @@ public class _7198CSRobot {
         fingerRight.setPosition(1);
         fingerLeft.setPosition(0);
     }
-    public void setIntakeToBatteringRam()
+    public void setIntakeToBatteringRam(double armAngle)
     {
 //        intakeElbow.setPosition(1);
 //        shoulderServo.setPosition(0.32);
 
-        roboNap(100);
+        robotArmNap(100,armAngle);
     }
 
     // We transfer from intake to deposit in a background thread because it takes a while.
@@ -196,7 +269,7 @@ public class _7198CSRobot {
 //        viperSlide.setPower(0);
 //        roboNap(100);
 
-        setIntakeToBatteringRam();
+        //setIntakeToBatteringRam();
 
         /*
         shoulderServo.setPosition(.6);
@@ -207,25 +280,41 @@ public class _7198CSRobot {
     }
     public void intakeDownGrabPixelsComeUp()
     {
-        //intakeElbow.setPosition(1);
-        roboNap(200);
-        //shoulderServo.setPosition(0.1);
-        roboNap(300);
-        fingerRight.setPosition(0);
-        fingerLeft.setPosition(1);
-        roboNap(700);
-        setIntakeToBatteringRam();
+//        //intakeElbow.setPosition(1);
+//        roboNap(200);
+//        //shoulderServo.setPosition(0.1);
+//        robotArmNap(300);
+//        fingerRight.setPosition(0);
+//        fingerLeft.setPosition(1);
+//        robotArmNap(700);
+//        setIntakeToBatteringRam();
     }
 
     // wrapper around mecanumX and roboNap, because commonly those are called together
-    public void drive(double forwards, double sideways, double rotate, int sleepMillis)
+    public void drive(double forwards, double sideways, double rotate, int sleepMillis, double armAngle)
     {
-        mecanumX(forwards, sideways, rotate);
+        mecanumX(forwards, sideways, -rotate);
         if (sleepMillis > 0) {
-            roboNap(sleepMillis);
+            robotArmNap(sleepMillis,armAngle);
         }
     }
-    public void mecanumX(double forwards,double sideways, double rotate) {
+//
+//    public void drive(double forwards, double sideways, double rotate, int sleepMillis, double armAngle)
+//    {
+//        mecanumX(forwards, sideways, -rotate);
+//
+//        long StartTime = System.currentTimeMillis();
+//        long currentTime = System.currentTimeMillis();
+//
+//        if (sleepMillis > 0) {
+//            while (StartTime - currentTime < sleepMillis)
+//            {
+//                SetArmAngle(armAngle);
+//                currentTime = System.currentTimeMillis();
+//            }
+//        }
+//    }
+    public void mecanumX(double y,double x, double rx) {
 //        double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
 //
 //        double adjustedSidePowerFront = (forwards + sideways + rotate) / denominator;
@@ -237,36 +326,17 @@ public class _7198CSRobot {
 //        backLeft.setPower(adjustedSidePowerBack);
 //        frontRight.setPower((forwards - sideways - rotate) / denominator);
 //        backRight.setPower((forwards + sideways - rotate) / denominator);
-    }
 
-    // TODO: consolidate this with mecanumX
-    // TODO: This is only used by the AprilTag drive-up code (came with the sample code).
-    // TODO: We should only have one way to drive the robot.
-    public void moveRobot(double x, double y, double rx) {
         double leftBackPower;
         double rightBackPower;
         double leftFrontPower;
         double rightFrontPower;
 
-        //double x = gamepad1.left_stick_x;
-        //double y = -gamepad1.left_stick_y;
-        //double rx = gamepad1.right_stick_x;
-
-        //updateSpeedCoefficient();
-
-        x = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(x,0.02),2);
-        y = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(y,0.02),2);
-        rx = LogsUtils.exponentialRemapAnalog(LogsUtils.deadZone(rx,0.02),2);
-
-        //telemetry.addData("Remapped Y: ", y);
-
-        //rx += poleCenter();
-
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-        leftBackPower   = (y - x + rx) / denominator;
-        rightBackPower  = (y + x - rx) / denominator;
-        leftFrontPower  = (y + x + rx) / denominator;
+        leftBackPower = (y - x + rx) / denominator;
+        rightBackPower = (y + x + rx) / denominator;
+        leftFrontPower = (y + x - rx) / denominator;
         rightFrontPower = (y - x - rx) / denominator;
 
         leftBackPower   = Math.cbrt(leftBackPower);
@@ -274,29 +344,32 @@ public class _7198CSRobot {
         leftFrontPower  = Math.cbrt(leftFrontPower);
         rightFrontPower = Math.cbrt(rightFrontPower);
 
-        leftBackPower   = (leftBackPower);
-        rightBackPower  = (rightBackPower);
-        leftFrontPower  = (leftFrontPower);
-        rightFrontPower = (rightFrontPower);
-
         frontLeft.setPower(leftBackPower);
         backLeft.setPower(rightBackPower);
         frontRight.setPower(leftFrontPower);
         backRight.setPower(rightFrontPower);
     }
-    public void roboNap(int millis)
+    public void robotArmNap(int millis,double armAngle)
     {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        long StartTime = System.currentTimeMillis();
+
+        if (millis > 0) {
+            while (System.currentTimeMillis() - StartTime  < millis && linearOpMode.opModeIsActive())
+            {
+                SetArmAngle(armAngle);
+                try {
+                    Thread.sleep(1);                   
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
-    public void closeRightFinger()
+    public void closeRightFinger(double ArmAngle)
     {
         fingerLeft.setPosition(1);
-        roboNap(1000);
+        robotArmNap(1000,ArmAngle);
     }
 
 }

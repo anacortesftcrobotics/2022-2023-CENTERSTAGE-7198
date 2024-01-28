@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.logancode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.logancode._7198CSAuto;
-import org.firstinspires.ftc.teamcode.CenterStageRobot;
-import org.firstinspires.ftc.teamcode.CenterStageVisionManager;
+import org.firstinspires.ftc.teamcode.logancode._7198CSRobot;
+import org.firstinspires.ftc.teamcode.logancode._7198CSVisionManager;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 public class _7198CSAuto extends LinearOpMode {
@@ -44,7 +46,7 @@ public class _7198CSAuto extends LinearOpMode {
         if (opModeInInit()) {
             initializeGameConfig();
             initializeSystem();
-            theRobot.grabInitialPixels();
+            theRobot.grabInitialPixels(-48);
         }
 
         waitForStart(); // ready to rock
@@ -59,8 +61,12 @@ public class _7198CSAuto extends LinearOpMode {
                     }
                     break;
                 case 2:
+                    telemetry.addData("case 2 started", this.TeamPropLocation);
+                    telemetry.update();
                     if (scorePurplePixelandTurn(this.TeamPropLocation))
                         AutoState++;
+                    telemetry.addData("case 2 finished", this.TeamPropLocation);
+                    telemetry.update();
                     break;
                 case 3:
                     visionManager.enableAprilTagProcessor();
@@ -77,9 +83,9 @@ public class _7198CSAuto extends LinearOpMode {
                     } else {
                         scoreYellowPixelandPark(this.TeamPropLocation);
                         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                            theRobot.drive(0, 0, .3, 1450);
+                            theRobot.drive(0, 0, .3, 1450,-48);
                         } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                            theRobot.drive(0, 0, -.3, 1250);
+                            theRobot.drive(0, 0, -.3, 1250,-48);
                         }
 
                         requestOpModeStop();
@@ -96,7 +102,7 @@ public class _7198CSAuto extends LinearOpMode {
     private void initializeSystem() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         visionManager = new _7198CSVisionManager(THIS_ALLIANCE, hardwareMap.get(WebcamName.class, "Webcam 1"));
-        theRobot = new _7198CSRobot(hardwareMap);
+        theRobot = new _7198CSRobot(hardwareMap, this);
         telemetry.addData("auto", "initializeSystem() complete");
     }
 
@@ -125,88 +131,104 @@ public class _7198CSAuto extends LinearOpMode {
 
             // Use the speed and turn "gains" to calculate how we want the robot to move.
             drive = Range.clip(rangeError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
-            turn = Range.clip(headingError * TURN_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
-            strafe = Range.clip(-yawError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
+            strafe = Range.clip(headingError * STRAFE_GAIN, -MAX_AUTO_TURN, MAX_AUTO_TURN);
+            turn = Range.clip(yawError * TURN_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
 
             // Apply desired axes of motion to the drivetrain.
-            theRobot.moveRobot(drive, strafe, turn);
-            theRobot.roboNap(20);
+            theRobot.mecanumX(drive/4, strafe/4, turn/4);
+            theRobot.robotArmNap(10,125);
             telemetry.addData("auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
         }
     }
 
     private void scoreYellowPixelandPark(int theDangPropZone) {
         // stop moving
-        theRobot.halt();
-        theRobot.setIntakeToAutoScore();
-        theRobot.drive(0, .2, 0, 500);
+        theRobot.halt(125);
 
         // final approach
-        theRobot.drive(0.2, 0, 0, 600);
+        theRobot.drive(0.04, 0, 0, 500,125);
 
         // drop the yellow pixel
-        theRobot.closeRightFinger();
-        theRobot.drive(-0.2, 0, 0, 800);
+        theRobot.fingerRight.setPosition(0.6);
+        theRobot.robotArmNap(800, 120);
+        theRobot.wristServo.setPosition(0.2);
+        theRobot.robotArmNap(200, 120);
+        theRobot.closeBothFingers();
+        theRobot.SetArmAngle(-48);
+        theRobot.drive(-0.05, 0, 0, 500,-48);
 
 
         // strafe to park
         if (theDangPropZone == 1) {
-            theRobot.drive(0, -0.4, 0, 900);
+            theRobot.drive(0, -0.04, 0, 900,-48);
         } else if (theDangPropZone == 2) {
-            theRobot.drive(0, -0.4, 0, 1500);
+            theRobot.drive(0, -0.04, 0, 1500,-48);
         } else {
-            theRobot.drive(0, -0.4, 0, 1700);
+            theRobot.drive(0, -0.04, 0, 1700,-48);
         }
-
-        // fancy park
-        theRobot.drive(0, 0, -0.2, 300);
-        theRobot.drive(0.2, 0, 0, 1000);
-        //theRobot.drive(0,0,.3,1500);
-        theRobot.halt();
+        theRobot.drive(0.05,0,0,300,-48);
+        theRobot.halt(-48);
     }
 
     //returns true when completed the placement
     private boolean scorePurplePixelandTurn(int theDangPropPosition) {
+        telemetry.addData("That Dang Prop Position", theDangPropPosition);
         if (theDangPropPosition == 0) {
             scorePurplePixelLeft();
+            theRobot.fingerRight.setPosition(1);
             // rotate into AprilTag viewing position
             if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.drive(0, 0, 0.4, 1500);
+                theRobot.drive(0, 0, 0.4, 1650,125);
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.drive(0, 0, -0.2, 300);
+                theRobot.drive(0, 0, -0.2, 700,125);
             }
         } else if (theDangPropPosition == 1) {
             scorePurplePixelCenter();
+            theRobot.fingerRight.setPosition(1);
             // rotate into viewing position
             if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.drive(0, 0, 0.4, 750);
+                theRobot.drive(0, 0, 0.4, 750,125);
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.drive(0, 0, -0.4, 600);
+                theRobot.setRobotRotation(0,0,90, 125, telemetry );
             }
         } else {
             // zone 3
             scorePurplePixelRight();
+            theRobot.fingerRight.setPosition(1);
             // back away and rotate into viewing position
             if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.drive(-0.2, 0, 0, 600);
-                theRobot.drive(0, 0.3, 0, 1000);
-                theRobot.drive(0, 0, .2, 500);
+                theRobot.drive(0, 0, .3, 500, 125);
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.drive(-0.2, 0, 0, 1000);
-                theRobot.drive(0, -0.3, 0, 500);
-                theRobot.drive(0, 0, -0.4, 1300);
+                theRobot.drive(0, 0, -0.3, 1300,125);
             }
         }
-        theRobot.halt();
+        theRobot.halt(125);
         return true;
     }
 
 
     //returns true when completed
-    private boolean scorePurplePixelCenter() {
-        theRobot.drive(0.5, 0, 0, 510);
-        theRobot.halt();
-        theRobot.drive(0, 0, -.2, 175);
+    private void scorePurplePixelCenter() {
+        theRobot.SetArmAngle(telemetry,180);
+        theRobot.wristServo.setPosition(0);
+
+        theRobot.pixelSlide.setTargetPosition(-2500);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(-1);
+
+        theRobot.robotArmNap(1500,185);
+        theRobot.drive(.07,0,0,400, 185);
+        theRobot.halt(185);
+        theRobot.robotArmNap(1000,185);
+        theRobot.fingerLeft.setPosition(0.54);
+        theRobot.robotArmNap(300, 185);
+
+        theRobot.pixelSlide.setTargetPosition(0);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(1);
+        theRobot.robotArmNap(1500, 125);
+        theRobot.setIntakeToCameraViewing();
+       /* theRobot.drive(0, 0, -.2, 175);
         theRobot.halt();
         theRobot.setIntakeToBatteringRam();
 
@@ -224,50 +246,54 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.halt();
         theRobot.setIntakeToCameraViewing();
         return true;
+
+        */
     }
 
-    private void scorePurplePixelRight() {
-        theRobot.drive(0.5, 0, 0, 650);
-        theRobot.halt();
-        theRobot.setIntakeToBatteringRam();
+    private void scorePurplePixelRight()
+    {
+        theRobot.SetArmAngle(telemetry,185);
+        theRobot.wristServo.setPosition(0);
 
-        // turn to the spike mark
-        theRobot.drive(0, 0, 0.3, 1000);
-        // plow and retreat
-        theRobot.drive(0.2, 0, 0, 675);
-        theRobot.drive(-0.2, 0, 0, 600);
-        // fine positioning
-        theRobot.drive(0, 0, -0.2, 400);
-        theRobot.drive(.2, 0, 0, 100);
-        theRobot.halt();
+        theRobot.pixelSlide.setTargetPosition(-2500);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(-1);
 
-        theRobot.placePurplePixel();
+        theRobot.robotArmNap(1500,185);
+        theRobot.drive(0.3, 0, 0, 200, 185);
+        theRobot.halt(185);
+        theRobot.setRobotRotation(0,0,45,       185,telemetry);
+        theRobot.fingerLeft.setPosition(0.54);
+        theRobot.robotArmNap(300, 185);
+
+        theRobot.pixelSlide.setTargetPosition(0);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(1);
+        theRobot.robotArmNap(1500, 125);
         theRobot.setIntakeToCameraViewing();
     }
 
     private void scorePurplePixelLeft() {
         // approach
-        theRobot.drive(.5, 0, 0, 500);
-        theRobot.halt();
+        theRobot.SetArmAngle(telemetry,185);
+        theRobot.wristServo.setPosition(0);
 
-        theRobot.setIntakeToBatteringRam();
+        theRobot.pixelSlide.setTargetPosition(-2500);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(-1);
 
-        // final position on the spike mark
-        theRobot.drive(0, 0, -0.3, 1000);
+        theRobot.robotArmNap(1500,185);
+        theRobot.drive(0.07, 0, 0, 300, 185);
+        theRobot.halt(185);
+        theRobot.setRobotRotation(0,0,35,       185,telemetry);
+        theRobot.fingerLeft.setPosition(0.54);
+        theRobot.robotArmNap(300, 185);
 
-        // plow and retreat
-        theRobot.drive(0.2, 0, 0, 657);
-        theRobot.drive(-0.2, 0, 0, 300);
-        // fine positioning
-        theRobot.drive(0, 0, -0.2, 400);
-        theRobot.halt();
-
-        theRobot.placePurplePixel();
+        theRobot.pixelSlide.setTargetPosition(0);
+        theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        theRobot.pixelSlide.setPower(1);
+        theRobot.robotArmNap(1500, 125);
         theRobot.setIntakeToCameraViewing();
-
-        // back away
-        theRobot.drive(-0.2, 0, 0, 500);
-        theRobot.drive(0, -0.3, 0, 800);
     }
 
 }
