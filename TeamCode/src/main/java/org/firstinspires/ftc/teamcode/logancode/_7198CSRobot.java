@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
+import org.firstinspires.ftc.teamcode.odometry._7198_OdoController;
 
 import java.util.concurrent.ExecutorService;
 
@@ -20,7 +21,7 @@ public class _7198CSRobot {
     Servo fingerRight, fingerLeft, wristServo, droneServo;
     DigitalChannel pixelSlideSwitch;
     DcMotor frontLeft, frontRight, backLeft, backRight, pixelBase, pixelSlide;
-    DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
+    private _7198_OdoController kaiOdo;
     PIDFArmController pidfArmController;
     IMU imu;
     PoseTracker imuAngleTracker;
@@ -82,11 +83,6 @@ public class _7198CSRobot {
 
            // Get Robot Orientation
 
-        // odometry wheels
-        encoderLeft = backRight;
-        encoderCenter = backLeft;
-        encoderRight = frontLeft;
-
         //reverses direction of wheels (left)
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -97,6 +93,9 @@ public class _7198CSRobot {
         //kv:-1.5
         //p:-1.2
         pidfArmController.launch(-15 *Math.PI/180,System.currentTimeMillis());
+
+        kaiOdo = new _7198_OdoController();
+        kaiOdo.initializeHardware(hardwareMap);
 
         threadExecuter = ThreadPool.newSingleThreadExecutor("loadPixel");
         backgroundThread = () -> {
@@ -115,7 +114,6 @@ public class _7198CSRobot {
         return imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
     }
 
-    //angles in degrees
     public void setRobotRotation(double forward, double sideways, double angle, double armAngle, Telemetry telemetry)
     {
         int timer = 50;
@@ -138,6 +136,58 @@ public class _7198CSRobot {
             }
         }
         mecanumX(0,0,0);
+    }
+
+    /**
+     * Wraps the able so it is always in the range [-180, 180].
+     *
+     * @param angle Angle to be wrapped, in radians.
+     * @return The wrapped angle, in radians.
+     */
+    public static double angleWrap(double angle) {
+        if (angle > 0)
+            return ((angle + Math.PI) % (Math.PI * 2)) - Math.PI;
+        else
+            return ((angle - Math.PI) % (Math.PI * 2)) + Math.PI;
+    }
+
+    /**
+     * Takes the robot's current position and rotation and calculates the motor powers for the robot to move to the target position.
+     * This will loop until the robot has reached its target. WARNING: Do not call this function while moving.
+     *
+     *
+     * @param deltaY_cm       The delta movement in Y
+     * @param deltaX_cm       The delta movement in X
+     * @param deltaA_deg       Target rotation (Degrees)
+     * @param armAngle Target angle of the arm
+     */
+    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle) {
+        double taRad = (deltaA_deg * Math.PI / 180);
+        kaiOdo.resetEncoders();
+
+        while(true) {
+
+            kaiOdo.update();
+
+            double absoluteXToPosition = deltaX_cm - kaiOdo.getX();
+            double absoluteYToPosition = deltaY_cm - kaiOdo.getY();
+
+            double absoluteAngleToPosition = Math.atan2(absoluteYToPosition, absoluteXToPosition);
+            double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
+
+            double relativeAngleToPosition = angleWrap(absoluteAngleToPosition + kaiOdo.getHeadingRad());
+
+            double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
+            double relativeYToPosition = distanceToPosition * Math.sin(relativeAngleToPosition);
+
+            double powerX = relativeXToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
+            double powerY = relativeYToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
+            double powerTurn = angleWrap(kaiOdo.getHeadingRad() + taRad) / Math.PI;
+
+            mecanumX(powerY, powerX, powerTurn);
+
+            SetArmAngle(armAngle);
+        }
     }
 
     //FIXME: Bro, this needs to happen every update! do looping control flow 💀
