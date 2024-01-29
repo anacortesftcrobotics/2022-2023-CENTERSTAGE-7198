@@ -82,11 +82,6 @@ public class _7198CSAuto extends LinearOpMode {
                         }
                     } else {
                         scoreYellowPixelandPark(this.TeamPropLocation);
-                        if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                            theRobot.drive(0, 0, .3, 1450,-48);
-                        } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                            theRobot.drive(0, 0, -.3, 1250,-48);
-                        }
 
                         requestOpModeStop();
                     }
@@ -146,7 +141,9 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.halt(125);
 
         // final approach
+        theRobot.drive(0,-0.04,0,650,125);
         theRobot.drive(0.04, 0, 0, 500,125);
+        theRobot.robotArmNap(300,125);
 
         // drop the yellow pixel
         theRobot.fingerRight.setPosition(0.6);
@@ -180,7 +177,7 @@ public class _7198CSAuto extends LinearOpMode {
             if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
                 theRobot.drive(0, 0, 0.4, 1650,125);
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.drive(0, 0, -0.2, 700,125);
+                theRobot.setRobotRotation(0,0,90,125, telemetry);
             }
         } else if (theDangPropPosition == 1) {
             scorePurplePixelCenter();
@@ -193,13 +190,13 @@ public class _7198CSAuto extends LinearOpMode {
             }
         } else {
             // zone 3
-            scorePurplePixelRight();
+            scorePurplePixelLeft();
             theRobot.fingerRight.setPosition(1);
             // back away and rotate into viewing position
             if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
                 theRobot.drive(0, 0, .3, 500, 125);
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.drive(0, 0, -0.3, 1300,125);
+                theRobot.setRobotRotation(0,0,90,125, telemetry);
             }
         }
         theRobot.halt(125);
@@ -227,6 +224,7 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(1);
         theRobot.robotArmNap(1500, 125);
+        theRobot.drive(0.03,0,0,300, 125);
         theRobot.setIntakeToCameraViewing();
        /* theRobot.drive(0, 0, -.2, 175);
         theRobot.halt();
@@ -285,14 +283,18 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500,185);
         theRobot.drive(0.07, 0, 0, 300, 185);
         theRobot.halt(185);
-        theRobot.setRobotRotation(0,0,35,       185,telemetry);
+        theRobot.setRobotRotation(0,0,20,       185,telemetry);
         theRobot.fingerLeft.setPosition(0.54);
         theRobot.robotArmNap(300, 185);
 
         theRobot.pixelSlide.setTargetPosition(0);
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(1);
+        telemetry.addLine("napping before going to angle 0");
+        telemetry.update();
         theRobot.robotArmNap(1500, 125);
+        theRobot.setRobotRotation(0,0,0,125,telemetry);
+        theRobot.drive(0.03,0,0,300,125);
         theRobot.setIntakeToCameraViewing();
     }
 

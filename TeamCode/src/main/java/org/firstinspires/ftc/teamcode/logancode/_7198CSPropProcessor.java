@@ -112,23 +112,28 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
         }
 
         int largestSize = 800; //Minimum Threshold
-        int thisDetectedPropIndex = -1;
+        int index = -1;
         for(int i = 0; i < boundRect.length; i++)
         {
-            int currentSize = boundRect[i].width * boundRect[i].height;
-            if(currentSize > largestSize)
-            {
-                largestSize = currentSize;
-                thisDetectedPropIndex = i;
+            if(boundRect[i] != null) {
+                int currentSize = boundRect[i].width * boundRect[i].height;
+                if (currentSize > largestSize) {
+                    largestSize = currentSize;
+                    index = i;
+                }
             }
         }
 
-        if (boundRect.length > 0 && thisDetectedPropIndex != -1) {
-
-            int x = (boundRect[thisDetectedPropIndex].x + boundRect[thisDetectedPropIndex].width / 2)
-                    / (frame.width() / 2);
+        if(boundRect.length > 0 && index != -1)
+        {
+            int x = (boundRect[index].x + boundRect[index].width / 2) / (frame.width() / 2);
             x = Math.min(x, 1) + 1;
-            setDetectedSpikeMark(x);
+
+            data = x;
+        }
+        else
+        {
+            data = 0;
         }
 
         return null;

@@ -121,39 +121,16 @@ public class Team7198PropProcessor implements VisionProcessor, CameraStreamSourc
             }
         }
 
+        // 3 then 1 then 2 ?????
         if(boundRect.length > 0 && index != -1)
         {
             int x = (boundRect[index].x + boundRect[index].width / 2) / (frame.width() / 2);
             x = Math.min(x, 1) + 1;
-//            if(origin.getClass().equals(VisionTest.class))
-//                ((VisionTest) origin).recieveVisionInfo(x);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((PathFollower) origin).recieveVisionInfo(x);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto4F) origin).recieveVisionInfo(x);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto2F) origin).recieveVisionInfo(x);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto4A) origin).recieveVisionInfo(x);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto2A) origin).recieveVisionInfo(x);
 
             data = x;
         }
         else
         {
-//            if(origin.getClass().equals(VisionTest.class))
-//                ((VisionTest) origin).recieveVisionInfo(0);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((PathFollower) origin).recieveVisionInfo(0);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto4F) origin).recieveVisionInfo(0);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto2F) origin).recieveVisionInfo(0);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto4A) origin).recieveVisionInfo(0);
-//            if(origin.getClass().equals(PathFollower.class))
-//                ((Auto2A) origin).recieveVisionInfo(0);
             data = 0;
         }
 

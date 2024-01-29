@@ -121,8 +121,9 @@ public class _7198CSRobot {
         int timer = 50;
         while(timer > 0 && linearOpMode.opModeIsActive())
         {
-            telemetry.addData("IMU angle: ",imuAngleTracker.getAngle());
-            telemetry.addData("IMU direct report", imu.getRobotYawPitchRollAngles());
+            telemetry.addData("IMU angle: ", imuAngleTracker.getAngle());
+            telemetry.addData("TAR angle: ", angle);
+            //telemetry.addData("IMU direct report", imu.getRobotYawPitchRollAngles());
             double correction = rotationPIDF.update(angle, imuAngleTracker.getAngle(), System.currentTimeMillis());
             telemetry.addData("Correction: ",correction);
 
