@@ -172,7 +172,7 @@ public class _7198CSAuto extends LinearOpMode {
 
         // final approach
         if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(0,-0.04,0,325,125);
+            theRobot.drive(0,-0.04,0,200,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.RED) {
             theRobot.drive(0,0.04,0,275,125);
@@ -309,7 +309,7 @@ public class _7198CSAuto extends LinearOpMode {
             theRobot.drive(0.04,0,0,600,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(.04, 0, 0, 275, 125);
+            theRobot.drive(.04, 0, 0, 200, 125);
         }
 
         theRobot.drive(0.04,0,0,850,125);
