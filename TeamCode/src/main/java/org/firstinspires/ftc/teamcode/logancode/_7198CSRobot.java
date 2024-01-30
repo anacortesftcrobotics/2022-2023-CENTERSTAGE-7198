@@ -180,7 +180,7 @@ public class _7198CSRobot {
         //kaiOdo.resetEncoders();
         Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
 
-        while(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) > 1.25 && linearOpMode.opModeIsActive()) //in cm
+        while(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) > 0.75 && linearOpMode.opModeIsActive()) //in cm
         {
 
             kaiOdo.update();
@@ -197,7 +197,7 @@ public class _7198CSRobot {
             double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
 
             double relativeAngleToPosition = angleWrap(absoluteAngleToPosition + kaiOdo.getHeadingRad());
-            //telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
+            telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
 
             double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
             double relativeYToPosition = distanceToPosition * Math.sin(relativeAngleToPosition);
@@ -219,6 +219,7 @@ public class _7198CSRobot {
             telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
             //telem.addData("powerTurn:", powerTurn);
 
+            multiplier = multiplier / 4;
             mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
 
             SetArmAngle(armAngle);
