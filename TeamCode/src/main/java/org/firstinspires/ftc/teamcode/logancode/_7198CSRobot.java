@@ -186,7 +186,7 @@ public class _7198CSRobot {
             kaiOdo.update();
 
             telem.addData("Target: ", deltaX_cm + ", " + deltaY_cm + ", " + deltaA_deg);
-            //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
+            telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingDeg()));
             //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
 
 
@@ -214,9 +214,9 @@ public class _7198CSRobot {
                 multiplier = Math.max(multiplier,0.001);
             }
 
-            telem.addData("d", d);
+            //telem.addData("d", d);
             telem.addData("multiplier", multiplier);
-            //telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
+            telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
             //telem.addData("powerTurn:", powerTurn);
 
             mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
