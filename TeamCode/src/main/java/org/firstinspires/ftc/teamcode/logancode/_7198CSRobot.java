@@ -214,7 +214,7 @@ public class _7198CSRobot {
                 multiplier = Math.max(multiplier,0.001);
             }
 
-            //telem.addData("d", d);
+            telem.addData("distance", d);
             telem.addData("multiplier", multiplier);
             telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
             //telem.addData("powerTurn:", powerTurn);
