@@ -185,8 +185,8 @@ public class _7198CSRobot {
 
             kaiOdo.update();
 
-            telem.addData("Target: ", deltaX_cm + ", " + deltaY_cm + ", " + deltaA_deg);
-            telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingDeg()));
+            telem.addData("Target: ", targetLocation.getX() + ", " + targetLocation.getY() + ", " + targetLocation.getHeadingRad());
+            telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingRad()));
             //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
 
 
