@@ -150,7 +150,7 @@ public class CCTeleOpControllerV4 extends OpMode {
         }
         else
         {
-            wristServo.setPosition(0.05);
+            wristServo.setPosition(0.1);
         }
 
 
@@ -161,7 +161,7 @@ public class CCTeleOpControllerV4 extends OpMode {
         if(gamepad1.left_bumper)
             droneServo.setPosition(0);
         else
-            droneServo.setPosition(1);
+            droneServo.setPosition(0.5);
 
         telemetry.addData("Drone Servo", droneServo.getPosition());
     }

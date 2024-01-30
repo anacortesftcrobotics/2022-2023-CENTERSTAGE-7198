@@ -23,12 +23,14 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
     private Rect[] boundRect;
     private int detectedPropIndex;
     private Paint rectPaint;
+    private Paint rectPaint2;
 
     private int data = 0;
     private boolean isRed;
     private Scalar colorLowerBound;
     private Scalar colorUpperBound;
     private Object origin;
+    int lineHight = 0;
 
     private final AtomicReference<Bitmap> lastFrame =
             new AtomicReference<>(Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565));
@@ -55,6 +57,12 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
         rectPaint.setColor(Color.rgb(12, 255, 12)); // AE: this should be config for competition tuning
         rectPaint.setStyle(Paint.Style.STROKE);
         rectPaint.setStrokeWidth(5);
+
+        rectPaint2 = new Paint();
+        rectPaint2.setAntiAlias(true);
+        rectPaint2.setColor(Color.rgb(255, 12, 64)); // AE: this should be config for competition tuning
+        rectPaint2.setStyle(Paint.Style.STROKE);
+        rectPaint2.setStrokeWidth(8);
 
         detectedPropIndex = -1;
         lastFrame.set(Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565));
@@ -111,11 +119,16 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
             Imgproc.minEnclosingCircle(contoursPoly[i], centers[i], radius[i]);
         }
 
+        lineHight = (int)(frame.height() * 0.43); // from top to bottom
+
         int largestSize = 800; //Minimum Threshold
         int index = -1;
         for(int i = 0; i < boundRect.length; i++)
         {
             if(boundRect[i] != null) {
+                if((boundRect[i].y + boundRect[i].height / 2) < lineHight) // if in field
+                    continue;
+
                 int currentSize = boundRect[i].width * boundRect[i].height;
                 if (currentSize > largestSize) {
                     largestSize = currentSize;
@@ -135,6 +148,8 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
         {
             data = 0;
         }
+
+
 
         return null;
     }
@@ -165,6 +180,9 @@ public class _7198CSPropProcessor implements VisionProcessor, CameraStreamSource
                 (float) boundRect[index].br().x * scaleBmpPxToCanvasPx,
                 (float) boundRect[index].br().y * scaleBmpPxToCanvasPx,
                 rectPaint);
+
+        canvas.drawLine(1,lineHight * scaleBmpPxToCanvasPx,
+                canvas.getWidth()-1,lineHight * scaleBmpPxToCanvasPx,rectPaint2);
     }
 
 

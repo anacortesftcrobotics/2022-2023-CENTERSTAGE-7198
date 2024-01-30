@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFController;
+import org.firstinspires.ftc.teamcode.kinematics.Pose2D;
+import org.firstinspires.ftc.teamcode.kinematics.Vector2D;
 import org.firstinspires.ftc.teamcode.odometry._7198_OdoController;
 
 import java.util.concurrent.ExecutorService;
@@ -25,7 +27,7 @@ public class _7198CSRobot {
     PIDFArmController pidfArmController;
     IMU imu;
     PoseTracker imuAngleTracker;
-    PIDFController rotationPIDF = new PIDFController(0.002,0,0.00004,0,0);
+    PIDFController rotationPIDF = new PIDFController(0.0017,0,0.00004,0,0);
     double pixelArmToRadiansConstant = -1 / 50.9 * 4.5 * (Math.PI/180);
 
     public static double p = -1.3;
@@ -114,9 +116,20 @@ public class _7198CSRobot {
         return imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
     }
 
+    /**
+     * Rotates the robot by a Delta angle using the IMU.
+     * Can take in a X and Y value. Poorly tested and unrecommended.
+     * IMU Powered!
+     *
+     * @param forward
+     * @param sideways
+     * @param angle
+     * @param armAngle
+     * @param telemetry
+     */
     public void setRobotRotation(double forward, double sideways, double angle, double armAngle, Telemetry telemetry)
     {
-        int timer = 50;
+        int timer = 10;
         while(timer > 0 && linearOpMode.opModeIsActive())
         {
             telemetry.addData("IMU angle: ", imuAngleTracker.getAngle());
@@ -126,11 +139,12 @@ public class _7198CSRobot {
             telemetry.addData("Correction: ",correction);
 
             mecanumX(forward, sideways, correction);
+            kaiOdo.update();
             SetArmAngle(armAngle);
 
             telemetry.update();
 
-            if(Math.abs(angle - imuAngleTracker.getAngle()) < 2.5)
+            if(Math.abs(angle - imuAngleTracker.getAngle()) < 2)
             {
                 timer--;
             }
@@ -152,44 +166,74 @@ public class _7198CSRobot {
     }
 
     /**
-     * Takes the robot's current position and rotation and calculates the motor powers for the robot to move to the target position.
+     * Takes the robot's current position and rotation and calculates the motor powers for the robot to move to the target position and rotation.
      * This will loop until the robot has reached its target. WARNING: Do not call this function while moving.
+     * Odo Powered!
      *
-     *
-     * @param deltaY_cm       The delta movement in Y
-     * @param deltaX_cm       The delta movement in X
-     * @param deltaA_deg       Target rotation (Degrees)
+     * @param deltaY_cm       Delta delta movement in Y
+     * @param deltaX_cm       Delta delta movement in X
+     * @param deltaA_deg      Delta rotation (Degrees)
      * @param armAngle Target angle of the arm
      */
-    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle) {
+    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle, Telemetry telem) {
         double taRad = (deltaA_deg * Math.PI / 180);
-        kaiOdo.resetEncoders();
+        //kaiOdo.resetEncoders();
+        Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
 
-        while(true) {
+        while(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) > 1.25 && linearOpMode.opModeIsActive()) //in cm
+        {
 
             kaiOdo.update();
 
-            double absoluteXToPosition = deltaX_cm - kaiOdo.getX();
-            double absoluteYToPosition = deltaY_cm - kaiOdo.getY();
+            telem.addData("Target: ", deltaX_cm + ", " + deltaY_cm + ", " + deltaA_deg);
+            //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
+            //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
+
+
+            double absoluteXToPosition = targetLocation.getX() - kaiOdo.getX();
+            double absoluteYToPosition = targetLocation.getY() - kaiOdo.getY();
 
             double absoluteAngleToPosition = Math.atan2(absoluteYToPosition, absoluteXToPosition);
             double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
 
             double relativeAngleToPosition = angleWrap(absoluteAngleToPosition + kaiOdo.getHeadingRad());
+            //telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
 
             double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
             double relativeYToPosition = distanceToPosition * Math.sin(relativeAngleToPosition);
 
             double powerX = relativeXToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
             double powerY = relativeYToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
-            double powerTurn = angleWrap(kaiOdo.getHeadingRad() + taRad) / Math.PI;
+            double powerTurn = angleWrap(kaiOdo.getHeadingRad() + targetLocation.getHeadingRad()) / Math.PI;
 
-            mecanumX(powerY, powerX, powerTurn);
+            double multiplier = 1;
+            double d = getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY());
+            if(d < 119) //cm
+            {
+                multiplier = d/119;
+                multiplier = Math.max(multiplier,0.001);
+            }
+
+            telem.addData("d", d);
+            telem.addData("multiplier", multiplier);
+            //telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
+            //telem.addData("powerTurn:", powerTurn);
+
+            mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
 
             SetArmAngle(armAngle);
+            telem.update();
         }
+
+        mecanumX(0,0,0);
     }
 
+    public double getDistance(double tx, double ty, double ox, double oy)
+    {
+        return Math.sqrt((tx - ox)*(tx - ox) + (ty - oy)*(ty - oy));
+    }
+
+    //TODO: this is just a meme now. don't delete it. its statements are invalid
     //FIXME: Bro, this needs to happen every update! do looping control flow 💀
     public void SetArmAngle(Telemetry telemetry, double targetPosition) {
         targetPosition = targetPosition*Math.PI/180;
@@ -342,6 +386,16 @@ public class _7198CSRobot {
     }
 
     // wrapper around mecanumX and roboNap, because commonly those are called together
+
+    /**
+     * This method is outdated and drives blindly and variably due to battery.
+     * @param forwards
+     * @param sideways
+     * @param rotate
+     * @param sleepMillis
+     * @param armAngle
+     */
+    @Deprecated
     public void drive(double forwards, double sideways, double rotate, int sleepMillis, double armAngle)
     {
         mecanumX(forwards, sideways, -rotate);
@@ -365,6 +419,14 @@ public class _7198CSRobot {
 //            }
 //        }
 //    }
+
+    /**
+     * This function in general should be used only by low level robot commands or vision location commands
+     *
+     * @param y
+     * @param x
+     * @param rx
+     */
     public void mecanumX(double y,double x, double rx) {
 //        double denominator = Math.max(Math.abs(forwards) + Math.abs(sideways) + Math.abs(rotate), 1);
 //

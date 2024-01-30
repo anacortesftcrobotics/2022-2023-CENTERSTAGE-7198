@@ -5,14 +5,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
-import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.logancode._7198CSAuto;
-import org.firstinspires.ftc.teamcode.logancode._7198CSRobot;
-import org.firstinspires.ftc.teamcode.logancode._7198CSVisionManager;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
-public class _7198CSAuto extends LinearOpMode {
+public class _7198CSAuto_OdoPowered extends LinearOpMode {
     final double DESIRED_DISTANCE = 8; //  this is how close the camera should get to the target (inches)
 
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
@@ -27,10 +23,10 @@ public class _7198CSAuto extends LinearOpMode {
 
     private int AutoState = 1;
 
-    public enum ALLIANCE {
-        RED,
-        BLUE
-    }
+//    public enum ALLIANCE {
+//        RED,
+//        BLUE
+//    }
 
     protected _7198CSAuto.ALLIANCE THIS_ALLIANCE;
 
@@ -50,6 +46,13 @@ public class _7198CSAuto extends LinearOpMode {
         }
 
         waitForStart(); // ready to rock
+
+        theRobot.moveRobotPosition(-40,0,0,-48,telemetry);
+        theRobot.robotArmNap(1000,-48);
+        theRobot.moveRobotPosition(0,-40,0,-48,telemetry);
+        theRobot.robotArmNap(1000,-48);
+        theRobot.moveRobotPosition(40,40,0,-48,telemetry);
+        theRobot.robotArmNap(100000,-48);
 
         while (opModeIsActive()) {
             switch (AutoState) {
@@ -171,14 +174,10 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.halt(125);
 
         // final approach
-        if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(0,-0.04,0,325,125);
-        }
-        else if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0,0.04,0,275,125);
-        }
+        theRobot.drive(0,-0.04,0,275,125);
+        theRobot.drive(0.04, 0, 0, 500,125);
         theRobot.robotArmNap(300,125);
-        theRobot.drive(0.05,0,0,600,125);
+
         // drop the yellow pixel
         theRobot.fingerRight.setPosition(0.6);
         theRobot.robotArmNap(800, 120);
@@ -191,13 +190,13 @@ public class _7198CSAuto extends LinearOpMode {
 
         // strafe to park
         if (theDangPropZone == 3) {
-            theRobot.drive(0, -0.1, 0, 1700,-48);
+            theRobot.drive(0, -0.04, 0, 900,-48);
         } else if (theDangPropZone == 1) {
-            theRobot.drive(0, -0.1, 0, 1300,-48);
+            theRobot.drive(0, -0.04, 0, 1500,-48);
         } else {
-            theRobot.drive(0, -0.1, 0, 1000,-48);
+            theRobot.drive(0, -0.04, 0, 1700,-48);
         }
-        theRobot.drive(0.05,0,0,500,-48);
+        theRobot.drive(0.05,0,0,300,-48);
         theRobot.halt(-48);
     }
 
@@ -248,7 +247,7 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.pixelSlide.setPower(-1);
 
         theRobot.robotArmNap(1500,185);
-        theRobot.drive(.07,0,0,440, 185);
+        theRobot.drive(.07,0,0,500, 185);
         theRobot.halt(185);
         theRobot.robotArmNap(1000,185);
         theRobot.fingerLeft.setPosition(0.54);
@@ -294,7 +293,7 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500,185);
         theRobot.drive(0.07, 0, 0, 300, 185);
         theRobot.halt(185);
-        theRobot.setRobotRotation(0,0,-42,       185,telemetry);
+        theRobot.setRobotRotation(0,0,-20,       185,telemetry);
         theRobot.fingerLeft.setPosition(0.54);
         theRobot.robotArmNap(300, 185);
 
@@ -305,14 +304,7 @@ public class _7198CSAuto extends LinearOpMode {
         telemetry.update();
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125,telemetry);
-        if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0.04,0,0,600,125);
-        }
-        else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(.04, 0, 0, 275, 125);
-        }
-
-        theRobot.drive(0.04,0,0,850,125);
+        theRobot.drive(0.03,0,0,300,125);
         theRobot.setIntakeToCameraViewing();
     }
 
@@ -328,7 +320,7 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500,185);
         theRobot.drive(0.07, 0, 0, 300, 185);
         theRobot.halt(185);
-        theRobot.setRobotRotation(0,0,23,       185,telemetry);
+        theRobot.setRobotRotation(0,0,20,       185,telemetry);
         theRobot.fingerLeft.setPosition(0.54);
         theRobot.robotArmNap(300, 185);
 
@@ -338,13 +330,6 @@ public class _7198CSAuto extends LinearOpMode {
         telemetry.addLine("napping before going to angle 0");
         telemetry.update();
         theRobot.robotArmNap(1500, 125);
-        theRobot.setRobotRotation(0,0,0,125, telemetry);
-        if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0.03,0,0,600,125);
-        }
-        else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(.03, 0, 0, 200, 125);
-        }
         theRobot.setIntakeToCameraViewing();
     }
 

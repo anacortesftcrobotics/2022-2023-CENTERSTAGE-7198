@@ -19,7 +19,7 @@ public class _7198_OdoController {
             new Pose2D(19.64, 2.37, Math.toRadians(90)),
             new Pose2D(0, -14.93, Math.toRadians(180)),
             5,
-            8192
+            2000
     );
 
     // facing x-axis
@@ -85,6 +85,7 @@ public class _7198_OdoController {
 
     public void resetEncoders()
     {
+        DcMotor.RunMode mode = encoderLeft.getMode();
         encoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoderBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -96,6 +97,10 @@ public class _7198_OdoController {
         lastEncoder1 = encoder1;
         lastEncoder2 = encoder2;
         lastEncoder3 = encoder3;
+
+        encoderLeft.setMode(mode);
+        encoderBack.setMode(mode);
+        encoderRight.setMode(mode);
     }
 
     /**
