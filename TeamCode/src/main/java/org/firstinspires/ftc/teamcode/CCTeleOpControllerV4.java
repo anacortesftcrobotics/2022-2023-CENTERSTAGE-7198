@@ -6,10 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import org.firstinspires.ftc.teamcode.kaicode.PIDFArmController;
 import org.firstinspires.ftc.teamcode.logancode.LogsUtils;
+import org.firstinspires.ftc.teamcode.logancode._7198CSRobot;
 
 @TeleOp
 @Config
 public class CCTeleOpControllerV4 extends OpMode {
+
     DcMotor leftFront;
     DcMotor rightFront;
     DcMotor leftBack;
@@ -142,15 +144,15 @@ public class CCTeleOpControllerV4 extends OpMode {
 
         if(pixelPlacerState == 1)
         {
-            wristServo.setPosition(0.74);
+            wristServo.setPosition(_7198CSRobot.WRIST_PICK_UP);
         }
         else if(pixelPlacerState == 2)
         {
-            wristServo.setPosition(0);
+            wristServo.setPosition(_7198CSRobot.WRIST_PLACE);
         }
         else
         {
-            wristServo.setPosition(0.1);
+            wristServo.setPosition(_7198CSRobot.WRIST_AWAY);
         }
 
 
@@ -159,9 +161,9 @@ public class CCTeleOpControllerV4 extends OpMode {
     public void launchDrone()
     {
         if(gamepad1.left_bumper)
-            droneServo.setPosition(0);
+            droneServo.setPosition(0);//open
         else
-            droneServo.setPosition(0.5);
+            droneServo.setPosition(0.5);//close
 
         telemetry.addData("Drone Servo", droneServo.getPosition());
     }
@@ -229,7 +231,7 @@ public class CCTeleOpControllerV4 extends OpMode {
             if(Math.abs(targetPosition -  (pixelBase.getCurrentPosition() * pixelArmToRadiansConstant)) < 1.5)
             {
                 telemetry.addLine("targeting good");
-                pixelSlide.setTargetPosition(-2880);
+                pixelSlide.setTargetPosition(-2940);
                 pixelSlide.setPower(-1);
                 runPixelSlide(2);
             }
@@ -450,8 +452,8 @@ public class CCTeleOpControllerV4 extends OpMode {
             fingerRight.setPosition(1);
             fingerLeft.setPosition(0);
         } else {
-            fingerRight.setPosition(0.65);
-            fingerLeft.setPosition(0.35);
+            fingerRight.setPosition(1 - _7198CSRobot.FINGER_OPEN_POSITION_OFFSET);
+            fingerLeft.setPosition(_7198CSRobot.FINGER_OPEN_POSITION_OFFSET);
         }
     }
 

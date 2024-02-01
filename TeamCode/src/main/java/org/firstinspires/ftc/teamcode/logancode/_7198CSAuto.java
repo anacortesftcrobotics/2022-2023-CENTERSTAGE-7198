@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import org.apache.commons.math3.geometry.euclidean.twod.Line;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.logancode._7198CSAuto;
 import org.firstinspires.ftc.teamcode.logancode._7198CSRobot;
@@ -19,7 +20,7 @@ public class _7198CSAuto extends LinearOpMode {
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
     final double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN = 0.01;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double STRAFE_GAIN = 0.012;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
     final double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
     final double MAX_AUTO_SPEED = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
@@ -73,21 +74,26 @@ public class _7198CSAuto extends LinearOpMode {
                     AutoState++;
                     break;
                 case 4:
+                    theRobot.closeBothFingers();
                     if (!arrivedAtAprilTag) {
                         // this function will occur repeatedly as the robot hones in on it
                         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
+                            telemetry.addLine("going to red april tag");
                             if (this.TeamPropLocation == 3) {
                                 driveToAprilTag(4);
+                                telemetry.addLine("going to red april tag 4");
                             }
                             else if (this.TeamPropLocation == 1) {
                                 driveToAprilTag(5);
+                                telemetry.addLine("going to red april tag 5");
                             }
                             else if (this.TeamPropLocation == 2) {
                                 driveToAprilTag(6);
+                                telemetry.addLine("going to red april tag 6");
                             }
-                            else {
+                            /*else {
                                 driveToAprilTag(5);
-                            }
+                            }*/
                         }
                         else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
                             if (this.TeamPropLocation == 3) {
@@ -175,7 +181,7 @@ public class _7198CSAuto extends LinearOpMode {
             theRobot.drive(0,-0.04,0,200,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0,0.04,0,275,125);
+            //theRobot.drive(0,-0.04,0,170,125);
         }
         theRobot.robotArmNap(300,125);
         theRobot.drive(0.05,0,0,600,125);
@@ -292,9 +298,19 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.pixelSlide.setPower(-1);
 
         theRobot.robotArmNap(1500,185);
-        theRobot.drive(0.07, 0, 0, 300, 185);
+        if (THIS_ALLIANCE == ALLIANCE.RED){
+            theRobot.drive(0.03,0,0,300,185);
+        }
+        else if (THIS_ALLIANCE == ALLIANCE.BLUE){
+            theRobot.drive(0.07, 0, 0, 300, 185);
+        }
         theRobot.halt(185);
-        theRobot.setRobotRotation(0,0,-42,       185,telemetry);
+        if (THIS_ALLIANCE == ALLIANCE.RED){
+            theRobot.setRobotRotation(0,0,-42,       185,telemetry);
+        }
+        else if (THIS_ALLIANCE == ALLIANCE.BLUE){
+            theRobot.setRobotRotation(0,0,-42,       185,telemetry);
+        }
         theRobot.fingerLeft.setPosition(0.54);
         theRobot.robotArmNap(300, 185);
 
@@ -306,13 +322,15 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125,telemetry);
         if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0.04,0,0,600,125);
+            theRobot.drive(0.04,0,0,200,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(.04, 0, 0, 200, 125);
+            theRobot.drive(0.04, 0, 0, 200, 125);
         }
 
-        theRobot.drive(0.04,0,0,850,125);
+       /* if (THIS_ALLIANCE == ALLIANCE.RED){
+        theRobot.drive(0.04,0,0,650,125);
+    }*/
         theRobot.setIntakeToCameraViewing();
     }
 
@@ -340,10 +358,10 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125, telemetry);
         if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0.03,0,0,600,125);
+            theRobot.drive(0.03,0,0,1050,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(.03, 0, 0, 200, 125);
+            theRobot.drive(.03, 0, 0, 230, 125);
         }
         theRobot.setIntakeToCameraViewing();
     }
