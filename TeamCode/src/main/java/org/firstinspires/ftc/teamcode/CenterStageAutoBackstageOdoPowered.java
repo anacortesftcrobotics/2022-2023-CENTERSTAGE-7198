@@ -9,7 +9,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 // this is a generic auto mode for CenterStage Backstage.
 // the red and blue alliance game configurations are set by the child classes which inherit from this.
-public class CenterStageAutoBackstage extends LinearOpMode
+public class CenterStageAutoBackstageOdoPowered extends LinearOpMode
 {
     final double DESIRED_DISTANCE = 8; //  this is how close the camera should get to the target (inches)
 
@@ -43,6 +43,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
     private CenterStageVisionManager visionManager;
     private boolean arrivedAtAprilTag = false;
     double lastKnownRangeToAprilTag = 0;
+    private OdoControllerAlfalfa kaiOdo;
 
     @Override
     public void runOpMode()

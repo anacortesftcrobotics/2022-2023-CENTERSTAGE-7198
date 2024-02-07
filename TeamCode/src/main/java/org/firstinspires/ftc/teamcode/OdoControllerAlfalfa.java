@@ -45,6 +45,9 @@ public class OdoControllerAlfalfa {
         encoderLeft = hardwareMap.get(DcMotor.class, "frontRight");
         encoderRight = hardwareMap.get(DcMotor.class, "backRight");
         encoderBack = hardwareMap.get(DcMotor.class, "backLeft");
+        encoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /**

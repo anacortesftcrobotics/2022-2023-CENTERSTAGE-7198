@@ -26,6 +26,20 @@ public class _7198CSVisionManager {
     {
         if (thisAlliance == _7198CSAuto.ALLIANCE.RED)
         {
+            colorLowerBound = new Scalar(1, 60, 85);  //7.4 , 71.5 , 94.1
+            colorUpperBound = new Scalar(13, 90, 105);//7.9 , 80.5 , 96.4
+        }
+        else {
+            colorLowerBound = new Scalar(212, 54, 50); //221.0 , 64.7 , 59.5
+            colorUpperBound = new Scalar(230, 83, 90);// 222.3 , 77.0 , 83.4
+        }
+
+        // default garbage. do not use when competing.
+        //TODO: remove this for the ral game
+        //FIXME: rimeove eargjivelri this
+
+        if (thisAlliance == _7198CSAuto.ALLIANCE.RED)
+        {
             colorLowerBound = new Scalar(0, 150, 50);
             colorUpperBound = new Scalar(20, 255, 200);
         }

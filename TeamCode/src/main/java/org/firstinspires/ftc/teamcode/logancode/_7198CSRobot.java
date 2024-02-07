@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.odometry._7198_OdoController;
 import java.util.concurrent.ExecutorService;
 
 public class _7198CSRobot {
-    public static final double FINGER_OPEN_POSITION_OFFSET = 0.7;
-    public static final double WRIST_AWAY = 0.1;
+    public static final double FINGER_OPEN_POSITION_OFFSET = 0.7;//5 to 7
+    public static final double WRIST_AWAY = 0.5;
     public static final double WRIST_PICK_UP = 0.8;
     public static final double WRIST_PLACE = 0.2;
     DigitalChannel bucketStop;
@@ -180,10 +180,11 @@ public class _7198CSRobot {
      * @param deltaA_deg      Delta rotation (Degrees)
      * @param armAngle Target angle of the arm
      */
-    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle) {
+    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle,Telemetry telem) {
         double taRad = (deltaA_deg * Math.PI / 180);
         //kaiOdo.resetEncoders();
-        Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
+        //Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
+        Pose2D targetLocation = new Pose2D(deltaX_cm,deltaY_cm,taRad);
 
         double timer = 5;
         while(timer >= 0 && linearOpMode.opModeIsActive()) //in cm
@@ -191,8 +192,8 @@ public class _7198CSRobot {
 
             kaiOdo.update();
 
-            //telem.addData("Target: ", targetLocation.getX() + ", " + targetLocation.getY() + ", " + targetLocation.getHeadingRad());
-            //telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingRad()));
+            telem.addData("Target: ", targetLocation.getX() + ", " + targetLocation.getY() + ", " + targetLocation.getHeadingRad());
+            telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingRad()));
             //telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
 
             double absoluteXToPosition = targetLocation.getX() - kaiOdo.getX();
@@ -201,7 +202,7 @@ public class _7198CSRobot {
             double absoluteAngleToPosition = Math.atan2(absoluteYToPosition, absoluteXToPosition);
             double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
 
-            double relativeAngleToPosition = angleWrap(absoluteAngleToPosition + kaiOdo.getHeadingRad());
+            double relativeAngleToPosition = angleWrap(absoluteAngleToPosition - kaiOdo.getHeadingRad());
             //telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
 
             double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
@@ -209,7 +210,7 @@ public class _7198CSRobot {
 
             double powerX = relativeXToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
             double powerY = relativeYToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
-            double powerTurn = angleWrap(kaiOdo.getHeadingRad() + targetLocation.getHeadingRad()) / Math.PI;
+            double powerTurn = angleWrap(-kaiOdo.getHeadingRad() + targetLocation.getHeadingRad()) / Math.PI;
 
             double multiplier = 1;
             double d = getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY());
@@ -226,21 +227,21 @@ public class _7198CSRobot {
 
             //multiplier *= 0.5; //temp for test
             //mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
-            mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
+            mecanumX(-powerY * multiplier,powerX * multiplier,0);
 
             SetArmAngle(armAngle);
             //telem.update();
 
-            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) > 1)
+            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) < 1)
                 timer--;
         }
 
         mecanumX(0,0,0);
     }
 
-    public void moveRobotPosition_IN(double deltaY_in, double deltaX_in, double deltaA_deg, double armAngle)
+    public void moveRobotPosition_IN(double deltaY_in, double deltaX_in, double deltaA_deg, double armAngle,Telemetry telem)
     {
-        moveRobotPosition(deltaY_in*2.54,deltaX_in*2.54,deltaA_deg,armAngle);
+        moveRobotPosition(deltaY_in*2.54,deltaX_in*2.54,deltaA_deg,armAngle,telem);
     }
 
     public double getDistance(double tx, double ty, double ox, double oy)
@@ -454,6 +455,7 @@ public class _7198CSRobot {
 //        backLeft.setPower(adjustedSidePowerBack);
 //        frontRight.setPower((forwards - sideways - rotate) / denominator);
 //        backRight.setPower((forwards + sideways - rotate) / denominator);
+        kaiOdo.update();
 
         double leftBackPower;
         double rightBackPower;

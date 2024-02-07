@@ -47,6 +47,12 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         waitForStart(); // ready to rock
 
+        //theRobot.moveRobotPosition_IN(-40,0,0, 125,telemetry);
+        theRobot.moveRobotPosition_IN(-60,0,-45, 125,telemetry);
+        theRobot.moveRobotPosition_IN(-60,-24,-45, 125,telemetry);
+        theRobot.moveRobotPosition_IN(0,0,-45, 125,telemetry);
+        theRobot.robotArmNap(90000,125);
+
         while (opModeIsActive()) {
             switch (AutoState) {
                 case 1:
@@ -174,7 +180,7 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         // final approach
         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-            theRobot.moveRobotPosition_IN(0,-0.04,0,125);
+            theRobot.moveRobotPosition_IN(0,-0.04,0,125,telemetry);
         }
         else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
             //theRobot.moveRobotPosition_IN(0,-0.04,0,170,125);
@@ -188,18 +194,18 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.robotArmNap(200, 120);
         theRobot.closeBothFingers();
         theRobot.SetArmAngle(-48);
-        theRobot.moveRobotPosition_IN(-0.05, 0, 0, -48);
+        theRobot.moveRobotPosition_IN(-0.05, 0, 0, -48,telemetry);
 
 
         // strafe to park
         if (theDangPropZone == 3) {
-            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48);
+            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48,telemetry);
         } else if (theDangPropZone == 1) {
-            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48);
+            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48,telemetry);
         } else {
-            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48);
+            theRobot.moveRobotPosition_IN(0, -0.1, 0, -48,telemetry);
         }
-        theRobot.moveRobotPosition_IN(0.05,0,0,-48);
+        theRobot.moveRobotPosition_IN(0.05,0,0,-48,telemetry);
         theRobot.halt(-48);
     }
 
@@ -250,7 +256,7 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.pixelSlide.setPower(-1);
 
         theRobot.robotArmNap(1500,185);
-        theRobot.moveRobotPosition_IN(-16.5,0,0,185);
+        theRobot.moveRobotPosition_IN(-16.5,0,0,185,telemetry);
         theRobot.halt(185);
         theRobot.robotArmNap(1000,185);
         theRobot.fingerLeft.setPosition(0.54);
@@ -260,7 +266,7 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(1);
         theRobot.robotArmNap(1500, 125);
-        theRobot.moveRobotPosition_IN(6.5,0, 0, 125);
+        theRobot.moveRobotPosition_IN(6.5,0, 0, 125,telemetry);
         theRobot.setIntakeToCameraViewing();
        /* theRobot.moveRobotPosition_IN(0, 0, -.2, 175);
         theRobot.halt();
@@ -295,10 +301,10 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         theRobot.robotArmNap(1500,185);
         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED){
-            theRobot.moveRobotPosition_IN(0.03,0,0,185);
+            theRobot.moveRobotPosition_IN(0.03,0,0,185,telemetry);
         }
         else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE){
-            theRobot.moveRobotPosition_IN(0.07, 0, 0, 185);
+            theRobot.moveRobotPosition_IN(0.07, 0, 0, 185,telemetry);
         }
         theRobot.halt(185);
         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED){
@@ -318,10 +324,10 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125,telemetry);
         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-            theRobot.moveRobotPosition_IN(0.04,0,0,125);
+            theRobot.moveRobotPosition_IN(0.04,0,0,125,telemetry);
         }
         else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-            theRobot.moveRobotPosition_IN(0.04, 0, 0, 125);
+            theRobot.moveRobotPosition_IN(0.04, 0, 0, 125,telemetry);
         }
 
        /* if (THIS_ALLIANCE == ALLIANCE.RED){
@@ -340,7 +346,7 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.pixelSlide.setPower(-1);
 
         theRobot.robotArmNap(1500,185);
-        theRobot.moveRobotPosition_IN(0.07, 0, 0, 185);
+        theRobot.moveRobotPosition_IN(0.07, 0, 0, 185,telemetry);
         theRobot.halt(185);
         theRobot.setRobotRotation(0,0,23,       185,telemetry);
         theRobot.fingerLeft.setPosition(0.54);
@@ -354,10 +360,10 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125, telemetry);
         if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-            theRobot.moveRobotPosition_IN(0.03,0,0,125);
+            theRobot.moveRobotPosition_IN(0.03,0,0,125,telemetry);
         }
         else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-            theRobot.moveRobotPosition_IN(.03, 0, 0, 125);
+            theRobot.moveRobotPosition_IN(.03, 0, 0, 125,telemetry);
         }
         theRobot.setIntakeToCameraViewing();
     }

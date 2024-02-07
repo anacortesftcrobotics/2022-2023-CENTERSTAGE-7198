@@ -7,5 +7,6 @@ public class CenterStageAutoBackstageRed extends CenterStageAutoBackstage {
         @Override
         public void initializeGameConfig() {
                 THIS_ALLIANCE = ALLIANCE.RED;
+                STAGE_LOCATION = STAGE_LOCATION.BACK;
         }
 }

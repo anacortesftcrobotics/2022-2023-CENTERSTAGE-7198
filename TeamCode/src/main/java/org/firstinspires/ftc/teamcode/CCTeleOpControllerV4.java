@@ -107,7 +107,7 @@ public class CCTeleOpControllerV4 extends OpMode {
 
         hookElbow = hardwareMap.get(Servo.class, "hookElbow");
 
-        hookElbow.setPosition(1);
+        hookElbow.setPosition(0.5);
 
     }
 

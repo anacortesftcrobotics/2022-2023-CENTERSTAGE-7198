@@ -19,8 +19,8 @@ public class _7198CSAuto extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN = 0.012;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double SPEED_GAIN = 0.018;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double STRAFE_GAIN = 0.03;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
     final double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
     final double MAX_AUTO_SPEED = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
@@ -47,7 +47,8 @@ public class _7198CSAuto extends LinearOpMode {
         if (opModeInInit()) {
             initializeGameConfig();
             initializeSystem();
-            theRobot.grabInitialPixels(-48);
+            theRobot.fingerRight.setPosition(1);
+            theRobot.fingerLeft.setPosition(0);
         }
 
         waitForStart(); // ready to rock
@@ -166,11 +167,36 @@ public class _7198CSAuto extends LinearOpMode {
             turn = Range.clip(yawError * TURN_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
 
             // Apply desired axes of motion to the drivetrain.
-            theRobot.mecanumX(drive/4, strafe/4, turn/4);
-            theRobot.robotArmNap(10,125);
+            theRobot.mecanumX(drive/4, strafe/4, 0);
+            theRobot.robotArmNap(1,125);
             telemetry.addData("auto", "Drive %5.2f, Strafe %5.2f, Turn %5.2f ", drive, strafe, turn);
         }
     }
+
+//    private void driveToAprilTag(int DetectedPropZone)
+//    {
+//        //double targetAngle = THIS_ALLIANCE == ALLIANCE.BLUE ? 90 : -90;
+//
+//        if(DetectedPropZone == 1)
+//            theRobot.moveRobotPosition_IN(-20,35,0, 125,telemetry);
+//        if(DetectedPropZone == 2)
+//            theRobot.moveRobotPosition_IN(-29.5,35,0, 125,telemetry);
+//        if(DetectedPropZone == 3)
+//            theRobot.moveRobotPosition_IN(-37,35,0, 125,telemetry);
+//
+//        if(DetectedPropZone == 4)
+//            theRobot.moveRobotPosition_IN(-37,-35,-0, 125,telemetry);
+//        if(DetectedPropZone == 5)
+//            theRobot.moveRobotPosition_IN(-29.5,-35,-0, 125,telemetry);
+//        if(DetectedPropZone == 6)
+//            theRobot.moveRobotPosition_IN(-20,-35,-0, 125,telemetry);
+//
+//        if(DetectedPropZone < 4)
+//            theRobot.setRobotRotation(0,0,90,125,telemetry);
+//        else
+//            theRobot.setRobotRotation(0,0,-90,125,telemetry);
+//
+//    }
 
     private void scoreYellowPixelandPark(int theDangPropZone) {
         // stop moving
@@ -196,12 +222,12 @@ public class _7198CSAuto extends LinearOpMode {
 
 
         // strafe to park
-        if (theDangPropZone == 3) {
-            theRobot.drive(0, -0.1, 0, 1700,-48);
+        if (theDangPropZone == 2) {
+            theRobot.drive(0, 0.1, 0, 1700,-48);
         } else if (theDangPropZone == 1) {
-            theRobot.drive(0, -0.1, 0, 1300,-48);
+            theRobot.drive(0, 0.1, 0, 1300,-48);
         } else {
-            theRobot.drive(0, -0.1, 0, 1000,-48);
+            theRobot.drive(0, 0.1, 0, 1000,-48);
         }
         theRobot.drive(0.05,0,0,500,-48);
         theRobot.halt(-48);
@@ -238,7 +264,10 @@ public class _7198CSAuto extends LinearOpMode {
             } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
                 theRobot.setRobotRotation(0, 0, 90, 125, telemetry);
             }
+            //theRobot.moveRobotPosition_IN(-24,-24,0, 125,telemetry);
         }
+        //theRobot.setRobotRotation(0,0,0,125,telemetry);
+        //theRobot.drive(-1,0,0,100,125);
         theRobot.halt(125);
         return true;
     }
@@ -322,10 +351,10 @@ public class _7198CSAuto extends LinearOpMode {
         theRobot.robotArmNap(1500, 125);
         theRobot.setRobotRotation(0,0,0,125,telemetry);
         if (THIS_ALLIANCE == ALLIANCE.RED) {
-            theRobot.drive(0.04,0,0,200,125);
+            theRobot.drive(0.03,0,0,200,125);
         }
         else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
-            theRobot.drive(0.04, 0, 0, 200, 125);
+            theRobot.drive(0.03, 0, 0, 200, 125);
         }
 
        /* if (THIS_ALLIANCE == ALLIANCE.RED){
