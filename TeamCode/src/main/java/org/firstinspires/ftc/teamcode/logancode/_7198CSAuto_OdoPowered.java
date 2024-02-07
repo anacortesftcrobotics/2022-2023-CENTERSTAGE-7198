@@ -47,82 +47,8 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         waitForStart(); // ready to rock
 
-        while (opModeIsActive()) {
-            switch (AutoState) {
-                case 1:
-                    if (this.TeamPropLocation == -1) {
-                        this.TeamPropLocation = visionManager.getDetectedSpikeMark();
-                        telemetry.addData("auto", "detected prop = %d", this.TeamPropLocation);
-                        AutoState++;
-                    }
-                    break;
-                case 2:
-                    telemetry.addData("case 2 started", this.TeamPropLocation);
-                    telemetry.update();
-                    if (scorePurplePixelandTurn(this.TeamPropLocation))
-                        AutoState++;
-                    telemetry.addData("case 2 finished", this.TeamPropLocation);
-                    telemetry.update();
-                    break;
-                case 3:
-                    visionManager.enableAprilTagProcessor();
-                    AutoState++;
-                    break;
-                case 4:
-                    theRobot.closeBothFingers();
-                    if (!arrivedAtAprilTag) {
-                        // this function will occur repeatedly as the robot hones in on it
-                        if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                            telemetry.addLine("going to red april tag");
-                            if (this.TeamPropLocation == 3) {
-                                driveToAprilTag(4);
-                                telemetry.addLine("going to red april tag 4");
-                            }
-                            else if (this.TeamPropLocation == 1) {
-                                driveToAprilTag(5);
-                                telemetry.addLine("going to red april tag 5");
-                            }
-                            else if (this.TeamPropLocation == 2) {
-                                driveToAprilTag(6);
-                                telemetry.addLine("going to red april tag 6");
-                            }
-                            /*else {
-                                driveToAprilTag(5);
-                            }*/
-                        }
-                        else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                            if (this.TeamPropLocation == 3) {
-                                driveToAprilTag(1);
-                            }
-                            else if (this.TeamPropLocation == 1) {
-                                driveToAprilTag(2);
-                            }
-                            else if (this.TeamPropLocation == 2) {
-                                driveToAprilTag(3);
-                            }
-                            else {
-                                driveToAprilTag(2);
-                            }
-                        }
-
-                       /* if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                            driveToAprilTag(this.TeamPropLocation + 4);
-                        } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                            driveToAprilTag(this.TeamPropLocation + 1);
-                        } */
-                    } else {
-                        scoreYellowPixelandPark(this.TeamPropLocation);
-
-
-                        requestOpModeStop();
-                    }
-                    telemetry.update();
-                    break;
-                default:
-
-                    break;
-            }
-        }
+        theRobot.moveRobotPosition_IN(-40,0,20,-48);
+        theRobot.moveRobotPosition_IN(0,0,0,-48);
     }
 
     private void initializeSystem() {
