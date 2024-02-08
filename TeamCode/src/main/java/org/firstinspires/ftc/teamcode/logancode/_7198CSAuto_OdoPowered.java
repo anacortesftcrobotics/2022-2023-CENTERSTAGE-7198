@@ -47,8 +47,22 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         waitForStart(); // ready to rock
 
-        theRobot.moveRobotPosition_IN(-40,0,20,-48);
+        theRobot.moveRobotPosition_IN(-40,0,0,-48);
         theRobot.moveRobotPosition_IN(0,0,0,-48);
+
+        theRobot.moveRobotPosition_IN(-40,0,45,-48);
+        theRobot.moveRobotPosition_IN(0,0,0,-48);
+
+        theRobot.moveRobotPosition_IN(-40,0,90,-48);
+        theRobot.moveRobotPosition_IN(0,0,0,-48);
+
+        theRobot.moveRobotPosition_IN(-40,0,135,-48);
+        theRobot.moveRobotPosition_IN(0,0,0,-48);
+
+        theRobot.moveRobotPosition_IN(-40,0,180,-48);
+        theRobot.moveRobotPosition_IN(0,0,0,-48);
+
+
     }
 
     private void initializeSystem() {

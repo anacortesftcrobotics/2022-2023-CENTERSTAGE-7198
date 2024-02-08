@@ -183,7 +183,8 @@ public class _7198CSRobot {
     public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, double armAngle) {
         double taRad = (deltaA_deg * Math.PI / 180);
         //kaiOdo.resetEncoders();
-        Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
+        //Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
+        Pose2D targetLocation = new Pose2D(deltaX_cm,deltaY_cm,taRad);
 
         double timer = 5;
         while(timer >= 0 && linearOpMode.opModeIsActive()) //in cm
@@ -201,7 +202,7 @@ public class _7198CSRobot {
             double absoluteAngleToPosition = Math.atan2(absoluteYToPosition, absoluteXToPosition);
             double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
 
-            double relativeAngleToPosition = angleWrap(absoluteAngleToPosition + kaiOdo.getHeadingRad());
+            double relativeAngleToPosition = angleWrap(absoluteAngleToPosition - kaiOdo.getHeadingRad());
             //telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
 
             double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
@@ -216,7 +217,7 @@ public class _7198CSRobot {
             if(d < 130) //cm
             {
                 multiplier = Math.pow(d/130,2);
-                multiplier = Math.max(multiplier,0.02);
+                multiplier = Math.max(multiplier,0.01);
             }
 
             //telem.addData("distance", d);
@@ -226,12 +227,12 @@ public class _7198CSRobot {
 
             //multiplier *= 0.5; //temp for test
             //mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
-            mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
+            mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn*1.5);
 
             SetArmAngle(armAngle);
             //telem.update();
 
-            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) > 1)
+            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) < 1.5)
                 timer--;
         }
 
