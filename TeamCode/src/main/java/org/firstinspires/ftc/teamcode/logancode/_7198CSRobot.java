@@ -232,7 +232,7 @@ public class _7198CSRobot {
             SetArmAngle(armAngle);
             //telem.update();
 
-            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) < 1.5)
+            if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) < 1.5 && Math.abs(powerTurn)<0.1)
                 timer--;
         }
 

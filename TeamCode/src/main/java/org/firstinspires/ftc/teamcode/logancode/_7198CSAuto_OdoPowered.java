@@ -21,8 +21,6 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
     final double MAX_AUTO_STRAFE = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
 
-    private int AutoState = 1;
-
     public enum ALLIANCE {
         RED,
         BLUE
@@ -47,20 +45,21 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
         waitForStart(); // ready to rock
 
-        theRobot.moveRobotPosition_IN(-40,0,0,-48);
-        theRobot.moveRobotPosition_IN(0,0,0,-48);
+        if (this.TeamPropLocation == -1)
+        {
+            this.TeamPropLocation = visionManager.getDetectedSpikeMark();
+            telemetry.addData("auto", "detected prop = %d", this.TeamPropLocation);
+        }
 
-        theRobot.moveRobotPosition_IN(-40,0,45,-48);
-        theRobot.moveRobotPosition_IN(0,0,0,-48);
+        scorePurplePixel(this.TeamPropLocation);
 
-        theRobot.moveRobotPosition_IN(-40,0,90,-48);
-        theRobot.moveRobotPosition_IN(0,0,0,-48);
+        theRobot.moveRobotPosition_IN(-2,0,-90,-48);
+        theRobot.moveRobotPosition_IN(-2,77,-90,-48);
+        theRobot.moveRobotPosition_IN(-28,77,-90,-48);
+        theRobot.moveRobotPosition_IN(-2,77,-90,-48);
+        theRobot.moveRobotPosition_IN(-2,0,-90,-48);
+        theRobot.setRobotRotation(0,0,0,-48,telemetry);
 
-        theRobot.moveRobotPosition_IN(-40,0,135,-48);
-        theRobot.moveRobotPosition_IN(0,0,0,-48);
-
-        theRobot.moveRobotPosition_IN(-40,0,180,-48);
-        theRobot.moveRobotPosition_IN(0,0,0,-48);
 
 
     }
@@ -108,6 +107,34 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         }
     }
 
+    private boolean scorePurplePixel(int theDangPropPosition)
+    {
+        telemetry.addData("That Dang Prop Position", theDangPropPosition);
+        telemetry.update();
+        if (theDangPropPosition == 3)
+        {
+            telemetry.addLine("Left");
+            telemetry.update();
+            scorePurplePixelLeft();
+        }
+        else if (theDangPropPosition == 1)
+        {
+            telemetry.addLine("Center");
+            telemetry.update();
+            //scorePurplePixelCenter();
+        }
+        else
+        {
+            telemetry.addLine("Right");
+            telemetry.update();
+            //scorePurplePixelRight();
+        }
+
+        theRobot.setRobotRotation(0, 0, THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED ? -90 : 90, 125, telemetry);
+        theRobot.halt(125);
+        return true;
+    }
+
     private void scoreYellowPixelandPark(int theDangPropZone) {
         // stop moving
         theRobot.halt(125);
@@ -143,43 +170,6 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.halt(-48);
     }
 
-    //returns true when completed the placement
-    private boolean scorePurplePixelandTurn(int theDangPropPosition) {
-        telemetry.addData("That Dang Prop Position", theDangPropPosition);
-        if (theDangPropPosition == 3) {
-            scorePurplePixelLeft();
-            theRobot.fingerRight.setPosition(1);
-            // rotate into AprilTag viewing position
-            if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.setRobotRotation(0, 0, -90, 125, telemetry);
-            } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.setRobotRotation(0, 0, 90, 125, telemetry);
-            }
-        } else if (theDangPropPosition == 1) {
-            scorePurplePixelCenter();
-            theRobot.fingerRight.setPosition(1);
-            // rotate into viewing position
-            if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.setRobotRotation(0, 0, -90, 125, telemetry);
-            } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.setRobotRotation(0,0,65, 125, telemetry );
-            }
-        } else {
-            // zone 3
-            scorePurplePixelRight();
-            theRobot.fingerRight.setPosition(1);
-            // back away and rotate into viewing position
-            if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-                theRobot.setRobotRotation(0, 0, -90, 125, telemetry);
-            } else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-                theRobot.setRobotRotation(0, 0, 90, 125, telemetry);
-            }
-        }
-        theRobot.halt(125);
-        return true;
-    }
-
-
     //returns true when completed
     private void scorePurplePixelCenter() {
         theRobot.SetArmAngle(telemetry,180);
@@ -199,29 +189,9 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
         theRobot.pixelSlide.setTargetPosition(0);
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(1);
+
         theRobot.robotArmNap(1500, 125);
         theRobot.moveRobotPosition_IN(6.5,0, 0, 125);
-        theRobot.setIntakeToCameraViewing();
-       /* theRobot.moveRobotPosition_IN(0, 0, -.2, 175);
-        theRobot.halt();
-        theRobot.setIntakeToBatteringRam();
-
-
-        // overshoot to plow the prop
-        theRobot.moveRobotPosition_IN(0.2, 0, 0, 1000);
-        // back up to the tape
-        theRobot.moveRobotPosition_IN(-0.2, 0, 0, 400);
-        theRobot.halt();
-        if (!theRobot.placePurplePixel())
-            return false;
-
-        // back away
-        theRobot.moveRobotPosition_IN(-0.2, 0, 0, 200);
-        theRobot.halt();
-        theRobot.setIntakeToCameraViewing();
-        return true;
-
-        */
     }
 
     private void scorePurplePixelRight()
@@ -272,34 +242,27 @@ public class _7198CSAuto_OdoPowered extends LinearOpMode {
 
     private void scorePurplePixelLeft() {
         // approach
+        theRobot.moveRobotPosition(-12.5,0,0,185);
         theRobot.SetArmAngle(telemetry,185);
         theRobot.wristServo.setPosition(0);
 
         theRobot.pixelSlide.setTargetPosition(-2500);
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(-1);
-
         theRobot.robotArmNap(1500,185);
-        theRobot.moveRobotPosition_IN(0.07, 0, 0, 185);
-        theRobot.halt(185);
+
         theRobot.setRobotRotation(0,0,23,       185,telemetry);
         theRobot.fingerLeft.setPosition(0.54);
         theRobot.robotArmNap(300, 185);
+        theRobot.fingerRight.setPosition(1);
 
         theRobot.pixelSlide.setTargetPosition(0);
         theRobot.pixelSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         theRobot.pixelSlide.setPower(1);
-        telemetry.addLine("napping before going to angle 0");
-        telemetry.update();
-        theRobot.robotArmNap(1500, 125);
+        theRobot.robotArmNap(1500, -48);
+
         theRobot.setRobotRotation(0,0,0,125, telemetry);
-        if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.RED) {
-            theRobot.moveRobotPosition_IN(0.03,0,0,125);
-        }
-        else if (THIS_ALLIANCE == _7198CSAuto.ALLIANCE.BLUE) {
-            theRobot.moveRobotPosition_IN(.03, 0, 0, 125);
-        }
-        theRobot.setIntakeToCameraViewing();
+
     }
 
 }
