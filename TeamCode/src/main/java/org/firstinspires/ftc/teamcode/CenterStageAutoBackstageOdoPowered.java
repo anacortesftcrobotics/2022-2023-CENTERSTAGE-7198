@@ -9,7 +9,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 // this is a generic auto mode for CenterStage Backstage.
 // the red and blue alliance game configurations are set by the child classes which inherit from this.
-public class CenterStageAutoBackstage extends LinearOpMode
+public class CenterStageAutoBackstageOdoPowered extends LinearOpMode
 {
     final double DESIRED_DISTANCE = 8; //  this is how close the camera should get to the target (inches)
 
@@ -23,11 +23,6 @@ public class CenterStageAutoBackstage extends LinearOpMode
     final double MAX_AUTO_STRAFE= 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN  = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
 
-    public enum ALLIANCE {
-        RED,
-        BLUE
-    }
-
     public enum STAGE {
         FRONT,
         BACK
@@ -35,7 +30,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
 
     protected STAGE STAGE_LOCATION;
 
-    protected ALLIANCE THIS_ALLIANCE;
+    protected CenterStageAutoBackstage.ALLIANCE THIS_ALLIANCE;
 
     private int TeamPropLocation = -1; // this means it is not detected
     private AprilTagDetection targetAprilTag; // Used to hold the data for a detected AprilTag
@@ -43,6 +38,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
     private CenterStageVisionManager visionManager;
     private boolean arrivedAtAprilTag = false;
     double lastKnownRangeToAprilTag = 0;
+    private OdoControllerAlfalfa kaiOdo;
 
     @Override
     public void runOpMode()
@@ -67,18 +63,18 @@ public class CenterStageAutoBackstage extends LinearOpMode
                 GoThroughTruss();
             if (! arrivedAtAprilTag) {
                 // this function will occur repeatedly as the robot hones in on it
-                if(THIS_ALLIANCE == ALLIANCE.RED){
+                if(THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED){
                     driveToAprilTag(this.TeamPropLocation + 3);
                 }
-                else if(THIS_ALLIANCE == ALLIANCE.BLUE){
+                else if(THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE){
                     driveToAprilTag(this.TeamPropLocation);
                 }
             } else {
                 scoreYellowPixelandPark(this.TeamPropLocation);
-                if(THIS_ALLIANCE == ALLIANCE.BLUE){
+                if(THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE){
                     theRobot.drive(0,0,.3,1450);
                 }
-                else if(THIS_ALLIANCE == ALLIANCE.RED){
+                else if(THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED){
                     theRobot.drive(0,0,-.3,1250);
                 }
 
@@ -183,9 +179,9 @@ public class CenterStageAutoBackstage extends LinearOpMode
             scorePurplePixelLeft();
             // rotate into AprilTag viewing position
             if (STAGE_LOCATION == STAGE_LOCATION.BACK) {
-                if (THIS_ALLIANCE == ALLIANCE.RED) {
+                if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED) {
                     theRobot.drive(0, 0, 0.4, 1500);
-                } else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
+                } else if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE) {
                     theRobot.drive(0, 0, -0.2, 300);
                 }
             }
@@ -194,9 +190,9 @@ public class CenterStageAutoBackstage extends LinearOpMode
             scorePurplePixelCenter();
             // rotate into viewing position
             if (STAGE_LOCATION == STAGE_LOCATION.BACK) {
-                if (THIS_ALLIANCE == ALLIANCE.RED) {
+                if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED) {
                     theRobot.drive(0, 0, 0.4, 750);
-                } else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
+                } else if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE) {
                     theRobot.drive(0, 0, -0.4, 600);
                 }
             }
@@ -206,11 +202,11 @@ public class CenterStageAutoBackstage extends LinearOpMode
             scorePurplePixelRight();
             // back away and rotate into viewing position
             if (STAGE_LOCATION == STAGE_LOCATION.BACK) {
-                if (THIS_ALLIANCE == ALLIANCE.RED) {
+                if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED) {
                     theRobot.drive(-0.2, 0, 0, 600);
                     theRobot.drive(0, 0.3, 0, 1000);
                     theRobot.drive(0, 0, .2, 500);
-                } else if (THIS_ALLIANCE == ALLIANCE.BLUE) {
+                } else if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE) {
                     theRobot.drive(-0.2, 0, 0, 1000);
                     theRobot.drive(0, -0.3, 0, 500);
                     theRobot.drive(0, 0, -0.4, 1300);
