@@ -92,7 +92,7 @@ public class CenterStageAutoBackstage extends LinearOpMode
     {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         visionManager = new CenterStageVisionManager(THIS_ALLIANCE, hardwareMap.get(WebcamName.class, "Webcam 1"));
-        theRobot = new CenterStageRobot(hardwareMap);
+        theRobot = new CenterStageRobot(this, hardwareMap);
         telemetry.addData("auto", "initializeSystem() complete");
     }
 

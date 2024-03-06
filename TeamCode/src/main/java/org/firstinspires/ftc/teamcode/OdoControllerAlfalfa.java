@@ -48,6 +48,10 @@ public class OdoControllerAlfalfa {
         encoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encoderBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        encoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encoderBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     /**
@@ -73,6 +77,26 @@ public class OdoControllerAlfalfa {
         encoder1 = encoderLeft.getCurrentPosition();
         encoder2 = encoderRight.getCurrentPosition();
         encoder3 = -encoderBack.getCurrentPosition();
+    }
+
+    public void resetEncoders()
+    {
+        DcMotor.RunMode mode = encoderLeft.getMode();
+        encoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        encoder1 = encoderLeft.getCurrentPosition();
+        encoder2 = -encoderRight.getCurrentPosition();
+        encoder3 = encoderBack.getCurrentPosition();
+
+        lastEncoder1 = encoder1;
+        lastEncoder2 = encoder2;
+        lastEncoder3 = encoder3;
+
+        encoderLeft.setMode(mode);
+        encoderBack.setMode(mode);
+        encoderRight.setMode(mode);
     }
 
     /**

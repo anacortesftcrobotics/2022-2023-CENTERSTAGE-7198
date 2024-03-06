@@ -35,7 +35,7 @@ public class PurePursuitSample extends LinearOpMode {
 
         kaiOdo = new OdoControllerAlfalfa();
         kaiOdo.initializeHardware(hardwareMap);
-        robot = new CenterStageRobot(hardwareMap);
+        robot = new CenterStageRobot(null,hardwareMap);
         waitForStart();
 
        while (opModeIsActive()) {

@@ -23,7 +23,7 @@ public class CenterStageTeleOp extends OpMode
     @Override
     public void init()
     {
-        theRobot = new CenterStageRobot(hardwareMap);
+        theRobot = new CenterStageRobot(null, hardwareMap);
         fancyGamePad = new GamepadEx(gamepad2);
 
         ltReader = new TriggerReader(fancyGamePad, GamepadKeys.Trigger.LEFT_TRIGGER);
@@ -46,8 +46,8 @@ public class CenterStageTeleOp extends OpMode
         backRightX = new Motor(hardwareMap, "backRight");
         fDrive = new MecanumDrive(frontLeftX, frontRightX, backLeftX, backRightX);
 
-        imu = new RevIMU(hardwareMap);
-        imu.init();
+        //imu = new RevIMU(hardwareMap);
+        //imu.init();
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");

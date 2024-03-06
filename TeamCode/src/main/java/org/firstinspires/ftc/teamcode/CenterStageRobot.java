@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ThreadPool;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.kinematics.Pose2D;
 
 import java.util.concurrent.ExecutorService;
 
@@ -11,10 +14,14 @@ public class CenterStageRobot {
     DcMotor frontLeft, frontRight, backLeft, backRight, viperSlide, hookArm;
     DcMotor encoderLeft, encoderRight, encoderCenter; // odometry wheels
     private ExecutorService threadExecuter;
+    private LinearOpMode linearOpMode;
+    public OdoControllerAlfalfa kaiOdo;
     private Runnable backgroundThread;
     private boolean viperThreadLock = false;
-    public CenterStageRobot(HardwareMap hardwareMap)
+    public CenterStageRobot(LinearOpMode linearOpMode, HardwareMap hardwareMap)
     {
+        this.linearOpMode = linearOpMode;
+
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
@@ -43,6 +50,10 @@ public class CenterStageRobot {
         viperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viperSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        kaiOdo = new OdoControllerAlfalfa();
+        kaiOdo.initializeHardware(hardwareMap);
+        kaiOdo.resetEncoders();
+
         threadExecuter = ThreadPool.newSingleThreadExecutor("loadPixel");
         backgroundThread = () -> {
             try {
@@ -66,6 +77,49 @@ public class CenterStageRobot {
         fingerLf.setPosition(0);
         fingerLf.setPosition(1);
         roboNap(1500);
+
+        setIntakeToCameraViewing();
+    }
+
+    public void placeAccurateBoard()
+    {
+        viperSlide.setTargetPosition(-475);
+        viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperSlide.setPower(-0.75);
+        roboNap(600);
+        bucketServo.setPosition(0.6);
+        roboNap(300);
+        bucketServo.setPosition(0.8);
+    }
+
+    public void viperRetract()
+    {
+        viperSlide.setTargetPosition(-10);
+        viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperSlide.setPower(0.75);
+    }
+
+    public void placeBoard()
+    {
+        viperSlide.setTargetPosition(-1000);
+        viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperSlide.setPower(-1);
+        roboNap(750);
+        bucketServo.setPosition(0.6);
+        roboNap(300);
+        bucketServo.setPosition(0.8);
+        viperSlide.setTargetPosition(-10);
+        viperSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperSlide.setPower(1);
+    }
+
+    public void grabInitialPixelsOdo()
+    {
+        // FIXME: generalize to a teleop automation
+        // FIXME: replace with autograb that uses sensors
+        fingerLf.setPosition(0);
+        fingerLf.setPosition(1);
+        roboNap(1700);
 
         setIntakeToCameraViewing();
     }
@@ -174,6 +228,104 @@ public class CenterStageRobot {
         roboNap(700);
         setIntakeToBatteringRam();
     }
+
+    /**
+     * Wraps the able so it is always in the range [-180, 180].
+     *
+     * @param angle Angle to be wrapped, in radians.
+     * @return The wrapped angle, in radians.
+     */
+    public static double angleWrap(double angle) {
+        if (angle > 0)
+            return ((angle + Math.PI) % (Math.PI * 2)) - Math.PI;
+        else
+            return ((angle - Math.PI) % (Math.PI * 2)) + Math.PI;
+    }
+
+    /**
+     * Takes the robot's current position and rotation and calculates the motor powers for the robot to move to the target position and rotation.
+     * This will loop until the robot has reached its target. WARNING: Do not call this function while moving.
+     * Odo Powered!
+     *
+     * @param deltaY_cm       Delta delta movement in Y
+     * @param deltaX_cm       Delta delta movement in X
+     * @param deltaA_deg      Delta rotation (Degrees)
+     */
+    public void moveRobotPosition(double deltaY_cm, double deltaX_cm, double deltaA_deg, Telemetry telem) {
+        double taRad = (deltaA_deg * Math.PI / 180);
+        //kaiOdo.resetEncoders();
+        //Pose2D targetLocation = new Pose2D(new Vector2D(kaiOdo.getX() + deltaX_cm, kaiOdo.getY() + deltaY_cm), taRad + kaiOdo.getHeadingRad());
+        Pose2D targetLocation = new Pose2D(deltaX_cm,deltaY_cm,taRad);
+
+        double timer = 5;
+
+        if(linearOpMode != null)
+            while(timer >= 0 && linearOpMode.opModeIsActive()) //in cm
+            {
+
+                kaiOdo.update();
+
+                telem.addData("Target: ", targetLocation.getX() + ", " + targetLocation.getY() + ", " + targetLocation.getHeadingRad());
+                telem.addData("Pose out: ", Math.round(kaiOdo.getX()) + " " + Math.round(kaiOdo.getY()) + " " + Math.round(kaiOdo.getHeadingRad()));
+                telem.addData("Pose out: ", kaiOdo.getX() + " " + kaiOdo.getY() + " " + kaiOdo.getHeadingDeg());
+
+                double absoluteXToPosition = targetLocation.getX() - kaiOdo.getX();
+                double absoluteYToPosition = targetLocation.getY() - kaiOdo.getY();
+
+                double absoluteAngleToPosition = Math.atan2(absoluteYToPosition, absoluteXToPosition);
+                double distanceToPosition = Math.hypot(absoluteXToPosition, absoluteYToPosition);
+
+                double relativeAngleToPosition = angleWrap(absoluteAngleToPosition - kaiOdo.getHeadingRad());
+                //telem.addData("relativeAngleToPosition: ", relativeAngleToPosition);
+
+                double relativeXToPosition = distanceToPosition * Math.cos(relativeAngleToPosition);
+                double relativeYToPosition = distanceToPosition * Math.sin(relativeAngleToPosition);
+
+                double powerX = relativeXToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
+                double powerY = relativeYToPosition / (Math.abs(relativeXToPosition) + Math.abs(relativeYToPosition));
+                double powerTurn = angleWrap(-kaiOdo.getHeadingRad() + targetLocation.getHeadingRad()) / Math.PI;
+
+                double multiplier = 1;
+                double d = getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY());
+                if(d < 80) //cm
+                {
+                    multiplier = Math.pow(d/80,2);
+                    multiplier = Math.max(multiplier,0.3);
+                }
+
+                //telem.addData("distance", d);
+                //telem.addData("multiplier", multiplier);
+                telem.addLine("Y: " + (powerY * multiplier) + ", X: " + (powerX * multiplier));
+                telem.addData("powerTurn:", powerTurn);
+
+                //multiplier *= 0.5; //temp for test
+                //mecanumX(-powerY * multiplier,powerX * multiplier,-powerTurn);
+                mecanumX(powerY * multiplier,-powerX * multiplier,-powerTurn*1.5*0);
+
+                //telem.update();
+
+                if(getDistance(targetLocation.getX(),targetLocation.getY(), kaiOdo.getX(), kaiOdo.getY()) < 3 && Math.abs(powerTurn) < 0.3)
+                    timer--;
+
+                telem.update();
+            }
+
+        mecanumX(0,0,0);
+
+    }
+
+    public void moveRobotPosition_IN(double deltaY_in, double deltaX_in, double deltaA_deg,Telemetry telem)
+    {
+        moveRobotPosition(deltaY_in*2.54,deltaX_in*2.54,deltaA_deg,telem);
+    }
+
+    public double getDistance(double tx, double ty, double ox, double oy)
+    {
+        return Math.sqrt((tx - ox)*(tx - ox) + (ty - oy)*(ty - oy));
+    }
+
+
+
 
     // wrapper around mecanumX and roboNap, because commonly those are called together
     public void drive(double forwards, double sideways, double rotate, int sleepMillis)
