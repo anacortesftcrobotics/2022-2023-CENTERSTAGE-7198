@@ -1,10 +1,20 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.view.View;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ThreadPool;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.kinematics.Pose2D;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+
+import java.util.Locale;
 
 import java.util.concurrent.ExecutorService;
 
@@ -17,6 +27,18 @@ public class CenterStageRobot {
     private LinearOpMode linearOpMode;
     public OdoControllerAlfalfa kaiOdo;
     private Runnable backgroundThread;
+
+    NormalizedColorSensor colorSensor;
+    NormalizedRGBA colors = new NormalizedRGBA();
+    View relativeLayout;
+    float gain = 10;
+    public enum COLOR {
+        RED,
+        BLUE,
+        WHITE,
+        TILE
+    }
+    COLOR CURRENT_COLOR;
     private boolean viperThreadLock = false;
     public CenterStageRobot(LinearOpMode linearOpMode, HardwareMap hardwareMap)
     {
@@ -36,6 +58,11 @@ public class CenterStageRobot {
         bucketServo = hardwareMap.get(Servo.class, "bucketServo");
         bucketStop = hardwareMap.get(DigitalChannel.class, "bucketStop");
         launcherServo = hardwareMap.get(Servo.class, "launcherServo");
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
+
+        colorSensor.setGain(gain);
+        colors = colorSensor.getNormalizedColors();
+
 
         // odometry wheels
         encoderLeft = backRight;
@@ -65,6 +92,31 @@ public class CenterStageRobot {
             }
         };
     }
+
+    public void colorChanger()
+    {
+        if(colors.blue <= 0.1)
+        {
+            CURRENT_COLOR = COLOR.RED;
+        }
+        if(colors.blue >= 0.55)
+        {
+            CURRENT_COLOR = COLOR.BLUE;
+        }
+        if(colors.blue >= 0.9 & colors.green >= 0.9)
+        {
+            CURRENT_COLOR = COLOR.WHITE;
+        }
+        if(CURRENT_COLOR != COLOR.RED & CURRENT_COLOR != COLOR.BLUE & CURRENT_COLOR != COLOR.WHITE)
+        {
+            CURRENT_COLOR = COLOR.TILE;
+        }
+
+    }
+
+
+
+
 
     // used in Auto to intake the pixels
     public void grabInitialPixels()

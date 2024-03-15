@@ -27,9 +27,9 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN = 0.02;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
-    final double STRAFE_GAIN = 0.01;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN = 0.01;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    final double SPEED_GAIN = 0.75/20;   //  Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double STRAFE_GAIN = 0.5/30;   //  Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
+    final double TURN_GAIN = 0.5/35;   //  Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
     final double MAX_AUTO_SPEED = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE = 0.2;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_TURN = 0.2;   //  Clip the turn speed to this max value (adjust for your robot)
@@ -50,7 +50,7 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
     private boolean arrivedAtAprilTag = false;
     double lastKnownRangeToAprilTag = 0;
     private OdoControllerAlfalfa kaiOdo;
-    private static Vector2d addTest = new Vector2d(9,0);
+    private static Vector2d addTest = new Vector2d(4,1);
     public Pose2d STACK3_POSITION = new Pose2d(pixelStack3.plus(addTest), Math.toRadians(180));
     public Vector2d STACK1_POSITION_VECTOR2D = (pixelStack1.plus(addTest));
     private static Vector2d boardAddCenter = new Vector2d(-5.5,0);
@@ -77,7 +77,6 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        drive.setPoseEstimate(backstageBlueStarting);
 
         //LEFT TAPE MARKER**********
 
@@ -102,6 +101,40 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
 
 
         Trajectory goToZeroL = drive.trajectoryBuilder(goToBoardLeft.end())
+                .lineToConstantHeading(centerFieldVector)
+                .build();
+
+        //LEFT POSITION FRONTSTAGE**********
+
+        Trajectory Trajectory1LF = drive.trajectoryBuilder(frontstageBlueStarting)
+                //.splineTo(new Vector2d(14.5, 32), Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(-36,33.5, Math.toRadians(180)))
+                .addTemporalMarker(0.2, () -> {
+                    // This marker runs two seconds into the trajectory
+                    theRobot.setIntakeToBatteringRam();
+                    // Run your action in here!
+                })
+                .build();
+
+        Trajectory backUpToLineLF = drive.trajectoryBuilder(Trajectory1LF.end())
+                .lineToConstantHeading(new Vector2d(-17, 33.5))
+                .build();
+
+        Trajectory backUpToBoardLF = drive.trajectoryBuilder(backUpToLineLF.end())
+                .lineToConstantHeading(new Vector2d(34,33.5))
+                .build();
+
+        Trajectory goRightLF = drive.trajectoryBuilder(backUpToBoardLF.end())
+                .lineToConstantHeading(new Vector2d(34,43))
+                .build();
+
+
+        Trajectory goToBoardLeftF = drive.trajectoryBuilder(goRightLF.end())
+                .lineToConstantHeading(blueBoardScoringLeft)
+                .build();
+
+
+        Trajectory goToZeroLF = drive.trajectoryBuilder(goToBoardLeftF.end())
                 .lineToConstantHeading(centerFieldVector)
                 .build();
 
@@ -131,6 +164,41 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
                 .lineToConstantHeading(centerFieldVector)
                 .build();
 
+        //MIDDLE POSITION FRONTSTAGE**********
+
+        Trajectory Trajectory1MF = drive.trajectoryBuilder(frontstageBlueStarting)
+                //.splineTo(new Vector2d(14.5, 32), Math.toRadians(0))
+                .lineTo(new Vector2d(-36,31.75))
+                .addTemporalMarker(0.2, () -> {
+                    // This marker runs two seconds into the trajectory
+                    theRobot.setIntakeToBatteringRam();
+                    // Run your action in here!
+                })
+                .build();
+
+        Trajectory backUpToLineMF = drive.trajectoryBuilder(Trajectory1MF.end())
+                .lineToLinearHeading(new Pose2d(-30, 34.5, Math.toRadians(180)))
+                .build();
+
+        Trajectory backUpToBoardMF = drive.trajectoryBuilder(backUpToLineMF.end())
+                .lineToConstantHeading(new Vector2d(34,34.5))
+                .build();
+
+
+        Trajectory goRightMF = drive.trajectoryBuilder(backUpToBoardMF.end())
+                .lineToLinearHeading(new Pose2d(20,32,Math.toRadians(180)))
+                .build();
+
+
+        Trajectory goToBoardMiddleF = drive.trajectoryBuilder(goRightM.end())
+                .lineToConstantHeading(blueBoardScoringMiddle)
+                .build();
+
+
+        Trajectory goToZeroMF = drive.trajectoryBuilder(goToBoardMiddle.end())
+                .lineToConstantHeading(centerFieldVector)
+                .build();
+
         //RIGHT TAPE MARKER**********
 
         Trajectory Trajectory1R = drive.trajectoryBuilder(backstageBlueStarting)
@@ -154,6 +222,41 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
 
 
         Trajectory goToZeroR = drive.trajectoryBuilder(goToBoardRight.end())
+                .lineToConstantHeading(centerFieldVector)
+                .build();
+
+        //RIGHT POSITION FRONTSTAGE**********
+
+        Trajectory Trajectory1RF = drive.trajectoryBuilder(frontstageBlueStarting)
+                //.splineTo(new Vector2d(14.5, 32), Math.toRadians(0))
+                .lineToLinearHeading(new Pose2d(-40,33.5, Math.toRadians(180)))
+                .addTemporalMarker(0.2, () -> {
+                    // This marker runs two seconds into the trajectory
+                    theRobot.setIntakeToBatteringRam();
+                    // Run your action in here!
+                })
+                .build();
+
+        Trajectory backUpToLineRF = drive.trajectoryBuilder(Trajectory1RF.end())
+                .lineToLinearHeading(new Pose2d(-30, 33.5, Math.toRadians(180)))
+                .build();
+
+        Trajectory backUpToBoardRF = drive.trajectoryBuilder(backUpToLineRF.end())
+                .lineToConstantHeading(new Vector2d(34,33.5))
+                .build();
+
+
+        Trajectory goRightRF = drive.trajectoryBuilder(backUpToBoardRF.end())
+                .lineToConstantHeading(new Vector2d(34,27))
+                .build();
+
+
+        Trajectory goToBoardRightF = drive.trajectoryBuilder(goRightRF.end())
+                .lineToConstantHeading(blueBoardScoringRight.plus(new Vector2d(0,-2)))
+                .build();
+
+
+        Trajectory goToZeroRF = drive.trajectoryBuilder(goToBoardRightF.end())
                 .lineToConstantHeading(centerFieldVector)
                 .build();
 
@@ -188,56 +291,148 @@ public class CenterStageAutoBackstageOdoPowered extends LinearOpMode {
         if (this.TeamPropLocation == -1)
         {
             telemetry.addLine("Seeking prop, please wait...");
+            telemetry.update();
         }
         this.TeamPropLocation = visionManager.getDetectedSpikeMark();
+        telemetry.clearAll();
         telemetry.addData( "detected prop = %d", this.TeamPropLocation);
-        if (this.TeamPropLocation == 1)
+        telemetry.update();
+
+        if (STAGE_LOCATION == STAGE.BACK)
         {
-            drive.followTrajectory(Trajectory1L);
-            theRobot.placePurplePixel();
-            drive.followTrajectory(goRightL);
-            drive.followTrajectory(goToBoardLeft);
-            theRobot.placeAccurateBoard();
-            drive.followTrajectory(goToZeroL);
+            drive.setPoseEstimate(backstageBlueStarting);
+            if (this.TeamPropLocation == 1)
+            {
+                drive.followTrajectory(Trajectory1L);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(goRightL);
+                drive.followTrajectory(goToBoardLeft);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroL);
+            }
+
+            else if (this.TeamPropLocation == 2)
+            {
+                drive.followTrajectory(Trajectory1M);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(goRightM);
+                drive.followTrajectory(goToBoardMiddle);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroM);
+            }
+
+            else if (this.TeamPropLocation == 3)
+            {
+                drive.followTrajectory(Trajectory1R);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(goRightR);
+                drive.followTrajectory(goToBoardRight);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroR);
+            }
+
+            else
+            {
+                drive.followTrajectory(Trajectory1R);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(goRightR);
+                drive.followTrajectory(goToBoardRight);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroR);
+            }
         }
 
-        else if (this.TeamPropLocation == 2)
+        else if (STAGE_LOCATION == STAGE.FRONT)
         {
-            drive.followTrajectory(Trajectory1M);
-            theRobot.placePurplePixel();
-            drive.followTrajectory(goRightM);
-            drive.followTrajectory(goToBoardMiddle);
-            theRobot.placeAccurateBoard();
-            drive.followTrajectory(goToZeroM);
-        }
+            drive.setPoseEstimate(frontstageBlueStarting);
+            if (this.TeamPropLocation == 1)
+            {
+                drive.followTrajectory(Trajectory1LF);
+                drive.followTrajectory(backUpToLineLF);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(backUpToBoardLF);
+                drive.followTrajectory(goRightL);
+                drive.followTrajectory(goToBoardLeft);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroL);
+            }
 
-        else if (this.TeamPropLocation == 3)
-        {
-            drive.followTrajectory(Trajectory1R);
-            theRobot.placePurplePixel();
-            drive.followTrajectory(goRightR);
-            drive.followTrajectory(goToBoardRight);
-            theRobot.placeAccurateBoard();
-            drive.followTrajectory(goToZeroR);
+            else if (this.TeamPropLocation == 2)
+            {
+                drive.followTrajectory(Trajectory1MF);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(backUpToLineMF);
+                drive.followTrajectory(backUpToBoardMF);
+                //drive.followTrajectory(goRightMF);
+                drive.followTrajectory(goToBoardMiddleF);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroMF);
+            }
+
+            else if (this.TeamPropLocation == 3)
+            {
+                drive.followTrajectory(Trajectory1RF);
+                theRobot.placePurplePixel();
+                //drive.followTrajectory(backUpToLineRF);
+                drive.followTrajectory(backUpToBoardRF);
+                drive.followTrajectory(goRightRF);
+                drive.followTrajectory(goToBoardRightF);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroRF);
+            }
+
+            else
+            {
+                drive.followTrajectory(Trajectory1RF);
+                theRobot.placePurplePixel();
+                drive.followTrajectory(backUpToLineRF);
+                drive.followTrajectory(backUpToBoardRF);
+                drive.followTrajectory(goRightRF);
+                drive.followTrajectory(goToBoardRightF);
+                theRobot.placeAccurateBoard();
+                drive.followTrajectory(goToZeroRF);
+            }
         }
 
         else
         {
-            drive.followTrajectory(Trajectory1R);
-            theRobot.placePurplePixel();
-            drive.followTrajectory(goRightR);
-            drive.followTrajectory(goToBoardRight);
-            theRobot.placeAccurateBoard();
-            drive.followTrajectory(goToZeroR);
+            telemetry.addLine("No Stage Location.. Uh Oh");
+            telemetry.update();
         }
 
 
 
         theRobot.viperRetract();
         drive.followTrajectory(goToStackTurn);
+        if (theRobot.CURRENT_COLOR == CenterStageRobot.COLOR.BLUE)
+        {
+            telemetry.clearAll();
+            telemetry.addLine("BLUE DETECTED :)");
+            telemetry.update();
+            theRobot.roboNap(5000);
+            //drive.followTrajectory(goUnderTrussFromStack);
+        }
+        else
+        {
+            telemetry.clearAll();
+            telemetry.addLine("NO BLUE DETECTION... Uh Oh");
+            telemetry.update();
+        }
         theRobot.roboNap(1000);
         drive.followTrajectory(goUnderTrussFromStack);
         drive.followTrajectory(goToBoardFromCenter);
+
+        /*
+        if (!arrivedAtAprilTag)
+        {
+            if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.RED) {
+                driveToAprilTag(5);
+            } else if (THIS_ALLIANCE == CenterStageAutoBackstage.ALLIANCE.BLUE) {
+                driveToAprilTag(2);
+            }
+        }
+        */
+
         drive.followTrajectory(approachBoard);
         theRobot.placeBoard();
 

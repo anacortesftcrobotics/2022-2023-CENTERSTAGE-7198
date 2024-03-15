@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.gamepad.*;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.*;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="CenterStage 8934 TeleOp", group="8934 TeleOp")
 public class CenterStageTeleOp extends OpMode
@@ -19,6 +20,7 @@ public class CenterStageTeleOp extends OpMode
     ButtonReader aReader, lbReader, rbReader, xReader, yReader, bReader, dpad_downReader, dpadUpReader, dpad_leftReader;
     TriggerReader ltReader, rtReader;
     RevIMU imu;
+    NormalizedRGBA colors = new NormalizedRGBA();
     private boolean fDriveMode = false;
     @Override
     public void init()
@@ -52,6 +54,14 @@ public class CenterStageTeleOp extends OpMode
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         theRobot.launcherServo.setPosition(.73);
+
+
+        if (theRobot.colorSensor instanceof SwitchableLight) {
+            ((SwitchableLight)theRobot.colorSensor).enableLight(true);
+        }
+
+        colors = theRobot.colorSensor.getNormalizedColors();
+
     }
 
     /*
@@ -73,6 +83,15 @@ public class CenterStageTeleOp extends OpMode
     public void loop()
     {
         // receive gamepad input
+        telemetry.addData("Gain", theRobot.gain);
+        if (theRobot.colorSensor instanceof DistanceSensor) {
+            telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) theRobot.colorSensor).getDistance(DistanceUnit.CM));
+        }
+        telemetry.addLine()
+                .addData("Red", "%.3f", colors.red)
+                .addData("Green", "%.3f", colors.green)
+                .addData("Blue", "%.3f", colors.blue);
+
         aReader.readValue();
         ltReader.readValue();
         rtReader.readValue();
