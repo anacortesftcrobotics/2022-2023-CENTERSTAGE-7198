@@ -174,7 +174,7 @@ public class CCTeleOpControllerV4 extends OpMode {
         if(downGrabTimer == 0)
         {
             pixelPlacerState = 0;
-            slideState = 0;
+            slideState = 1;
         }
     }
 
@@ -331,7 +331,7 @@ public class CCTeleOpControllerV4 extends OpMode {
     {
         if(!fingers) {
             pixelPlacerState = 0;
-            slideState = 0;
+            slideState = 1;
         }
     }
 
